@@ -1,19 +1,19 @@
 {
-  "last_updated": "2025-08-10T13:14:19.220403",
+  "last_updated": "2025-08-10T13:54:25.335662",
   "total_players": 14,
   "active_players": 11,
   "reserve_players": 3,
   "teams_represented": [
-    "Liverpool",
-    "Manchester United",
-    "Bournemouth",
-    "Brighton",
-    "Brentford",
     "Wolverhampton Wanderers",
-    "Everton",
-    "West Ham United",
     "Newcastle United",
-    "Sunderland"
+    "Bournemouth",
+    "Sunderland",
+    "Liverpool",
+    "Brentford",
+    "Everton",
+    "Manchester United",
+    "West Ham United",
+    "Brighton"
   ],
   "players": [
     {

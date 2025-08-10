@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-08-10T13:14:19.220516",
+  "generated_at": "2025-08-10T13:54:25.448505",
   "date": "2025-08-10",
   "summary": {
     "total_players": 14,
@@ -23,7 +23,7 @@
       "status_color": "gray",
       "fantasy_points": 274.25,
       "average_points": 7.22,
-      "opponent": "@LEE Mon 3:00PM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -38,7 +38,7 @@
       "status_color": "gray",
       "fantasy_points": 197.25,
       "average_points": 6.8,
-      "opponent": "@AVL Sat 7:30AM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -53,7 +53,7 @@
       "status_color": "gray",
       "fantasy_points": 211.25,
       "average_points": 6.4,
-      "opponent": "@LEE Mon 3:00PM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -68,7 +68,7 @@
       "status_color": "gray",
       "fantasy_points": 212.75,
       "average_points": 7.34,
-      "opponent": "@LIV Fri 3:00PM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -83,7 +83,7 @@
       "status_color": "gray",
       "fantasy_points": 273.0,
       "average_points": 7.58,
-      "opponent": "@SUN Sat 10:00AM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -98,7 +98,7 @@
       "status_color": "gray",
       "fantasy_points": 235.0,
       "average_points": 11.75,
-      "opponent": "MCI Sat 12:30PM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -113,7 +113,7 @@
       "status_color": "gray",
       "fantasy_points": 342.25,
       "average_points": 11.04,
-      "opponent": "@NOT Sun 9:00AM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -128,7 +128,7 @@
       "status_color": "gray",
       "fantasy_points": 235.25,
       "average_points": 8.71,
-      "opponent": "@SUN Sat 10:00AM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -143,7 +143,7 @@
       "status_color": "gray",
       "fantasy_points": 332.0,
       "average_points": 13.83,
-      "opponent": "FUL Sat 10:00AM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -158,7 +158,7 @@
       "status_color": "gray",
       "fantasy_points": 571.75,
       "average_points": 18.44,
-      "opponent": "BOU Fri 3:00PM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -173,7 +173,7 @@
       "status_color": "gray",
       "fantasy_points": 260.5,
       "average_points": 8.98,
-      "opponent": "MCI Sat 12:30PM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -188,7 +188,7 @@
       "status_color": "gray",
       "fantasy_points": 155.25,
       "average_points": 5.01,
-      "opponent": "WHU Sat 10:00AM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -203,7 +203,7 @@
       "status_color": "gray",
       "fantasy_points": 145.0,
       "average_points": 11.15,
-      "opponent": "ARS Sun 11:30AM",
+      "opponent": null,
       "match_info": null
     },
     {
@@ -218,7 +218,7 @@
       "status_color": "gray",
       "fantasy_points": 229.0,
       "average_points": 10.41,
-      "opponent": "@LEE Mon 3:00PM",
+      "opponent": null,
       "match_info": null
     }
   ]

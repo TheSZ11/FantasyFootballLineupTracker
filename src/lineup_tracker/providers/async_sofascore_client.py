@@ -313,27 +313,36 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
             return False
     
     async def _fetch_fixtures_from_api(self, date: Optional[datetime] = None) -> List[Dict[str, Any]]:
-        """Fetch fixtures from Sofascore API."""
+        """Fetch fixtures from Sofascore API using direct HTTP calls."""
         await self._ensure_session()
         
         try:
-            # Use sofascore-wrapper for actual API calls
-            from sofascore_wrapper.api import SofascoreAPI
-            from sofascore_wrapper.league import League
-            
-            api = SofascoreAPI()
-            premier_league = League(api, league_id=17)  # Premier League ID
-            
+            # Use direct API calls instead of wrapper that may have changed
             if date:
-                fixtures = await premier_league.fixtures_by_date(date)
+                date_str = date.strftime("%Y-%m-%d")
+                url = f"https://api.sofascore.com/api/v1/sport/football/scheduled-events/{date_str}"
             else:
-                fixtures = await premier_league.next_fixtures()
+                # Get fixtures for today
+                today = datetime.now().strftime("%Y-%m-%d")
+                url = f"https://api.sofascore.com/api/v1/sport/football/scheduled-events/{today}"
             
-            return fixtures or []
+            async with self._session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    # Filter for Premier League matches (tournament ID 17)
+                    events = data.get('events', [])
+                    premier_league_fixtures = [
+                        event for event in events 
+                        if event.get('tournament', {}).get('id') == 17
+                    ]
+                    return premier_league_fixtures
+                else:
+                    logger.warning(f"API returned status {response.status}")
+                    return []
             
         except Exception as e:
             logger.error(f"Error fetching fixtures from Sofascore API: {e}")
-            raise
+            raise FootballDataProviderError(f"Unexpected error: {e}")
     
     async def _fetch_lineup_from_api(self, match_id: str) -> Optional[Dict[str, Any]]:
         """Fetch lineup from Sofascore API."""

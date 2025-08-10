@@ -1,11 +1,26 @@
 {
-  "generated_at": "2025-08-10T13:14:19.220521",
+  "generated_at": "2025-08-10T13:54:25.419942",
   "monitoring": {
     "is_running": false,
-    "last_check_time": null
+    "uptime_seconds": 0.0,
+    "last_check_time": null,
+    "monitored_matches": 0,
+    "total_checks": 0,
+    "successful_checks": 0,
+    "error_count": 0,
+    "success_rate": 0,
+    "cycles_today": 0,
+    "max_cycles_per_day": 200,
+    "squad_size": 0,
+    "api_performance": {}
   },
   "export_info": {
     "export_directory": "dashboard/public/data",
-    "note": "Squad-only export - API integration pending"
+    "services_available": {
+      "football_api": true,
+      "squad_repository": true,
+      "lineup_analyzer": true,
+      "alert_generator": true
+    }
   }
 }
