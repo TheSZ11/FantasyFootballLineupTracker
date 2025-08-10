@@ -345,13 +345,6 @@ pytest  # Run tests
 
 ## 📋 Roadmap
 
-### 🔥 Phase 2 Features
-- [ ] 📊 Player form analysis
-- [ ] 🗓️ Fixture difficulty tracking  
-- [ ] 💰 Price change monitoring
-- [ ] 🔄 Transfer deadline alerts
-- [ ] 📱 Mobile app companion
-
 ### 🎯 Future Enhancements
 - [ ] 🌍 Multi-league support (La Liga, Serie A, etc.)
 - [ ] 🤖 AI-powered lineup recommendations
