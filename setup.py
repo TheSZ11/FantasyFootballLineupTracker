@@ -32,14 +32,19 @@ def check_dependencies():
     print("🔍 Checking dependencies...")
     
     missing_deps = []
-    required_packages = [
-        'pandas', 'requests', 'python-dotenv', 
-        'discord-webhook', 'sofascore-wrapper', 'schedule'
-    ]
+    # Map package names to their import names
+    package_imports = {
+        'pandas': 'pandas',
+        'requests': 'requests', 
+        'python-dotenv': 'dotenv',
+        'discord-webhook': 'discord_webhook',
+        'sofascore-wrapper': 'sofascore_wrapper',
+        'schedule': 'schedule'
+    }
     
-    for package in required_packages:
+    for package, import_name in package_imports.items():
         try:
-            __import__(package.replace('-', '_'))
+            __import__(import_name)
             print(f"  ✅ {package}")
         except ImportError:
             missing_deps.append(package)
