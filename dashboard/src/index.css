@@ -5,7 +5,7 @@
 /* Custom styles for the lineup tracker dashboard */
 @layer components {
   .player-card {
-    @apply bg-white rounded-lg shadow-md p-4 border-l-4 transition-all duration-200 hover:shadow-lg;
+    @apply bg-gray-800 rounded-lg shadow-md p-4 border-l-4 transition-all duration-200 hover:shadow-lg text-gray-100;
   }
   
   .player-card.status-green {
@@ -51,4 +51,49 @@
   .status-indicator.gray {
     @apply bg-status-gray;
   }
+
+  /* Team Color Styling */
+  .team-card {
+    @apply relative;
+  }
+
+  .team-card::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-1 rounded-t-lg;
+  }
+
+  /* Premier League Team Colors */
+  .team-card.team-arsenal::before { background: linear-gradient(90deg, #EF0107 0%, #9C824A 100%); }
+  .team-card.team-aston-villa::before { background: linear-gradient(90deg, #95BFE5 0%, #670E36 100%); }
+  .team-card.team-bournemouth::before { background: linear-gradient(90deg, #DA020E 0%, #000000 100%); }
+  .team-card.team-brentford::before { background: linear-gradient(90deg, #ED1C24 0%, #FFFFFF 50%, #000000 100%); }
+  .team-card.team-brighton::before { background: linear-gradient(90deg, #0057B8 0%, #FFCD00 100%); }
+  .team-card.team-burnley::before { background: linear-gradient(90deg, #6C1D45 0%, #99D6EA 100%); }
+  .team-card.team-chelsea::before { background: linear-gradient(90deg, #034694 0%, #034694 100%); }
+  .team-card.team-crystal-palace::before { background: linear-gradient(90deg, #1B458F 0%, #C4122E 100%); }
+  .team-card.team-everton::before { background: linear-gradient(90deg, #003399 0%, #003399 100%); }
+  .team-card.team-fulham::before { background: linear-gradient(90deg, #000000 0%, #FFFFFF 100%); }
+  .team-card.team-ipswich::before { background: linear-gradient(90deg, #4A90E2 0%, #FFFFFF 100%); }
+  .team-card.team-leicester::before { background: linear-gradient(90deg, #003090 0%, #FDBB30 100%); }
+  .team-card.team-leeds::before { background: linear-gradient(90deg, #FFFFFF 0%, #FFD700 100%); }
+  .team-card.team-liverpool::before { background: linear-gradient(90deg, #C8102E 0%, #C8102E 100%); }
+  .team-card.team-luton::before { background: linear-gradient(90deg, #F78F1E 0%, #002D62 100%); }
+  .team-card.team-manchester-city::before { background: linear-gradient(90deg, #6CABDD 0%, #6CABDD 100%); }
+  .team-card.team-manchester-united::before { background: linear-gradient(90deg, #DA020E 0%, #FBE122 100%); }
+  .team-card.team-newcastle::before { background: linear-gradient(90deg, #241F20 0%, #FFFFFF 100%); }
+  .team-card.team-nottingham-forest::before { background: linear-gradient(90deg, #DD0000 0%, #DD0000 100%); }
+  .team-card.team-sheffield-united::before { background: linear-gradient(90deg, #EE2737 0%, #000000 100%); }
+  .team-card.team-southampton::before { background: linear-gradient(90deg, #D71920 0%, #FFC20E 100%); }
+  .team-card.team-tottenham::before { background: linear-gradient(90deg, #132257 0%, #FFFFFF 100%); }
+  .team-card.team-watford::before { background: linear-gradient(90deg, #FBEE23 0%, #ED2939 50%, #000000 100%); }
+  .team-card.team-west-ham::before { background: linear-gradient(90deg, #7A263A 0%, #1BB1E7 100%); }
+  .team-card.team-wolverhampton::before { background: linear-gradient(90deg, #FDB462 0%, #231F20 100%); }
+  
+  /* Championship and other leagues */
+  .team-card.team-sunderland::before { background: linear-gradient(90deg, #EB172B 0%, #FFFFFF 100%); }
+  .team-card.team-norwich::before { background: linear-gradient(90deg, #00A650 0%, #FFF200 100%); }
+  .team-card.team-cardiff::before { background: linear-gradient(90deg, #0070C0 0%, #ED1C24 100%); }
+  
+  /* Default for unknown teams */
+  .team-card.team-default::before { background: linear-gradient(90deg, #6B7280 0%, #6B7280 100%); }
 }

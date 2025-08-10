@@ -48,10 +48,10 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-600">Loading lineup data...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-400 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-300">Loading lineup data...</p>
         </div>
       </div>
     )
@@ -59,10 +59,10 @@ function App() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-red-800 mb-2">Failed to Load Data</h2>
-          <p className="text-red-600 mb-4">{error}</p>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="bg-red-900/20 border border-red-800 rounded-lg p-6 max-w-md">
+          <h2 className="text-lg font-semibold text-red-400 mb-2">Failed to Load Data</h2>
+          <p className="text-red-300 mb-4">{error}</p>
           <button 
             onClick={loadDashboardData}
             className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
@@ -75,7 +75,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900">
       <Dashboard 
         data={dashboardData} 
         onRefresh={loadDashboardData}

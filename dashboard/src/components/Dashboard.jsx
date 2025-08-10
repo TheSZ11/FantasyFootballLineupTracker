@@ -41,7 +41,7 @@ const Dashboard = ({ data, onRefresh }) => {
     .sort((a, b) => a.kickoff - b.kickoff)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900">
       <Header 
         summary={summary}
         status={status}
@@ -53,7 +53,7 @@ const Dashboard = ({ data, onRefresh }) => {
         {/* Matches Overview */}
         {todaysMatches.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-xl font-semibold text-gray-100 mb-4">
               Today's Matches ({todaysMatches.length})
             </h2>
             <MatchOverview matches={todaysMatches} />
@@ -68,7 +68,7 @@ const Dashboard = ({ data, onRefresh }) => {
               className={`px-4 py-2 rounded-lg transition-colors ${
                 filterStatus === 'all'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
               }`}
             >
               All Players ({players.length})
@@ -78,7 +78,7 @@ const Dashboard = ({ data, onRefresh }) => {
               className={`px-4 py-2 rounded-lg transition-colors ${
                 filterStatus === 'active'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
               }`}
             >
               Expected Starters ({players.filter(p => p.is_expected_starter).length})
@@ -88,7 +88,7 @@ const Dashboard = ({ data, onRefresh }) => {
               className={`px-4 py-2 rounded-lg transition-colors ${
                 filterStatus === 'matches_today'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
               }`}
             >
               Playing Today ({summary.players_with_matches_today})
@@ -98,7 +98,7 @@ const Dashboard = ({ data, onRefresh }) => {
               className={`px-4 py-2 rounded-lg transition-colors ${
                 filterStatus === 'lineup_pending'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
+                  : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
               }`}
             >
               Lineup Pending ({summary.lineup_pending})
@@ -118,7 +118,7 @@ const Dashboard = ({ data, onRefresh }) => {
 
         {filteredPlayers.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No players match the current filter</p>
+            <p className="text-gray-400 text-lg">No players match the current filter</p>
           </div>
         )}
       </main>

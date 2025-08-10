@@ -18,30 +18,30 @@ const Header = ({ summary, status, metadata, onRefresh }) => {
     const systemStatus = getSystemStatus()
     if (systemStatus === 'active') {
       return (
-        <span className="flex items-center text-green-600">
-          <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+        <span className="flex items-center text-green-400">
+          <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
           Monitoring Active
         </span>
       )
     }
     return (
-      <span className="flex items-center text-gray-500">
-        <span className="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+      <span className="flex items-center text-gray-400">
+        <span className="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
         Stopped
       </span>
     )
   }
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-gray-800 shadow-sm border-b border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Title and Status */}
           <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-100">
               ⚽ Lineup Tracker
             </h1>
-            <div className="hidden sm:flex items-center space-x-4 text-sm text-gray-600">
+            <div className="hidden sm:flex items-center space-x-4 text-sm text-gray-300">
               <div>{getStatusDisplay()}</div>
               <div>
                 Last Update: {formatLastUpdate(metadata?.generated_at)}
@@ -56,19 +56,19 @@ const Header = ({ summary, status, metadata, onRefresh }) => {
               {summary?.confirmed_starting > 0 && (
                 <div className="flex items-center">
                   <span className="status-indicator green"></span>
-                  <span className="text-green-600 font-medium">{summary.confirmed_starting} Starting</span>
+                  <span className="text-green-400 font-medium">{summary.confirmed_starting} Starting</span>
                 </div>
               )}
               {summary?.confirmed_bench > 0 && (
                 <div className="flex items-center">
                   <span className="status-indicator red"></span>
-                  <span className="text-red-600 font-medium">{summary.confirmed_bench} Benched</span>
+                  <span className="text-red-400 font-medium">{summary.confirmed_bench} Benched</span>
                 </div>
               )}
               {summary?.lineup_pending > 0 && (
                 <div className="flex items-center">
                   <span className="status-indicator yellow"></span>
-                  <span className="text-yellow-600 font-medium">{summary.lineup_pending} Pending</span>
+                  <span className="text-yellow-400 font-medium">{summary.lineup_pending} Pending</span>
                 </div>
               )}
             </div>
@@ -87,32 +87,32 @@ const Header = ({ summary, status, metadata, onRefresh }) => {
         </div>
 
         {/* Mobile Status */}
-        <div className="sm:hidden pb-4 flex justify-between items-center text-sm text-gray-600">
+        <div className="sm:hidden pb-4 flex justify-between items-center text-sm text-gray-300">
           <div>{getStatusDisplay()}</div>
           <div>Updated: {formatLastUpdate(metadata?.generated_at)}</div>
         </div>
 
         {/* Summary Stats */}
         {summary && (
-          <div className="pb-4 border-t border-gray-100 pt-4">
+          <div className="pb-4 border-t border-gray-700 pt-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="text-2xl font-bold text-gray-900">{summary.total_players}</div>
-                <div className="text-xs text-gray-500">Total Players</div>
+              <div className="bg-gray-700 rounded-lg p-3">
+                <div className="text-2xl font-bold text-gray-100">{summary.total_players}</div>
+                <div className="text-xs text-gray-400">Total Players</div>
               </div>
-              <div className="bg-blue-50 rounded-lg p-3">
-                <div className="text-2xl font-bold text-blue-600">{summary.players_with_matches_today}</div>
-                <div className="text-xs text-gray-500">Playing Today</div>
+              <div className="bg-blue-900/30 rounded-lg p-3">
+                <div className="text-2xl font-bold text-blue-400">{summary.players_with_matches_today}</div>
+                <div className="text-xs text-gray-400">Playing Today</div>
               </div>
-              <div className="bg-yellow-50 rounded-lg p-3">
-                <div className="text-2xl font-bold text-yellow-600">{summary.lineup_pending}</div>
-                <div className="text-xs text-gray-500">Lineups Pending</div>
+              <div className="bg-yellow-900/30 rounded-lg p-3">
+                <div className="text-2xl font-bold text-yellow-400">{summary.lineup_pending}</div>
+                <div className="text-xs text-gray-400">Lineups Pending</div>
               </div>
-              <div className="bg-green-50 rounded-lg p-3">
-                <div className="text-2xl font-bold text-green-600">
+              <div className="bg-green-900/30 rounded-lg p-3">
+                <div className="text-2xl font-bold text-green-400">
                   {summary.confirmed_starting + summary.confirmed_bench}
                 </div>
-                <div className="text-xs text-gray-500">Lineups Confirmed</div>
+                <div className="text-xs text-gray-400">Lineups Confirmed</div>
               </div>
             </div>
           </div>
