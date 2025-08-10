@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for the lineup tracker dashboard */
+@layer components {
+  .player-card {
+    @apply bg-white rounded-lg shadow-md p-4 border-l-4 transition-all duration-200 hover:shadow-lg;
+  }
+  
+  .player-card.status-green {
+    @apply border-status-green;
+  }
+  
+  .player-card.status-red {
+    @apply border-status-red;
+  }
+  
+  .player-card.status-yellow {
+    @apply border-status-yellow;
+  }
+  
+  .player-card.status-orange {
+    @apply border-status-orange;
+  }
+  
+  .player-card.status-gray {
+    @apply border-status-gray;
+  }
+  
+  .status-indicator {
+    @apply w-3 h-3 rounded-full inline-block mr-2;
+  }
+  
+  .status-indicator.green {
+    @apply bg-status-green;
+  }
+  
+  .status-indicator.red {
+    @apply bg-status-red;
+  }
+  
+  .status-indicator.yellow {
+    @apply bg-status-yellow;
+  }
+  
+  .status-indicator.orange {
+    @apply bg-status-orange;
+  }
+  
+  .status-indicator.gray {
+    @apply bg-status-gray;
+  }
+}

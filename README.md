@@ -19,6 +19,7 @@ Never miss when your expected starters are benched! LineupTracker monitors offic
 - **🔓 No API Key Required**: Uses free Sofascore data source
 - **⚡ Real-time Monitoring**: Checks every minute in final 5 minutes before kickoff
 - **🎨 Rich Notifications**: Beautiful Discord embeds with player stats
+- **📊 Web Dashboard**: Beautiful, responsive dashboard for monitoring your lineup
 
 ---
 
@@ -152,6 +153,127 @@ grep "ERROR" lineup_monitor.log
 
 ---
 
+## 📊 Web Dashboard
+
+LineupTracker includes a beautiful, responsive web dashboard that displays your roster status in real-time. Perfect for quickly checking who's starting and who's on the bench!
+
+### 🌟 Dashboard Features
+
+- **🎯 Player Status Cards**: Color-coded cards showing lineup status for each player
+- **⚽ Match Overview**: Today's matches involving your players  
+- **📱 Mobile Responsive**: Works perfectly on desktop and mobile
+- **🔄 Manual Refresh**: Click to update with latest data
+- **🎨 Clean Design**: Simple, focused interface showing only what matters
+
+### 🚀 Quick Dashboard Setup
+
+```bash
+# 1. Export your squad data
+python export_squad_only.py
+
+# 2. Start the dashboard locally
+cd dashboard
+npm install
+npm run dev
+
+# 3. Open in browser
+# Visit: http://localhost:5173/
+```
+
+### 🌐 Deploy to GitHub Pages
+
+Make your dashboard available online for free with GitHub Pages:
+
+#### Option A: Automatic Deployment (Recommended)
+
+1. **Push your code to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Add dashboard and roster data"
+   git push origin main
+   ```
+
+2. **Enable GitHub Pages**:
+   - Go to your repository on GitHub
+   - Settings → Pages
+   - Source: "GitHub Actions"
+   - The workflow will run automatically!
+
+3. **Access your dashboard**:
+   - Your dashboard will be live at: `https://your-username.github.io/LineupTracker/`
+
+#### Option B: Manual Deployment
+
+```bash
+cd dashboard
+
+# Update your roster data and build
+npm run build-with-data
+
+# Deploy to GitHub Pages
+npm run deploy
+```
+
+### 📱 Dashboard Usage
+
+1. **View Player Status**: Each player card shows:
+   - ✅ **Starting** (Green): Player is confirmed starting
+   - ⭕ **Benched** (Red): Player is confirmed on bench  
+   - ⏳ **Pending** (Yellow): Lineup not yet announced
+   - ⚪ **No Match** (Gray): No match today
+
+2. **Filter Players**: Use the tabs to filter:
+   - **All Players**: Your complete roster
+   - **Starters**: Only players expected to start
+   - **Playing Today**: Players with matches today
+   - **Pending**: Players with unconfirmed lineups
+
+3. **Refresh Data**: Click the refresh button to update with latest lineup information
+
+### 🔧 Dashboard Configuration
+
+#### Update Repository Name
+
+If your GitHub repository has a different name, update the base path:
+
+```javascript
+// dashboard/vite.config.js
+export default defineConfig({
+  base: '/YourRepositoryName/', // Replace with your repo name
+  // ... rest of config
+})
+```
+
+#### Customize for Your Roster
+
+The dashboard automatically reads your `my_roster.csv` file. To update:
+
+1. **Update your roster**: Edit `my_roster.csv` 
+2. **Export fresh data**: `python export_squad_only.py`
+3. **Rebuild dashboard**: `cd dashboard && npm run build`
+4. **Deploy updates**: `git add . && git commit -m "Update roster" && git push`
+
+### 📁 Dashboard Structure
+
+```
+dashboard/
+├── 📱 public/
+│   └── 📊 data/           # Your exported JSON data
+│       ├── squad.json     # Your roster information
+│       ├── lineup_status.json  # Current lineup status
+│       └── metadata.json  # Dashboard metadata
+├── 🎨 src/
+│   ├── 📄 App.jsx         # Main application
+│   └── 🧩 components/     # Dashboard components
+│       ├── Dashboard.jsx  # Main dashboard logic
+│       ├── Header.jsx     # Status header with refresh
+│       ├── PlayerCard.jsx # Individual player cards
+│       └── MatchOverview.jsx  # Today's matches
+└── ⚙️ package.json        # Dependencies and scripts
+```
+
+---
+
 ## 📧 How It Works
 
 ### 🔍 Smart Monitoring Schedule
@@ -201,6 +323,7 @@ LineupTracker/
 ├── ⚙️ requirements.txt           # Dependencies
 ├── 📄 .env                       # Your configuration
 ├── 📊 my_roster.csv             # Your squad data
+├── 🗂️ export_squad_only.py       # Quick dashboard data export
 │
 ├── 📂 src/lineup_tracker/        # Core application
 │   ├── 🔧 config/               # Configuration management
@@ -209,6 +332,15 @@ LineupTracker/
 │   ├── 📡 providers/            # External integrations
 │   ├── 💾 repositories/         # Data access
 │   └── 🛠️ utils/                # Utilities
+│
+├── 📱 dashboard/                 # Web dashboard
+│   ├── 📊 public/data/          # Exported JSON data
+│   ├── 🎨 src/components/       # React components
+│   ├── ⚙️ package.json          # Dashboard dependencies
+│   └── 🔧 vite.config.js        # Build configuration
+│
+├── 🔄 .github/workflows/        # GitHub Actions
+│   └── deploy-dashboard.yml     # Auto-deployment workflow
 │
 ├── 📂 examples/                  # Example configurations
 │   ├── sample_roster.csv        # Fantrax format example

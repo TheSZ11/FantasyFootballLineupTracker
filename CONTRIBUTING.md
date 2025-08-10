@@ -31,6 +31,7 @@ This project adheres to a code of conduct. By participating, you are expected to
 ### Prerequisites
 
 - Python 3.8 or higher
+- Node.js 18+ (for dashboard development)
 - Git
 - Basic knowledge of fantasy football (helpful but not required)
 
@@ -81,7 +82,28 @@ cp examples/sample_roster.csv my_roster.csv
 python setup.py
 ```
 
-### 4. Verify Installation
+### 4. Set Up Dashboard (Optional)
+
+If you're contributing to the web dashboard:
+
+```bash
+# Navigate to dashboard directory
+cd dashboard
+
+# Install Node.js dependencies
+npm install
+
+# Export sample data for dashboard
+cd ..
+python export_squad_only.py
+
+# Start dashboard development server
+cd dashboard
+npm run dev
+# Dashboard will be available at http://localhost:5173/
+```
+
+### 5. Verify Installation
 
 ```bash
 # Run tests
@@ -359,7 +381,16 @@ Brief description of what this PR does.
 - **📱 New Notification Providers**: Slack, Telegram, SMS, Push notifications
 - **🤖 AI Features**: Lineup predictions, transfer suggestions
 - **📊 Analytics**: Player performance tracking, form analysis
-- **🎨 UI/Dashboard**: Web interface for monitoring
+
+### 🎨 Dashboard Features
+
+- **📈 Data Visualization**: Charts, graphs, performance trends
+- **🔔 Browser Notifications**: Real-time alerts in the dashboard
+- **⚙️ Settings Panel**: Customizable themes, refresh intervals, filters
+- **📱 Mobile Improvements**: Enhanced mobile experience, PWA features
+- **🎮 Fantasy Integration**: Direct platform connections (FPL, Fantrax)
+- **🔄 Real-time Updates**: WebSocket integration for live data
+- **🗂️ Data Export**: CSV/PDF exports of player data and analytics
 
 ### 🛠️ Infrastructure
 

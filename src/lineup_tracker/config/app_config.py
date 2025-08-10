@@ -27,6 +27,7 @@ class APIConfig:
     max_retries: int = 3
     rate_limit_per_minute: int = 60
     connection_pool_size: int = 10
+    max_concurrent_requests: int = 5
     
     def __post_init__(self):
         """Validate API configuration."""

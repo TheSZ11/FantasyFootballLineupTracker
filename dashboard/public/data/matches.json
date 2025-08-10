@@ -1,0 +1,36 @@
+{
+  "date": "2025-08-10",
+  "total_matches": 2,
+  "matches": [
+    {
+      "id": "match1",
+      "home_team": {
+        "name": "Liverpool",
+        "abbreviation": "LIV"
+      },
+      "away_team": {
+        "name": "Bournemouth",
+        "abbreviation": "BOU"
+      },
+      "kickoff": "2025-08-10T15:06:52.323209",
+      "status": "NS",
+      "elapsed_time": null,
+      "is_started": false
+    },
+    {
+      "id": "match2",
+      "home_team": {
+        "name": "Brighton",
+        "abbreviation": "BHA"
+      },
+      "away_team": {
+        "name": "Fulham",
+        "abbreviation": "FUL"
+      },
+      "kickoff": "2025-08-10T14:06:52.323214",
+      "status": "NS",
+      "elapsed_time": null,
+      "is_started": false
+    }
+  ]
+}

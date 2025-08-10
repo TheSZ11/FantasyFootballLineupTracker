@@ -9,12 +9,13 @@ import asyncio
 import signal
 import sys
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Optional, Dict
 from datetime import datetime
 
 from .config import load_config
 from .container import Container
 from .services.async_lineup_monitoring_service import AsyncLineupMonitoringService
+from .services.dashboard_export_service import DashboardExportService
 from .providers.async_sofascore_client import AsyncSofascoreClient
 from .domain.exceptions import LineupMonitoringError, ConfigurationError
 from .utils.logging import configure_logging, get_logger, CorrelationContext
@@ -51,8 +52,7 @@ class AsyncLineupTracker:
                 log_level=self.config.logging_settings.level,
                 enable_console=self.config.logging_settings.enable_console,
                 structured_format=self.config.logging_settings.format_type == "structured",
-                log_file=self.config.logging_settings.log_file,
-                correlation_tracking=self.config.logging_settings.correlation_tracking
+                log_file=self.config.logging_settings.log_file
             )
             
             logger.info(f"📋 Configuration loaded for environment: {self.config.environment}")
@@ -182,6 +182,44 @@ class AsyncLineupTracker:
                 status['football_api'] = {'error': str(e)}
         
         return status
+    
+    async def export_dashboard_data(self, export_directory: str = "dashboard/data") -> Dict[str, str]:
+        """Export current data for dashboard consumption."""
+        if not self.container:
+            raise LineupMonitoringError("Application not initialized. Call initialize() first.")
+        
+        logger.info(f"🗂️  Starting dashboard data export to {export_directory}")
+        
+        try:
+            # Create dashboard export service
+            export_service = DashboardExportService(
+                export_directory=export_directory,
+                football_api=self.football_api,
+                squad_repository=self.container.squad_repository,
+                lineup_analyzer=self.container.lineup_analyzer,
+                alert_generator=self.container.alert_generator
+            )
+            
+            # Get current monitoring status
+            monitoring_status = None
+            if self.monitoring_service:
+                try:
+                    monitoring_status = await self.monitoring_service.get_monitoring_status()
+                except Exception as e:
+                    logger.warning(f"Could not get monitoring status for export: {e}")
+            
+            # Export all data
+            exported_files = await export_service.export_all_data(monitoring_status)
+            
+            logger.info(f"✅ Dashboard export completed successfully")
+            logger.info(f"   📁 Export directory: {export_service.get_export_directory()}")
+            logger.info(f"   📄 Files exported: {', '.join(exported_files.keys())}")
+            
+            return exported_files
+            
+        except Exception as e:
+            logger.error(f"❌ Dashboard export failed: {e}")
+            raise LineupMonitoringError(f"Dashboard export failed: {e}")
 
 
 @asynccontextmanager
@@ -271,6 +309,28 @@ async def run_test_connection():
         return 1
 
 
+async def run_dashboard_export(export_directory: str = "dashboard/data"):
+    """Export dashboard data and exit."""
+    try:
+        async with create_app() as app:
+            logger.info("🗂️  Exporting dashboard data...")
+            
+            exported_files = await app.export_dashboard_data(export_directory)
+            
+            print("✅ Dashboard export completed successfully!")
+            print(f"📁 Export directory: {export_directory}")
+            print("📄 Files exported:")
+            for data_type, file_path in exported_files.items():
+                print(f"   - {data_type}: {file_path}")
+            
+            return 0
+            
+    except Exception as e:
+        logger.error(f"❌ Dashboard export failed: {e}")
+        print(f"❌ Dashboard export failed: {e}")
+        return 1
+
+
 def main():
     """Main entry point for async LineupTracker."""
     import argparse
@@ -282,7 +342,7 @@ def main():
     
     parser.add_argument(
         'command',
-        choices=['run', 'status', 'test'],
+        choices=['run', 'status', 'test', 'export'],
         help='Command to execute'
     )
     
@@ -290,6 +350,12 @@ def main():
         '--debug',
         action='store_true',
         help='Enable debug logging'
+    )
+    
+    parser.add_argument(
+        '--export-dir',
+        default='dashboard/data',
+        help='Directory to export dashboard data (default: dashboard/data)'
     )
     
     args = parser.parse_args()
@@ -300,13 +366,15 @@ def main():
     
     # Run appropriate command
     try:
-        with CorrelationContext.create():
+        with CorrelationContext():
             if args.command == 'run':
                 exit_code = asyncio.run(run_async_monitoring())
             elif args.command == 'status':
                 exit_code = asyncio.run(run_status_check())
             elif args.command == 'test':
                 exit_code = asyncio.run(run_test_connection())
+            elif args.command == 'export':
+                exit_code = asyncio.run(run_dashboard_export(args.export_dir))
             else:
                 print(f"Unknown command: {args.command}")
                 exit_code = 1

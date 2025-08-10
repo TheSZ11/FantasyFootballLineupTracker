@@ -55,29 +55,42 @@ class TTLCache(CacheProvider):
     
     def __init__(self, max_size: int = 1000, cleanup_interval: int = 300):
         self._cache: Dict[str, CacheEntry] = {}
-        self._lock = asyncio.Lock()
+        self._lock = None  # Will be created lazily
         self._max_size = max_size
         self._cleanup_interval = cleanup_interval
         self._cleanup_task: Optional[asyncio.Task] = None
+        self._cleanup_started = False
         
         # Statistics
         self._hits = 0
         self._misses = 0
         self._evictions = 0
+    
+    def _ensure_initialized(self):
+        """Ensure async components are initialized."""
+        if self._lock is None:
+            self._lock = asyncio.Lock()
         
-        # Start cleanup task
-        self._start_cleanup()
+        if not self._cleanup_started:
+            self._start_cleanup()
+            self._cleanup_started = True
     
     def _start_cleanup(self):
         """Start the background cleanup task."""
-        if self._cleanup_task is None or self._cleanup_task.done():
-            self._cleanup_task = asyncio.create_task(self._cleanup_expired())
+        try:
+            if self._cleanup_task is None or self._cleanup_task.done():
+                self._cleanup_task = asyncio.create_task(self._cleanup_expired())
+        except RuntimeError:
+            # No event loop running yet, will start later
+            pass
     
     async def _cleanup_expired(self):
         """Background task to clean up expired entries."""
         while True:
             try:
                 await asyncio.sleep(self._cleanup_interval)
+                if self._lock is None:
+                    continue
                 async with self._lock:
                     current_time = time.time()
                     expired_keys = [
@@ -98,6 +111,7 @@ class TTLCache(CacheProvider):
     
     async def get(self, key: str) -> Optional[Any]:
         """Get value from cache if not expired."""
+        self._ensure_initialized()
         async with self._lock:
             if key in self._cache:
                 entry = self._cache[key]
@@ -114,6 +128,7 @@ class TTLCache(CacheProvider):
     
     async def set(self, key: str, value: Any, ttl: int = 300) -> bool:
         """Set value in cache with TTL in seconds."""
+        self._ensure_initialized()
         async with self._lock:
             # Check if we need to evict entries
             if len(self._cache) >= self._max_size and key not in self._cache:
@@ -144,6 +159,7 @@ class TTLCache(CacheProvider):
     
     async def clear(self) -> bool:
         """Clear all cache entries."""
+        self._ensure_initialized()
         async with self._lock:
             self._cache.clear()
             logger.debug("Cache cleared")
@@ -151,6 +167,7 @@ class TTLCache(CacheProvider):
     
     async def delete(self, key: str) -> bool:
         """Delete specific cache entry."""
+        self._ensure_initialized()
         async with self._lock:
             if key in self._cache:
                 del self._cache[key]
@@ -164,6 +181,7 @@ class TTLCache(CacheProvider):
     
     async def get_stats(self) -> Dict[str, Any]:
         """Get cache statistics."""
+        self._ensure_initialized()
         async with self._lock:
             total_requests = self._hits + self._misses
             hit_rate = (self._hits / total_requests * 100) if total_requests > 0 else 0

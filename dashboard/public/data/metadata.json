@@ -1,0 +1,15 @@
+{
+  "generated_at": "2025-08-10T13:14:19.220523",
+  "format_version": "1.0",
+  "dashboard_version": "1.0.0",
+  "data_files": {
+    "squad": "squad.json",
+    "lineup_status": "lineup_status.json",
+    "status": "status.json"
+  },
+  "refresh_info": {
+    "last_refresh": "2025-08-10T13:14:19.220524",
+    "refresh_interval_seconds": 300,
+    "next_recommended_refresh": "2025-08-10T13:14:19.220524"
+  }
+}

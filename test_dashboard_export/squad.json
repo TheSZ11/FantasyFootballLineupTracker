@@ -1,0 +1,82 @@
+{
+  "last_updated": "2025-08-10T13:06:52.323203",
+  "total_players": 4,
+  "active_players": 3,
+  "reserve_players": 1,
+  "teams_represented": [
+    "Liverpool",
+    "Everton",
+    "Manchester City",
+    "Brighton"
+  ],
+  "players": [
+    {
+      "id": "salah1",
+      "name": "Mohamed Salah",
+      "team": {
+        "name": "Liverpool",
+        "abbreviation": "LIV"
+      },
+      "position": "Forward",
+      "status": "Act",
+      "is_active": true,
+      "fantasy_points": 571.75,
+      "average_points": 18.44,
+      "age": 33,
+      "opponent": "BOU",
+      "games_played": 31,
+      "draft_percentage": null
+    },
+    {
+      "id": "mitoma1",
+      "name": "Kaoru Mitoma",
+      "team": {
+        "name": "Brighton",
+        "abbreviation": "BHA"
+      },
+      "position": "Midfielder",
+      "status": "Act",
+      "is_active": true,
+      "fantasy_points": 332.0,
+      "average_points": 13.83,
+      "age": 28,
+      "opponent": null,
+      "games_played": 24,
+      "draft_percentage": null
+    },
+    {
+      "id": "pickford1",
+      "name": "Jordan Pickford",
+      "team": {
+        "name": "Everton",
+        "abbreviation": "EVE"
+      },
+      "position": "Goalkeeper",
+      "status": "Act",
+      "is_active": true,
+      "fantasy_points": 274.25,
+      "average_points": 7.22,
+      "age": 31,
+      "opponent": null,
+      "games_played": 38,
+      "draft_percentage": null
+    },
+    {
+      "id": "haaland1",
+      "name": "Erling Haaland",
+      "team": {
+        "name": "Manchester City",
+        "abbreviation": "MCI"
+      },
+      "position": "Forward",
+      "status": "Res",
+      "is_active": false,
+      "fantasy_points": 420.0,
+      "average_points": 15.5,
+      "age": 24,
+      "opponent": null,
+      "games_played": 25,
+      "draft_percentage": null
+    }
+  ]
+}

@@ -19,7 +19,7 @@ from ..domain.exceptions import (
     DataNotAvailableError, ServiceUnavailableError
 )
 from ..config.app_config import APIConfig
-from ..utils.retry import retry, timeout, graceful_degradation, CircuitBreaker
+from ..utils.retry import retry, timeout, graceful_degradation, CircuitBreaker, CircuitBreakerConfig
 from ..utils.cache import cached_async, TTLCache
 from ..utils.logging import get_logger, log_performance
 
@@ -80,11 +80,13 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
             requests_per_minute=config.rate_limit_per_minute,
             bucket_size=config.rate_limit_per_minute
         )
-        self._circuit_breaker = CircuitBreaker(
+        circuit_breaker_config = CircuitBreakerConfig(
             failure_threshold=5,
-            timeout=30,
-            expected_exception=aiohttp.ClientError
+            recovery_timeout=60.0,
+            success_threshold=3,
+            timeout=30.0
         )
+        self._circuit_breaker = CircuitBreaker(circuit_breaker_config)
         self._cache = TTLCache(max_size=500, cleanup_interval=300)
         self._active_requests: Set[str] = set()
         self._request_semaphore = asyncio.Semaphore(config.max_concurrent_requests)
@@ -137,7 +139,6 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
     @cached_async(ttl=600)  # Cache fixtures for 10 minutes
     @retry(max_attempts=3)
     @timeout(30)
-    @log_performance
     async def get_fixtures(self, date: Optional[datetime] = None) -> List[Match]:
         """
         Get Premier League fixtures with caching and error handling.
