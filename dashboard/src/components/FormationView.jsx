@@ -151,6 +151,13 @@ const PlayerFormationCard = ({ player }) => {
     return logoConfig.exists ? logoConfig.src : null
   }
 
+  // Extract last name only for formation view
+  const getDisplayName = (fullName) => {
+    if (!fullName) return ''
+    const nameParts = fullName.trim().split(' ')
+    return nameParts.length > 1 ? nameParts[nameParts.length - 1] : nameParts[0]
+  }
+
   // Get status indicators for the player
   const getStatusIndicator = () => {
     // Red flags - expected starter but bad news
@@ -217,7 +224,7 @@ const PlayerFormationCard = ({ player }) => {
       {/* Player Name */}
       <div className="text-white text-sm font-medium text-center bg-black/50 px-3 py-1.5 rounded min-w-0">
         <div className="break-words leading-tight">
-          {player.name}
+          {getDisplayName(player.name)}
         </div>
       </div>
 
@@ -235,6 +242,13 @@ const BenchPlayerCard = ({ player }) => {
     const teamName = player.team
     const logoConfig = getTeamLogoConfig(teamName)
     return logoConfig.exists ? logoConfig.src : null
+  }
+
+  // Extract last name only for formation view consistency
+  const getDisplayName = (fullName) => {
+    if (!fullName) return ''
+    const nameParts = fullName.trim().split(' ')
+    return nameParts.length > 1 ? nameParts[nameParts.length - 1] : nameParts[0]
   }
 
   // Get status indicators for bench players
@@ -297,7 +311,7 @@ const BenchPlayerCard = ({ player }) => {
       {/* Player Info */}
       <div className="flex-1 min-w-0">
         <div className="text-white text-xs font-medium truncate">
-          {player.name}
+          {getDisplayName(player.name)}
         </div>
         <div className="text-gray-400 text-xs">
           {player.position}
