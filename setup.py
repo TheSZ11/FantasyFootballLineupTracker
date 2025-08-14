@@ -31,7 +31,7 @@ def print_header():
     print()
     if "beta" in __version__.lower():
         print("🧪 BETA RELEASE - Thank you for testing!")
-        print("Please report any issues at: https://github.com/your-username/LineupTracker/issues")
+        print("Please report any issues at: https://github.com/TheSZ11/FantasyFootballLineupTracker/issues")
         print()
     print("This script will help you configure LineupTracker for your fantasy team.")
     print("You can re-run this anytime to update your configuration.")

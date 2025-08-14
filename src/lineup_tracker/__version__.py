@@ -35,9 +35,4 @@ This is a beta release for community testing. We welcome your feedback!
 - Some player name matching may need refinement
 - Mobile dashboard could use UX improvements
 
-📋 Next Steps:
-- Multi-league support (La Liga, Serie A)
-- AI-powered lineup predictions
-- Enhanced analytics dashboard
-- Mobile app development
 """
