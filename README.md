@@ -13,13 +13,14 @@ Never miss when your expected starters are benched! LineupTracker monitors offic
 ## 🎯 Key Features
 
 - **🧠 Smart Scheduling**: Only monitors 60 minutes before matches (no 24/7 polling)
-- **⚽ Premier League Focused**: Efficient API usage for PL matches only
+- **⚽ Premier League 2025-26**: Supports all 20 teams in the current season
 - **📢 Multi-Platform Notifications**: Discord webhooks + Email alerts
 - **📊 CSV Squad Management**: Simple file-based roster updates
 - **🔓 No API Key Required**: Uses free Sofascore data source
 - **⚡ Real-time Monitoring**: Checks every minute in final 5 minutes before kickoff
 - **🎨 Rich Notifications**: Beautiful Discord embeds with player stats
 - **📊 Web Dashboard**: Beautiful, responsive dashboard for monitoring your lineup
+- **🏈 Team Logos**: Official logos for all 20 Premier League 2025-26 teams
 
 ---
 
@@ -29,7 +30,7 @@ Never miss when your expected starters are benched! LineupTracker monitors offic
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/LineupTracker.git
+git clone https://github.com/TheSZ11/FantasyFootballLineupTracker
 cd LineupTracker
 
 # 2. Create virtual environment
@@ -160,6 +161,7 @@ LineupTracker includes a beautiful, responsive web dashboard that displays your 
 ### 🌟 Dashboard Features
 
 - **🎯 Player Status Cards**: Color-coded cards showing lineup status for each player
+- **🏈 Team Logos**: Official Premier League team logos for visual identification
 - **⚽ Match Overview**: Today's matches involving your players  
 - **📱 Mobile Responsive**: Works perfectly on desktop and mobile
 - **🔄 Manual Refresh**: Click to update with latest data

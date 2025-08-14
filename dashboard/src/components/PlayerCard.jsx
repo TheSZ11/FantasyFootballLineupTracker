@@ -1,11 +1,15 @@
+import { getTeamLogoConfig } from '../utils/teamLogos';
+
 const PlayerCard = ({ player }) => {
   const getTeamClass = (teamName) => {
     if (!teamName) return 'team-default'
     
+    // Premier League 2025-26 teams only
     const teamMap = {
       'Arsenal': 'team-arsenal',
       'Aston Villa': 'team-aston-villa',
       'Bournemouth': 'team-bournemouth',
+      'AFC Bournemouth': 'team-bournemouth',
       'Brentford': 'team-brentford',
       'Brighton': 'team-brighton',
       'Brighton & Hove Albion': 'team-brighton',
@@ -14,24 +18,22 @@ const PlayerCard = ({ player }) => {
       'Crystal Palace': 'team-crystal-palace',
       'Everton': 'team-everton',
       'Fulham': 'team-fulham',
-      'Ipswich Town': 'team-ipswich',
-      'Leicester City': 'team-leicester',
       'Leeds United': 'team-leeds',
+      'Leeds': 'team-leeds',
       'Liverpool': 'team-liverpool',
-      'Luton Town': 'team-luton',
       'Manchester City': 'team-manchester-city',
       'Manchester United': 'team-manchester-united',
       'Newcastle United': 'team-newcastle',
+      'Newcastle': 'team-newcastle',
       'Nottingham Forest': 'team-nottingham-forest',
-      'Sheffield United': 'team-sheffield-united',
-      'Southampton': 'team-southampton',
-      'Tottenham Hotspur': 'team-tottenham',
-      'Watford': 'team-watford',
-      'West Ham United': 'team-west-ham',
-      'Wolverhampton Wanderers': 'team-wolverhampton',
       'Sunderland': 'team-sunderland',
-      'Norwich City': 'team-norwich',
-      'Cardiff City': 'team-cardiff'
+      'Tottenham Hotspur': 'team-tottenham',
+      'Tottenham': 'team-tottenham',
+      'Spurs': 'team-tottenham',
+      'West Ham United': 'team-west-ham',
+      'West Ham': 'team-west-ham',
+      'Wolverhampton Wanderers': 'team-wolverhampton',
+      'Wolves': 'team-wolverhampton'
     }
     
     return teamMap[teamName] || 'team-default'
@@ -118,7 +120,10 @@ const PlayerCard = ({ player }) => {
       
       {/* Team */}
       <div className="flex items-center text-sm text-gray-300 mb-2">
-        <span className="font-medium">{player.team_abbreviation}</span>
+        <div className="flex items-center">
+          <TeamLogo teamName={player.team?.name || player.team} className="w-6 h-6 mr-2" />
+          <span className="font-medium">{player.team?.abbreviation || player.team_abbreviation}</span>
+        </div>
         {player.opponent && (
           <span className="ml-2">vs {player.opponent}</span>
         )}
@@ -179,5 +184,39 @@ const PlayerCard = ({ player }) => {
     </div>
   )
 }
+
+// Team Logo Component with debug logging
+const TeamLogo = ({ teamName, className = "w-8 h-8" }) => {
+  // Debug logging
+  console.log('TeamLogo received teamName:', teamName, typeof teamName);
+  
+  const logoConfig = getTeamLogoConfig(teamName);
+  console.log('Logo config for', teamName, ':', logoConfig);
+  
+  if (!logoConfig.exists) {
+    // Fallback to team initial if no logo
+    console.log('No logo found for:', teamName, '- using fallback');
+    return (
+      <div className={`${className} bg-gray-600 rounded-full flex items-center justify-center text-xs font-bold text-white`}>
+        {teamName ? teamName.charAt(0).toUpperCase() : '?'}
+      </div>
+    );
+  }
+  
+  console.log('Rendering logo for:', teamName, 'src:', logoConfig.src);
+  return (
+    <img 
+      src={logoConfig.src}
+      alt={logoConfig.alt}
+      className={`${className} object-contain`}
+      onError={(e) => {
+        console.log('Logo failed to load:', logoConfig.src);
+        // Replace with fallback on error
+        e.target.style.display = 'none';
+        e.target.nextSibling.style.display = 'flex';
+      }}
+    />
+  );
+};
 
 export default PlayerCard
