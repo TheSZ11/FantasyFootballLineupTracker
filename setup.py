@@ -15,13 +15,24 @@ import shutil
 from pathlib import Path
 from typing import Optional
 
+# Import version information
+try:
+    from src.lineup_tracker.__version__ import __version__, BETA_NOTES
+except ImportError:
+    __version__ = "1.0.0-beta.1"
+    BETA_NOTES = "LineupTracker Beta Release"
+
 
 def print_header():
     """Print welcome header."""
     print("=" * 60)
-    print("📋 LineupTracker Setup Assistant")
+    print(f"📋 LineupTracker Setup Assistant v{__version__}")
     print("=" * 60)
     print()
+    if "beta" in __version__.lower():
+        print("🧪 BETA RELEASE - Thank you for testing!")
+        print("Please report any issues at: https://github.com/your-username/LineupTracker/issues")
+        print()
     print("This script will help you configure LineupTracker for your fantasy team.")
     print("You can re-run this anytime to update your configuration.")
     print()

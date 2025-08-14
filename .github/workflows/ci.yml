@@ -1,0 +1,300 @@
+name: 🧪 CI - Testing & Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests weekly to catch dependency issues
+    - cron: '0 6 * * 1'
+
+env:
+  PYTHON_VERSION: '3.9'
+  NODE_VERSION: '18'
+
+jobs:
+  # === Python Testing & Quality ===
+  test-python:
+    name: 🐍 Python Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+        # Exclude some combinations to speed up CI
+        exclude:
+          - os: windows-latest
+            python-version: '3.8'
+          - os: macos-latest
+            python-version: '3.8'
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🐍 Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+
+    - name: 🧪 Run tests with pytest
+      run: |
+        pytest tests/ -v --tb=short --cov=src/lineup_tracker --cov-report=xml --cov-report=term-missing
+      env:
+        # Test environment variables
+        ENVIRONMENT: test
+        LOG_LEVEL: DEBUG
+        DISCORD_ENABLED: false
+        EMAIL_ENABLED: false
+
+    - name: 📊 Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # === Code Quality Checks ===
+  code-quality:
+    name: 🔍 Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+
+    - name: 🎨 Check code formatting with Black
+      run: |
+        black --check --diff src/ tests/
+        
+    - name: 📋 Check imports with isort
+      run: |
+        isort --check-only --diff src/ tests/
+
+    - name: 🔍 Lint with flake8
+      run: |
+        flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+
+    - name: 🔍 Type checking with mypy
+      run: |
+        mypy src/lineup_tracker/ --ignore-missing-imports --show-error-codes
+
+    - name: 🔒 Security check with bandit
+      run: |
+        bandit -r src/ -f json -o bandit-report.json || true
+        bandit -r src/ --severity-level medium
+
+    - name: 📋 Check dependency security with safety
+      run: |
+        safety check --json --output safety-report.json || true
+        safety check
+
+  # === Dashboard Testing ===
+  test-dashboard:
+    name: 🎨 Dashboard Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🟢 Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: dashboard/package-lock.json
+
+    - name: 📦 Install dashboard dependencies
+      working-directory: ./dashboard
+      run: npm ci
+
+    - name: 🧪 Run dashboard tests
+      working-directory: ./dashboard
+      run: |
+        # Add when tests are available
+        # npm test
+        echo "Dashboard tests not yet implemented"
+
+    - name: 🏗️ Test dashboard build
+      working-directory: ./dashboard
+      run: |
+        # Create dummy data for build test
+        mkdir -p public/data
+        echo '[]' > public/data/squad.json
+        echo '{}' > public/data/lineup_status.json
+        echo '{}' > public/data/status.json
+        echo '{"last_updated": "2023-01-01T00:00:00Z"}' > public/data/metadata.json
+        npm run build
+
+    - name: 🎨 Check dashboard code style
+      working-directory: ./dashboard
+      run: |
+        # Add linting when configured
+        # npm run lint
+        echo "Dashboard linting not yet configured"
+
+  # === Integration Tests ===
+  integration-tests:
+    name: 🔧 Integration Tests
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+
+    - name: 🔧 Test setup script
+      run: |
+        # Test that setup script runs without errors
+        echo "DISCORD_ENABLED=false" > .env
+        echo "EMAIL_ENABLED=false" > .env
+        echo "SQUAD_FILE_PATH=examples/sample_roster.csv" >> .env
+        python -c "
+        import sys
+        sys.path.append('.')
+        from setup import check_dependencies, test_configuration
+        assert check_dependencies(), 'Dependency check failed'
+        test_configuration()
+        print('✅ Setup script validation passed')
+        "
+
+    - name: 🧪 Test system components
+      run: |
+        # Test core functionality without external API calls
+        python -c "
+        import sys
+        sys.path.append('.')
+        from src.lineup_tracker.repositories.csv_squad_repository import CSVSquadRepository
+        from pathlib import Path
+        
+        # Test CSV parsing
+        repo = CSVSquadRepository('examples/sample_roster.csv')
+        squad = repo.load_squad()
+        assert len(squad) > 0, 'Squad loading failed'
+        print(f'✅ Loaded {len(squad)} players from CSV')
+        
+        # Test dashboard export
+        from export_squad_only import main
+        main()
+        
+        # Verify files were created
+        data_files = ['squad.json', 'lineup_status.json', 'status.json', 'metadata.json']
+        for file in data_files:
+            path = Path(f'dashboard/public/data/{file}')
+            assert path.exists(), f'Data file {file} not created'
+        print('✅ Dashboard export successful')
+        "
+
+  # === Security Scan ===
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔍 Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: 📊 Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # === Release Check ===
+  release-check:
+    name: 🚀 Release Readiness
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: [test-python, code-quality, test-dashboard]
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 🔍 Check version consistency
+      run: |
+        python -c "
+        from src.lineup_tracker.__version__ import __version__
+        print(f'Current version: {__version__}')
+        
+        # Check if this is a beta version
+        if 'beta' in __version__:
+            print('✅ Beta version detected - ready for beta release')
+        else:
+            print('✅ Stable version detected - ready for stable release')
+        "
+
+    - name: 📋 Validate release readiness
+      run: |
+        echo "🔍 Checking release readiness..."
+        
+        # Check required files exist
+        files=("README.md" "LICENSE" "requirements.txt" "setup.py" "src/lineup_tracker/__version__.py")
+        for file in "${files[@]}"; do
+          if [[ -f "$file" ]]; then
+            echo "✅ $file exists"
+          else
+            echo "❌ $file missing"
+            exit 1
+          fi
+        done
+        
+        # Check dashboard build
+        if [[ -f "dashboard/package.json" ]]; then
+          echo "✅ Dashboard package.json exists"
+        else
+          echo "❌ Dashboard package.json missing"
+          exit 1
+        fi
+        
+        echo "🎉 Release readiness check passed!"

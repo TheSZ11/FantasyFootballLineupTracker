@@ -1,193 +1,235 @@
 # 🚀 Deployment Guide
 
-This guide covers different ways to deploy and run LineupTracker in production environments.
+> **Complete guide for deploying LineupTracker in different environments**
 
-## 📋 Table of Contents
-
-- [Local Deployment](#local-deployment)
-- [Server Deployment](#server-deployment)
-- [Docker Deployment](#docker-deployment)
-- [Cloud Deployment](#cloud-deployment)
-- [Monitoring & Maintenance](#monitoring--maintenance)
+This guide covers deployment options from simple local setups to production cloud environments.
 
 ---
 
-## 🏠 Local Deployment
+## 📋 Deployment Options Overview
 
-### Basic Setup
+| Option | Difficulty | Cost | Best For |
+|--------|------------|------|----------|
+| **Local Development** | Easy | Free | Testing, personal use |
+| **GitHub Pages (Dashboard)** | Easy | Free | Sharing dashboard publicly |
+| **VPS/Cloud VM** | Medium | $5-20/month | Always-on monitoring |
+| **Cloud Container** | Medium | $10-30/month | Scalable, managed |
+| **Raspberry Pi** | Medium | $35+ one-time | Home automation, low power |
+| **Docker** | Medium | Free+ | Portable, consistent environments |
 
-For personal use on your local machine:
+---
 
+## 🏠 Local Development Setup
+
+Perfect for testing and personal use on your own computer.
+
+### Prerequisites
+- Python 3.8+ installed
+- Node.js 18+ (for dashboard)
+- Git
+
+### Quick Setup
 ```bash
-# 1. Clone and setup
+# Clone repository
 git clone https://github.com/your-username/LineupTracker.git
 cd LineupTracker
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# 2. Install dependencies
+# Set up Python environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# 3. Configure
+# Configure
 python setup.py
 
-# 4. Test
-python test_system.py
-
-# 5. Run
+# Run
 python main.py
 ```
 
-### Running as Background Service
-
-#### Linux/macOS with systemd
-
-Create service file `/etc/systemd/system/lineuptracker.service`:
-
-```ini
-[Unit]
-Description=LineupTracker Fantasy Football Monitor
-After=network.target
-
-[Service]
-Type=simple
-User=your-username
-WorkingDirectory=/path/to/LineupTracker
-Environment=PATH=/path/to/LineupTracker/venv/bin
-ExecStart=/path/to/LineupTracker/venv/bin/python main.py
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Enable and start:
-```bash
-sudo systemctl enable lineuptracker
-sudo systemctl start lineuptracker
-sudo systemctl status lineuptracker
-```
-
-#### Windows with Task Scheduler
-
-1. Open Task Scheduler
-2. Create Basic Task
-3. Set trigger to "At startup"
-4. Action: Start a program
-5. Program: `C:\path\to\LineupTracker\venv\Scripts\python.exe`
-6. Arguments: `main.py`
-7. Start in: `C:\path\to\LineupTracker`
-
-#### macOS with launchd
-
-Create `~/Library/LaunchAgents/com.lineuptracker.plist`:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.lineuptracker</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/path/to/LineupTracker/venv/bin/python</string>
-        <string>/path/to/LineupTracker/main.py</string>
-    </array>
-    <key>WorkingDirectory</key>
-    <string>/path/to/LineupTracker</string>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>KeepAlive</key>
-    <true/>
-</dict>
-</plist>
-```
-
-Load and start:
-```bash
-launchctl load ~/Library/LaunchAgents/com.lineuptracker.plist
-launchctl start com.lineuptracker
-```
+### Pros & Cons
+✅ **Pros**: Free, easy setup, full control  
+❌ **Cons**: Computer must stay on, no remote access
 
 ---
 
-## 🖥️ Server Deployment
+## 🌐 GitHub Pages (Dashboard Only)
 
-### VPS/Dedicated Server
+Deploy the dashboard for free public access while running monitoring locally.
 
-#### Requirements
+### Setup Steps
 
-- **OS**: Ubuntu 20.04+ / CentOS 8+ / Debian 11+
-- **RAM**: 512MB minimum, 1GB recommended
-- **Storage**: 1GB minimum
-- **Python**: 3.8+
-- **Network**: Stable internet connection
+1. **Enable GitHub Pages**
+   ```bash
+   # Push your repository to GitHub
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   
+   # Go to: Settings → Pages → Source: "GitHub Actions"
+   ```
 
-#### Setup Steps
+2. **Configure Dashboard**
+   ```bash
+   # Update repository name in vite.config.js if needed
+   cd dashboard
+   # Edit vite.config.js:
+   # base: '/YourRepositoryName/'
+   ```
 
+3. **Deploy**
+   ```bash
+   # Export data and deploy
+   python export_squad_only.py
+   cd dashboard
+   npm install
+   npm run build
+   npm run deploy
+   ```
+
+### Automatic Deployment
+The included GitHub Actions workflow automatically deploys when you push to main:
+```yaml
+# .github/workflows/deploy-dashboard.yml already included
+```
+
+### Custom Domain (Optional)
+1. Add `CNAME` file to dashboard/public: `yourdomain.com`
+2. Configure DNS CNAME record: `www → your-username.github.io`
+3. GitHub Settings → Pages → Custom domain
+
+### Pros & Cons
+✅ **Pros**: Free, automatic deployment, global CDN  
+❌ **Cons**: Dashboard only, static data, manual refresh needed
+
+---
+
+## 💾 VPS/Cloud VM Deployment
+
+Run LineupTracker 24/7 on a virtual private server.
+
+### Recommended Providers
+- **DigitalOcean**: $6/month droplet
+- **Linode**: $5/month nanode
+- **Vultr**: $6/month regular instance
+- **AWS EC2**: t3.micro (~$10/month)
+- **Google Cloud**: e2-micro (~$7/month)
+
+### Ubuntu Server Setup
+
+1. **Create and Access Server**
+   ```bash
+   # SSH into your server
+   ssh root@your-server-ip
+   
+   # Update system
+   apt update && apt upgrade -y
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   # Install Python and Node.js
+   apt install python3 python3-pip python3-venv nodejs npm git -y
+   
+   # Install specific Node.js version (if needed)
+   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+   apt-get install -y nodejs
+   ```
+
+3. **Deploy Application**
+   ```bash
+   # Clone repository
+   git clone https://github.com/your-username/LineupTracker.git
+   cd LineupTracker
+   
+   # Set up Python environment
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   
+   # Configure
+   cp env.example .env
+   nano .env  # Edit configuration
+   cp examples/sample_roster.csv my_roster.csv
+   nano my_roster.csv  # Add your players
+   ```
+
+4. **Set Up as Service**
+   ```bash
+   # Create systemd service
+   sudo nano /etc/systemd/system/lineup-tracker.service
+   ```
+   
+   ```ini
+   [Unit]
+   Description=LineupTracker Fantasy Football Monitor
+   After=network.target
+   
+   [Service]
+   Type=simple
+   User=lineuptracker
+   WorkingDirectory=/home/lineuptracker/LineupTracker
+   Environment=PATH=/home/lineuptracker/LineupTracker/venv/bin
+   ExecStart=/home/lineuptracker/LineupTracker/venv/bin/python main.py
+   Restart=always
+   RestartSec=10
+   
+   [Install]
+   WantedBy=multi-user.target
+   ```
+   
+   ```bash
+   # Enable and start service
+   sudo systemctl enable lineup-tracker
+   sudo systemctl start lineup-tracker
+   sudo systemctl status lineup-tracker
+   ```
+
+5. **Deploy Dashboard (Optional)**
+   ```bash
+   # Set up Nginx for dashboard
+   sudo apt install nginx -y
+   
+   # Build dashboard
+   cd dashboard
+   npm install
+   npm run build
+   
+   # Copy to web directory
+   sudo cp -r dist/* /var/www/html/
+   
+   # Configure Nginx
+   sudo nano /etc/nginx/sites-available/default
+   ```
+
+### Monitoring and Maintenance
 ```bash
-# 1. Update system
-sudo apt update && sudo apt upgrade -y
+# View logs
+sudo journalctl -u lineup-tracker -f
 
-# 2. Install Python and dependencies
-sudo apt install python3 python3-pip python3-venv git -y
-
-# 3. Create user (optional but recommended)
-sudo useradd -m -s /bin/bash lineuptracker
-sudo su - lineuptracker
-
-# 4. Clone repository
-git clone https://github.com/your-username/LineupTracker.git
+# Update application
 cd LineupTracker
+git pull origin main
+pip install -r requirements.txt --upgrade
+sudo systemctl restart lineup-tracker
 
-# 5. Setup virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# 6. Install dependencies
-pip install -r requirements.txt
-
-# 7. Configure
-python setup.py
-
-# 8. Test
-python test_system.py
-
-# 9. Setup systemd service (as root)
-exit  # Exit lineuptracker user
-sudo cp deployment/lineuptracker.service /etc/systemd/system/
-sudo systemctl enable lineuptracker
-sudo systemctl start lineuptracker
+# Check system resources
+htop
+df -h
 ```
 
-#### Nginx Reverse Proxy (Optional)
-
-If you plan to add a web interface later:
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://localhost:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
+### Pros & Cons
+✅ **Pros**: 24/7 operation, remote access, full control  
+❌ **Cons**: Monthly cost, requires server management
 
 ---
 
 ## 🐳 Docker Deployment
 
+Containerized deployment for consistency and portability.
+
 ### Dockerfile
-
-Create `Dockerfile`:
-
 ```dockerfile
+# Create Dockerfile in project root
 FROM python:3.11-slim
 
 # Set working directory
@@ -195,15 +237,17 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Copy requirements first (for layer caching)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY src/ src/
+COPY main.py .
+COPY export_squad_only.py .
 
 # Create non-root user
 RUN useradd -m -u 1000 lineuptracker && \
@@ -211,414 +255,370 @@ RUN useradd -m -u 1000 lineuptracker && \
 USER lineuptracker
 
 # Health check
-HEALTHCHECK --interval=5m --timeout=30s --start-period=30s --retries=3 \
-    CMD python test_system.py --component api || exit 1
+HEALTHCHECK --interval=5m --timeout=10s --start-period=30s \
+    CMD python -c "import sys; sys.exit(0)"
 
-# Run the application
+# Run application
 CMD ["python", "main.py"]
 ```
 
 ### Docker Compose
-
-Create `docker-compose.yml`:
-
 ```yaml
+# docker-compose.yml
 version: '3.8'
 
 services:
-  lineuptracker:
+  lineup-tracker:
     build: .
-    container_name: lineuptracker
+    container_name: lineup-tracker
     restart: unless-stopped
     environment:
+      - ENVIRONMENT=production
       - LOG_LEVEL=INFO
     env_file:
       - .env
     volumes:
       - ./my_roster.csv:/app/my_roster.csv:ro
       - ./logs:/app/logs
+      - ./dashboard/public/data:/app/dashboard/public/data
     networks:
-      - lineuptracker-network
-    healthcheck:
-      test: ["CMD", "python", "test_system.py", "--component", "api"]
-      interval: 5m
-      timeout: 30s
-      retries: 3
-      start_period: 30s
+      - lineup-tracker-net
+
+  # Optional: Nginx for dashboard
+  nginx:
+    image: nginx:alpine
+    container_name: lineup-tracker-dashboard
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./dashboard/dist:/usr/share/nginx/html:ro
+    depends_on:
+      - lineup-tracker
+    networks:
+      - lineup-tracker-net
 
 networks:
-  lineuptracker-network:
+  lineup-tracker-net:
     driver: bridge
-
-volumes:
-  logs:
 ```
 
-### Build and Run
-
+### Deployment Commands
 ```bash
-# Build image
-docker build -t lineuptracker .
-
-# Run with docker-compose
+# Build and run
 docker-compose up -d
 
-# Check logs
-docker-compose logs -f
+# View logs
+docker-compose logs -f lineup-tracker
 
-# Stop
-docker-compose down
-```
-
----
-
-## ☁️ Cloud Deployment
-
-### AWS EC2
-
-#### Launch Instance
-
-1. **AMI**: Ubuntu Server 22.04 LTS
-2. **Instance Type**: t3.micro (free tier eligible)
-3. **Security Group**: Allow SSH (22)
-4. **Storage**: 8GB gp3
-
-#### Setup Script
-
-```bash
-#!/bin/bash
-# AWS EC2 user data script
-
-# Update system
-apt update && apt upgrade -y
-
-# Install dependencies
-apt install python3 python3-pip python3-venv git -y
-
-# Clone repository
-cd /home/ubuntu
-git clone https://github.com/your-username/LineupTracker.git
-cd LineupTracker
-
-# Setup
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Set ownership
-chown -R ubuntu:ubuntu /home/ubuntu/LineupTracker
-
-# Install systemd service
-cp deployment/lineuptracker.service /etc/systemd/system/
-systemctl enable lineuptracker
-```
-
-### Google Cloud Platform
-
-#### Compute Engine
-
-```bash
-# Create instance
-gcloud compute instances create lineuptracker \
-    --zone=us-central1-a \
-    --machine-type=e2-micro \
-    --image-family=ubuntu-2204-lts \
-    --image-project=ubuntu-os-cloud \
-    --metadata-from-file startup-script=startup.sh
-
-# SSH to instance
-gcloud compute ssh lineuptracker --zone=us-central1-a
-```
-
-#### Cloud Run (Serverless)
-
-For scheduled execution:
-
-```yaml
-# cloudbuild.yaml
-steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/lineuptracker', '.']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/lineuptracker']
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['run', 'deploy', 'lineuptracker', 
-           '--image', 'gcr.io/$PROJECT_ID/lineuptracker',
-           '--region', 'us-central1',
-           '--no-allow-unauthenticated']
-```
-
-### Digital Ocean
-
-#### Droplet
-
-```bash
-# Create droplet with doctl
-doctl compute droplet create lineuptracker \
-    --size s-1vcpu-1gb \
-    --image ubuntu-22-04-x64 \
-    --region nyc1 \
-    --ssh-keys YOUR_SSH_KEY_ID
-```
-
-### Azure
-
-#### Virtual Machine
-
-```bash
-# Create VM with Azure CLI
-az vm create \
-    --resource-group LineupTracker \
-    --name lineuptracker-vm \
-    --image UbuntuLTS \
-    --size Standard_B1s \
-    --admin-username azureuser \
-    --ssh-key-values ~/.ssh/id_rsa.pub
-```
-
----
-
-## 📊 Monitoring & Maintenance
-
-### Health Monitoring
-
-#### Basic Health Check Script
-
-Create `health_check.py`:
-
-```python
-#!/usr/bin/env python3
-import subprocess
-import sys
-import time
-from datetime import datetime
-
-def check_process():
-    """Check if LineupTracker process is running."""
-    try:
-        result = subprocess.run(['pgrep', '-f', 'main.py'], 
-                              capture_output=True, text=True)
-        return result.returncode == 0
-    except:
-        return False
-
-def check_logs():
-    """Check for recent errors in logs."""
-    try:
-        result = subprocess.run(['tail', '-100', 'lineup_monitor.log'], 
-                              capture_output=True, text=True)
-        return 'ERROR' not in result.stdout
-    except:
-        return True
-
-def main():
-    print(f"Health check - {datetime.now()}")
-    
-    if not check_process():
-        print("❌ Process not running")
-        sys.exit(1)
-    
-    if not check_logs():
-        print("⚠️ Errors detected in logs")
-        sys.exit(1)
-    
-    print("✅ System healthy")
-
-if __name__ == "__main__":
-    main()
-```
-
-Add to crontab:
-```bash
-# Check every 5 minutes
-*/5 * * * * /path/to/LineupTracker/venv/bin/python /path/to/health_check.py
-```
-
-### Log Rotation
-
-#### Using logrotate
-
-Create `/etc/logrotate.d/lineuptracker`:
-
-```
-/path/to/LineupTracker/lineup_monitor.log {
-    daily
-    rotate 7
-    compress
-    missingok
-    notifempty
-    create 644 lineuptracker lineuptracker
-    postrotate
-        systemctl reload lineuptracker
-    endscript
-}
-```
-
-### Backup Strategy
-
-#### Configuration Backup
-
-```bash
-#!/bin/bash
-# backup.sh
-
-BACKUP_DIR="/backup/lineuptracker"
-DATE=$(date +%Y%m%d_%H%M%S)
-
-mkdir -p $BACKUP_DIR
-
-# Backup configuration
-cp .env $BACKUP_DIR/env_$DATE
-cp my_roster.csv $BACKUP_DIR/roster_$DATE.csv
-
-# Backup logs (last 7 days)
-find . -name "*.log" -mtime -7 -exec cp {} $BACKUP_DIR/ \;
-
-echo "Backup completed: $BACKUP_DIR"
-```
-
-### Update Process
-
-#### Automated Updates
-
-```bash
-#!/bin/bash
-# update.sh
-
-echo "Updating LineupTracker..."
-
-# Stop service
-sudo systemctl stop lineuptracker
-
-# Backup current version
-cp -r /path/to/LineupTracker /backup/lineuptracker_$(date +%Y%m%d)
-
-# Pull updates
-cd /path/to/LineupTracker
+# Update
 git pull origin main
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
 
-# Update dependencies
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Test system
-python test_system.py
-
-# Restart service
-sudo systemctl start lineuptracker
-
-echo "Update completed"
+# Cleanup
+docker-compose down -v
+docker system prune -af
 ```
 
-### Performance Monitoring
-
-#### Resource Usage
-
-Monitor with:
-```bash
-# CPU and Memory usage
-ps aux | grep python
-
-# System resources
-htop
-
-# Disk usage
-df -h
-
-# Network connections
-netstat -tuln
-```
-
-#### Application Metrics
-
-Add to your monitoring dashboard:
-- API response times
-- Notification success rates
-- Error frequency
-- Memory usage
-- CPU usage
+### Pros & Cons
+✅ **Pros**: Consistent environment, easy deployment, portable  
+❌ **Cons**: Docker overhead, more complex setup
 
 ---
 
-## 🔧 Troubleshooting
+## 🍓 Raspberry Pi Deployment
+
+Perfect for home automation and low-power 24/7 monitoring.
+
+### Hardware Requirements
+- **Raspberry Pi 4** (2GB+ RAM recommended)
+- **MicroSD Card** (32GB+ Class 10)
+- **Power Supply** (Official USB-C recommended)
+- **Network Connection** (Ethernet or WiFi)
+
+### Setup Process
+
+1. **Install Raspberry Pi OS**
+   ```bash
+   # Flash Raspberry Pi OS Lite to SD card
+   # Enable SSH in boot partition: touch ssh
+   # Configure WiFi in boot partition if needed
+   ```
+
+2. **Initial Configuration**
+   ```bash
+   # SSH into Pi
+   ssh pi@raspberrypi.local  # Default password: raspberry
+   
+   # Change password and update
+   passwd
+   sudo apt update && sudo apt upgrade -y
+   
+   # Install dependencies
+   sudo apt install python3 python3-pip python3-venv nodejs npm git -y
+   ```
+
+3. **Deploy Application**
+   ```bash
+   # Clone and setup (same as VPS steps above)
+   git clone https://github.com/your-username/LineupTracker.git
+   cd LineupTracker
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+4. **Optimize for Pi**
+   ```bash
+   # Reduce memory usage in .env
+   echo "API_CONNECTION_POOL_SIZE=2" >> .env
+   echo "MAX_CONCURRENT_REQUESTS=2" >> .env
+   echo "LOG_LEVEL=WARNING" >> .env
+   
+   # Set up swap if needed
+   sudo dphys-swapfile swapoff
+   sudo nano /etc/dphys-swapfile  # CONF_SWAPSIZE=1024
+   sudo dphys-swapfile setup
+   sudo dphys-swapfile swapon
+   ```
+
+### Performance Optimization
+```bash
+# Disable unnecessary services
+sudo systemctl disable bluetooth
+sudo systemctl disable wifi-country
+
+# GPU memory split (headless)
+echo "gpu_mem=16" | sudo tee -a /boot/config.txt
+
+# Overclock (optional, monitor temperature)
+echo "arm_freq=1750" | sudo tee -a /boot/config.txt
+echo "over_voltage=2" | sudo tee -a /boot/config.txt
+```
+
+### Monitoring
+```bash
+# Temperature monitoring
+vcgencmd measure_temp
+
+# Resource usage
+htop
+free -h
+
+# Add temperature logging
+echo "*/5 * * * * /usr/bin/vcgencmd measure_temp >> /home/pi/temp.log" | crontab -
+```
+
+### Pros & Cons
+✅ **Pros**: Low power, one-time cost, home automation ready  
+❌ **Cons**: Limited performance, SD card reliability, setup complexity
+
+---
+
+## ☁️ Cloud Container Services
+
+Managed container deployment without server management.
+
+### Google Cloud Run
+```bash
+# Build and deploy
+gcloud builds submit --tag gcr.io/PROJECT-ID/lineup-tracker
+gcloud run deploy --image gcr.io/PROJECT-ID/lineup-tracker --platform managed
+```
+
+### AWS Fargate
+```bash
+# Push to ECR
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ACCOUNT.dkr.ecr.us-east-1.amazonaws.com
+docker build -t lineup-tracker .
+docker tag lineup-tracker:latest ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/lineup-tracker:latest
+docker push ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/lineup-tracker:latest
+
+# Deploy with ECS/Fargate (use AWS Console or CLI)
+```
+
+### Azure Container Instances
+```bash
+# Deploy to ACI
+az container create \
+  --resource-group myResourceGroup \
+  --name lineup-tracker \
+  --image yourdockerhub/lineup-tracker:latest \
+  --environment-variables ENVIRONMENT=production
+```
+
+### Pros & Cons
+✅ **Pros**: Managed infrastructure, auto-scaling, high availability  
+❌ **Cons**: Higher cost, vendor lock-in, complexity
+
+---
+
+## 🔧 Environment-Specific Configuration
+
+### Development
+```bash
+ENVIRONMENT=development
+LOG_LEVEL=DEBUG
+CHECK_INTERVAL_MINUTES=5  # Faster for testing
+SEND_STARTUP_NOTIFICATIONS=true
+```
+
+### Staging
+```bash
+ENVIRONMENT=staging
+LOG_LEVEL=INFO
+CHECK_INTERVAL_MINUTES=10
+SEND_STARTUP_NOTIFICATIONS=false
+```
+
+### Production
+```bash
+ENVIRONMENT=production
+LOG_LEVEL=WARNING
+CHECK_INTERVAL_MINUTES=15
+SEND_STARTUP_NOTIFICATIONS=false
+MAX_MONITORING_CYCLES_PER_DAY=100
+```
+
+---
+
+## 📊 Monitoring and Observability
+
+### Log Management
+```bash
+# Centralized logging with rsyslog
+echo "*.* @@logs.example.com:514" | sudo tee -a /etc/rsyslog.conf
+
+# Log rotation
+sudo nano /etc/logrotate.d/lineup-tracker
+```
+
+### Health Checks
+```bash
+# Simple health check script
+#!/bin/bash
+if pgrep -f "python main.py" > /dev/null; then
+    echo "LineupTracker is running"
+    exit 0
+else
+    echo "LineupTracker is not running"
+    exit 1
+fi
+```
+
+### Monitoring Tools
+- **Uptime monitoring**: UptimeRobot, Pingdom
+- **Log analysis**: ELK Stack, Grafana Loki
+- **Metrics**: Prometheus + Grafana
+- **Error tracking**: Sentry
+
+---
+
+## 🔒 Security Considerations
+
+### Network Security
+```bash
+# Firewall rules (UFW example)
+sudo ufw enable
+sudo ufw allow ssh
+sudo ufw allow 80/tcp  # If running dashboard
+sudo ufw allow 443/tcp  # If using HTTPS
+```
+
+### SSL/TLS
+```bash
+# Let's Encrypt with Certbot
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d yourdomain.com
+```
+
+### Secrets Management
+```bash
+# Use environment-specific secret management
+# Development: .env files
+# Production: HashiCorp Vault, AWS Secrets Manager, etc.
+```
+
+---
+
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-#### Service Won't Start
-
+**Memory Issues**
 ```bash
-# Check logs
-sudo journalctl -u lineuptracker -f
-
-# Check configuration
-python test_system.py
-
-# Check permissions
-ls -la /path/to/LineupTracker
+# Check memory usage
+free -h
+# Add swap space
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
 ```
 
-#### High Memory Usage
-
-```bash
-# Check for memory leaks
-python -m memory_profiler main.py
-
-# Monitor over time
-watch -n 5 'ps aux | grep python'
-```
-
-#### Network Issues
-
+**Network Connectivity**
 ```bash
 # Test API connectivity
 curl -I https://api.sofascore.com
-
 # Check DNS resolution
 nslookup api.sofascore.com
-
-# Test Discord webhook
-curl -X POST $DISCORD_WEBHOOK_URL -d '{"content":"test"}'
 ```
 
-### Getting Help
+**Permission Issues**
+```bash
+# Fix file permissions
+chmod 600 .env
+chmod 644 my_roster.csv
+chown -R $USER:$USER .
+```
 
-- 📖 Check the main README.md
-- 🐛 Create an issue on GitHub
-- 💬 Join the Discord community
-- 📧 Contact maintainers
-
----
-
-## 📜 Security Considerations
-
-### Environment Variables
-
-- Never commit `.env` files
-- Use secure methods to transfer credentials
-- Rotate webhook URLs periodically
-- Use app passwords for email
-
-### Server Security
-
-- Keep system updated
-- Use SSH keys (not passwords)
-- Configure firewall
-- Enable fail2ban
-- Regular security audits
-
-### Network Security
-
-- Use HTTPS where possible
-- Validate webhook URLs
-- Monitor unusual network activity
-- Rate limit API calls
+**Service Issues**
+```bash
+# Check service status
+sudo systemctl status lineup-tracker
+# View recent logs
+sudo journalctl -u lineup-tracker --since "10 minutes ago"
+```
 
 ---
 
-<div align="center">
+## 📈 Scaling Considerations
 
-**Need help with deployment? Create an issue or join our community!**
+### Performance Tuning
+- Increase `MAX_CONCURRENT_REQUESTS` for faster API calls
+- Tune `CHECK_INTERVAL_MINUTES` based on needs
+- Use caching to reduce API calls
+- Optimize database queries (if using database)
 
-[GitHub Issues](https://github.com/your-username/LineupTracker/issues) · [Discord Community](https://discord.gg/your-invite)
+### High Availability
+- Deploy to multiple regions
+- Use load balancers
+- Implement health checks
+- Set up automatic failover
 
-</div>
+### Cost Optimization
+- Use spot instances for non-critical workloads
+- Implement auto-scaling based on usage
+- Use reserved instances for predictable workloads
+- Monitor and optimize resource usage
+
+---
+
+## 🎯 Deployment Checklist
+
+Before deploying to production:
+
+- [ ] **Security**: All secrets in environment variables
+- [ ] **Testing**: Full test suite passes
+- [ ] **Monitoring**: Health checks and logging configured
+- [ ] **Backup**: Configuration and data backup strategy
+- [ ] **Documentation**: Deployment process documented
+- [ ] **Recovery**: Disaster recovery plan in place
+- [ ] **Performance**: Load tested for expected usage
+- [ ] **Compliance**: Meets security and privacy requirements
+
+---
+
+**Ready to deploy? Choose the option that best fits your needs and follow the detailed steps above! 🚀**

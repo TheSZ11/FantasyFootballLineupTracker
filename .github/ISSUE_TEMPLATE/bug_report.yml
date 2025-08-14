@@ -1,0 +1,139 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve LineupTracker
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! 
+        
+        Before submitting, please:
+        - Search existing issues to avoid duplicates
+        - Make sure you're using the latest version
+        - Test with the example roster to isolate the issue
+
+  - type: input
+    id: version
+    attributes:
+      label: LineupTracker Version
+      description: What version of LineupTracker are you running?
+      placeholder: e.g., 1.0.0-beta.1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      options:
+        - Windows 10/11
+        - macOS (Intel)
+        - macOS (Apple Silicon)
+        - Ubuntu/Debian Linux
+        - Other Linux Distribution
+        - Other (please specify in description)
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: What version of Python are you using?
+      placeholder: e.g., 3.9.7, 3.10.6
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe what happened vs what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Tell us how to reproduce this bug
+      placeholder: |
+        1. Set up the environment with...
+        2. Run the command...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear description of what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: |
+        Please copy and paste any relevant log output. 
+        Logs are typically found in `lineup_monitor.log`
+        
+        ⚠️ Please remove any sensitive information like API keys or personal data
+      render: shell
+
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration Details
+      description: |
+        Please share relevant configuration (remove sensitive data):
+        - Squad file format (Fantrax export vs simple)
+        - Notification providers enabled (Discord/Email)
+        - Any custom settings in .env file
+      placeholder: |
+        Squad file: Fantrax export format
+        Notifications: Discord enabled, Email disabled
+        Custom settings: CHECK_INTERVAL_MINUTES=10
+
+  - type: checkboxes
+    id: component
+    attributes:
+      label: Which component is affected?
+      description: Check all that apply
+      options:
+        - label: Core monitoring system
+        - label: Notifications (Discord)
+        - label: Notifications (Email)
+        - label: Squad file parsing
+        - label: Web dashboard
+        - label: Setup/configuration
+        - label: API connections (Sofascore)
+
+  - type: checkboxes
+    id: troubleshooting
+    attributes:
+      label: Troubleshooting Done
+      description: What troubleshooting steps have you already tried?
+      options:
+        - label: Ran `python test_system.py` to diagnose
+        - label: Checked `lineup_monitor.log` for errors
+        - label: Verified internet connection and API access
+        - label: Tested with the example roster file
+        - label: Tried restarting the application
+        - label: Updated to the latest version
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Add any other context about the problem here.
+        
+        You can also attach screenshots or other files that might help diagnose the issue.
