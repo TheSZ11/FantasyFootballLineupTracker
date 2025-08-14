@@ -1,4 +1,4 @@
-const Header = ({ summary, status, metadata, onRefresh }) => {
+const Header = ({ summary, status, metadata, onRefresh, refreshing = false }) => {
   const formatLastUpdate = (timestamp) => {
     if (!timestamp) return 'Unknown'
     const date = new Date(timestamp)
@@ -76,12 +76,22 @@ const Header = ({ summary, status, metadata, onRefresh }) => {
             {/* Refresh Button */}
             <button
               onClick={onRefresh}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+              disabled={refreshing}
+              className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors ${
+                refreshing 
+                  ? 'bg-gray-600 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-700'
+              } text-white`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg 
+                className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Refresh</span>
+              <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
           </div>
         </div>

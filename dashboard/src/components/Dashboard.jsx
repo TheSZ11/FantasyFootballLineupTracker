@@ -2,8 +2,9 @@ import { useState } from 'react'
 import Header from './Header'
 import PlayerCard from './PlayerCard'
 import MatchOverview from './MatchOverview'
+import FormationView from './FormationView'
 
-const Dashboard = ({ data, onRefresh }) => {
+const Dashboard = ({ data, onRefresh, refreshing = false }) => {
   const [filterStatus, setFilterStatus] = useState('all')
   
   if (!data || !data.lineup) {
@@ -47,6 +48,7 @@ const Dashboard = ({ data, onRefresh }) => {
         status={status}
         metadata={metadata}
         onRefresh={onRefresh}
+        refreshing={refreshing}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -103,23 +105,40 @@ const Dashboard = ({ data, onRefresh }) => {
             >
               Lineup Pending ({summary.lineup_pending})
             </button>
+            <button
+              onClick={() => setFilterStatus('formation')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                filterStatus === 'formation'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+              }`}
+            >
+              Formation View
+            </button>
           </div>
         </div>
 
-        {/* Players Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredPlayers.map(player => (
-            <PlayerCard 
-              key={player.id} 
-              player={player} 
-            />
-          ))}
-        </div>
+        {/* Conditional View Rendering */}
+        {filterStatus === 'formation' ? (
+          <FormationView players={players} />
+        ) : (
+          <>
+            {/* Players Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredPlayers.map(player => (
+                <PlayerCard 
+                  key={player.id} 
+                  player={player} 
+                />
+              ))}
+            </div>
 
-        {filteredPlayers.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">No players match the current filter</p>
-          </div>
+            {filteredPlayers.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-400 text-lg">No players match the current filter</p>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

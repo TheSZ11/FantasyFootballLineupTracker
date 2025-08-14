@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "export-data": "cd .. && python export_squad_only.py",
+    "refresh-and-dev": "npm run export-data && npm run dev",
     "build-with-data": "npm run export-data && npm run build",
     "deploy": "npm run build-with-data && npx gh-pages -d dist"
   },
