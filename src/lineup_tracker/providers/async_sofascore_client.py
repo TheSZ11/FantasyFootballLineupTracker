@@ -413,7 +413,7 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
                 id=match_id,
                 home_team=home,
                 away_team=away,
-                start_time=match_time,
+                kickoff=match_time,
                 status=status
             )
             
@@ -424,7 +424,7 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
                 id=str(fixture.get('id', 'unknown')),
                 home_team=Team(name="Unknown", abbreviation="UNK"),
                 away_team=Team(name="Unknown", abbreviation="UNK"),
-                start_time=datetime.now(),
+                kickoff=datetime.now(),
                 status=MatchStatus.NOT_STARTED
             )
     
