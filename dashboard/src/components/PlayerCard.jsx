@@ -1,6 +1,112 @@
 import { getTeamLogoConfig } from '../utils/teamLogos';
+import { useState, useEffect } from 'react';
 
 const PlayerCard = ({ player }) => {
+  // Parse opponent string to get match date and time
+  const parseMatchTime = (opponentString) => {
+    if (!opponentString || opponentString.toLowerCase().includes('no match')) return null;
+    
+    // Format: "@LEE Mon 3:00PM" or "BOU Fri 3:00PM"
+    const match = opponentString.match(/^(@)?(\w+)\s+(\w+)\s+(\d{1,2}:\d{2}(AM|PM))$/);
+    if (!match) return null;
+    
+    const [, isAway, opponent, dayOfWeek, timeStr] = match;
+    
+    // Map day names to numbers (0 = Sunday, 1 = Monday, etc.)
+    const dayMap = {
+      'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6
+    };
+    
+    const targetDay = dayMap[dayOfWeek];
+    if (targetDay === undefined) return null;
+    
+    // Get current date and calculate target date
+    const now = new Date();
+    const currentDay = now.getDay();
+    
+    // Calculate days until target day (this week or next week)
+    let daysUntil = targetDay - currentDay;
+    if (daysUntil < 0) {
+      daysUntil += 7; // Next week
+    } else if (daysUntil === 0) {
+      // Same day - check if time has passed
+      const [time, period] = timeStr.split(/(?=[AP]M)/);
+      const [hours, minutes] = time.split(':').map(Number);
+      const hour24 = period === 'PM' && hours !== 12 ? hours + 12 : (period === 'AM' && hours === 12 ? 0 : hours);
+      
+      const targetTime = new Date(now);
+      targetTime.setHours(hour24, minutes, 0, 0);
+      
+      if (targetTime <= now) {
+        daysUntil = 7; // Next week same day
+      }
+    }
+    
+    // Create target date
+    const targetDate = new Date(now);
+    targetDate.setDate(now.getDate() + daysUntil);
+    
+    // Parse time
+    const [time, period] = timeStr.split(/(?=[AP]M)/);
+    const [hours, minutes] = time.split(':').map(Number);
+    const hour24 = period === 'PM' && hours !== 12 ? hours + 12 : (period === 'AM' && hours === 12 ? 0 : hours);
+    
+    targetDate.setHours(hour24, minutes, 0, 0);
+    
+    return {
+      matchDate: targetDate,
+      opponent,
+      isAway,
+      dayOfWeek,
+      timeStr
+    };
+  };
+  
+  // Calculate countdown
+  const calculateCountdown = (matchDate) => {
+    if (!matchDate) return null;
+    
+    const now = new Date();
+    const timeDiff = matchDate.getTime() - now.getTime();
+    
+    if (timeDiff <= 0) {
+      return { expired: true, text: 'Match Started' };
+    }
+    
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+    
+    // Format countdown text
+    if (days > 0) {
+      return { expired: false, text: `${days}d ${hours}h ${minutes}m`, urgent: false };
+    } else if (hours > 0) {
+      return { expired: false, text: `${hours}h ${minutes}m ${seconds}s`, urgent: hours < 2 };
+    } else if (minutes > 0) {
+      return { expired: false, text: `${minutes}m ${seconds}s`, urgent: true };
+    } else {
+      return { expired: false, text: `${seconds}s`, urgent: true };
+    }
+  };
+
+  // State for countdown
+  const [countdown, setCountdown] = useState(null);
+  const matchInfo = parseMatchTime(player.opponent);
+
+  // Update countdown every second
+  useEffect(() => {
+    if (!matchInfo?.matchDate) return;
+
+    const updateCountdown = () => {
+      setCountdown(calculateCountdown(matchInfo.matchDate));
+    };
+
+    updateCountdown(); // Initial update
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [matchInfo?.matchDate]);
   const getTeamClass = (teamName) => {
     if (!teamName) return 'team-default'
     
@@ -52,10 +158,18 @@ const PlayerCard = ({ player }) => {
         return player.is_expected_starter ? 'Starting ✓' : 'Unexpected Start!'
       case 'confirmed_bench':
         return player.is_expected_starter ? 'Benched ✗' : 'On Bench'
+      case 'predicted_starting':
+        return player.is_expected_starter ? 'Predicted Starting 🔮' : 'Surprise Prediction!'
+      case 'predicted_bench':
+        return player.is_expected_starter ? 'Predicted Bench 😰' : 'Predicted Sub'
+      case 'predicted_unavailable':
+        return 'Predicted Unavailable ⚠️'
       case 'lineup_pending':
         return 'Lineup TBD'
       case 'no_match_today':
         return 'No Match Today'
+      case 'no_prediction':
+        return 'No Prediction Available'
       default:
         return 'Unknown'
     }
@@ -67,10 +181,18 @@ const PlayerCard = ({ player }) => {
         return player.is_expected_starter ? '✅' : '⚡'
       case 'confirmed_bench':
         return player.is_expected_starter ? '🚨' : '⏸️'
+      case 'predicted_starting':
+        return player.is_expected_starter ? '🔮' : '💫'
+      case 'predicted_bench':
+        return player.is_expected_starter ? '😰' : '🔮'
+      case 'predicted_unavailable':
+        return '⚠️'
       case 'lineup_pending':
         return '⏱️'
       case 'no_match_today':
         return '😴'
+      case 'no_prediction':
+        return '❔'
       default:
         return '❓'
     }
@@ -144,9 +266,6 @@ const PlayerCard = ({ player }) => {
             <TeamLogo teamName={player.team?.name || player.team} className="w-6 h-6 mr-2" />
             <span className="font-medium">{player.team?.abbreviation || player.team_abbreviation}</span>
           </div>
-          {player.opponent && (
-            <span className="ml-2">vs {player.opponent}</span>
-          )}
         </div>
 
         {/* Status */}
@@ -155,6 +274,12 @@ const PlayerCard = ({ player }) => {
             ? player.is_expected_starter ? 'text-green-600' : 'text-orange-600'
             : player.lineup_status === 'confirmed_bench'
             ? player.is_expected_starter ? 'text-red-600' : 'text-gray-600'
+            : player.lineup_status === 'predicted_starting'
+            ? player.is_expected_starter ? 'text-blue-500' : 'text-purple-500'
+            : player.lineup_status === 'predicted_bench'
+            ? player.is_expected_starter ? 'text-orange-500' : 'text-gray-500'
+            : player.lineup_status === 'predicted_unavailable'
+            ? 'text-red-400'
             : player.lineup_status === 'lineup_pending'
             ? 'text-yellow-600'
             : 'text-gray-500'
@@ -173,6 +298,48 @@ const PlayerCard = ({ player }) => {
             </div>
           </div>
         )}
+
+        {/* Countdown Timer */}
+        {matchInfo && countdown ? (
+          <div className={`rounded-lg p-3 mb-3 text-center ${
+            countdown.expired 
+              ? 'bg-red-900/40 border border-red-600'
+              : countdown.urgent 
+              ? 'bg-orange-900/40 border border-orange-600 animate-pulse'
+              : 'bg-blue-900/40 border border-blue-600'
+          }`}>
+            <div className="text-xs text-gray-300 mb-1">
+              {matchInfo.isAway ? 'Away vs' : 'Home vs'} {matchInfo.opponent}
+            </div>
+            <div className="text-sm text-gray-400 mb-1">
+              {matchInfo.dayOfWeek} {matchInfo.timeStr}
+            </div>
+            <div className={`text-lg font-bold ${
+              countdown.expired 
+                ? 'text-red-400'
+                : countdown.urgent 
+                ? 'text-orange-400'
+                : 'text-blue-400'
+            }`}>
+              {countdown.expired ? '⚠️' : '⏰'} {countdown.text}
+            </div>
+            {countdown.urgent && !countdown.expired && (
+              <div className="text-xs text-orange-300 mt-1 font-medium">
+                🚨 TIME CRITICAL
+              </div>
+            )}
+          </div>
+        ) : player.opponent && !matchInfo ? (
+          <div className="bg-gray-700/40 border border-gray-600 rounded-lg p-3 mb-3 text-center">
+            <div className="text-sm text-gray-400 mb-1">Match Info</div>
+            <div className="text-gray-300">{player.opponent}</div>
+            <div className="text-xs text-gray-500 mt-1">Unable to parse match time</div>
+          </div>
+        ) : !player.opponent ? (
+          <div className="bg-gray-700/40 border border-gray-600 rounded-lg p-3 mb-3 text-center">
+            <div className="text-sm text-gray-400">😴 No Match Scheduled</div>
+          </div>
+        ) : null}
 
         {/* Fantasy Stats */}
         <div className="border-t border-gray-600 pt-3 mt-3">

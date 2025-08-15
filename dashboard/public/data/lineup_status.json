@@ -1,15 +1,18 @@
 {
-  "generated_at": "2025-08-14T15:17:06.865115",
+  "generated_at": "2025-08-14T15:54:49.913796",
   "date": "2025-08-14",
   "summary": {
     "total_players": 15,
-    "players_with_matches_today": 0,
+    "players_with_predictions": 6,
+    "predicted_starting": 6,
+    "predicted_bench": 0,
     "confirmed_starting": 0,
     "confirmed_bench": 0,
-    "lineup_pending": 0,
-    "no_match_today": 15
+    "predicted_unavailable": 0,
+    "no_prediction": 9,
+    "teams_with_predictions": 10
   },
-  "relevant_matches": 0,
+  "relevant_matches": 5,
   "players": [
     {
       "id": "*032f9*",
@@ -19,12 +22,15 @@
       "position": "Goalkeeper",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
+      "lineup_status": "no_prediction",
+      "predicted_status": "no_prediction",
+      "is_confirmed": false,
       "status_color": "gray",
       "fantasy_points": 10.57,
       "average_points": 0.0,
       "opponent": "@LEE Mon 3:00PM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": null
     },
     {
       "id": "*05y9n*",
@@ -34,12 +40,19 @@
       "position": "Defender",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
-      "status_color": "gray",
+      "lineup_status": "predicted_starting",
+      "predicted_status": "predicted_starting",
+      "is_confirmed": false,
+      "status_color": "blue",
       "fantasy_points": 10.82,
       "average_points": 0.0,
       "opponent": "@AVL Sat 7:30AM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": {
+        "team_has_prediction": true,
+        "formation": "4-5-1",
+        "confirmed": false
+      }
     },
     {
       "id": "*0427d*",
@@ -49,12 +62,15 @@
       "position": "Defender",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
+      "lineup_status": "no_prediction",
+      "predicted_status": "no_prediction",
+      "is_confirmed": false,
       "status_color": "gray",
       "fantasy_points": 10.61,
       "average_points": 0.0,
       "opponent": "@LEE Mon 3:00PM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": null
     },
     {
       "id": "*04adp*",
@@ -64,12 +80,19 @@
       "position": "Defender",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
-      "status_color": "gray",
+      "lineup_status": "predicted_starting",
+      "predicted_status": "predicted_starting",
+      "is_confirmed": false,
+      "status_color": "blue",
       "fantasy_points": 13.04,
       "average_points": 0.0,
       "opponent": "@SUN Sat 10:00AM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": {
+        "team_has_prediction": true,
+        "formation": "3-4-2-1",
+        "confirmed": false
+      }
     },
     {
       "id": "*063q8*",
@@ -79,12 +102,15 @@
       "position": "Midfielder",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
+      "lineup_status": "no_prediction",
+      "predicted_status": "no_prediction",
+      "is_confirmed": false,
       "status_color": "gray",
       "fantasy_points": 11.41,
       "average_points": 0.0,
       "opponent": "@NOT Sun 9:00AM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": null
     },
     {
       "id": "*06ymu*",
@@ -94,12 +120,19 @@
       "position": "Midfielder",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
-      "status_color": "gray",
+      "lineup_status": "predicted_starting",
+      "predicted_status": "predicted_starting",
+      "is_confirmed": false,
+      "status_color": "blue",
       "fantasy_points": 11.31,
       "average_points": 0.0,
       "opponent": "@SUN Sat 10:00AM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": {
+        "team_has_prediction": true,
+        "formation": "3-4-2-1",
+        "confirmed": false
+      }
     },
     {
       "id": "*062ci*",
@@ -109,12 +142,15 @@
       "position": "Midfielder",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
+      "lineup_status": "no_prediction",
+      "predicted_status": "no_prediction",
+      "is_confirmed": false,
       "status_color": "gray",
       "fantasy_points": 14.04,
       "average_points": 0.0,
       "opponent": "FUL Sat 10:00AM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": null
     },
     {
       "id": "*052cd*",
@@ -124,12 +160,15 @@
       "position": "Midfielder",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
+      "lineup_status": "no_prediction",
+      "predicted_status": "no_prediction",
+      "is_confirmed": false,
       "status_color": "gray",
       "fantasy_points": 0.0,
       "average_points": 0.0,
       "opponent": "ARS Sun 11:30AM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": null
     },
     {
       "id": "*06fvn*",
@@ -139,12 +178,15 @@
       "position": "Forward",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
+      "lineup_status": "no_prediction",
+      "predicted_status": "no_prediction",
+      "is_confirmed": false,
       "status_color": "gray",
       "fantasy_points": 9.37,
       "average_points": 0.0,
       "opponent": "@LEE Mon 3:00PM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": null
     },
     {
       "id": "*03aqp*",
@@ -154,12 +196,19 @@
       "position": "Forward",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
-      "status_color": "gray",
+      "lineup_status": "predicted_starting",
+      "predicted_status": "predicted_starting",
+      "is_confirmed": false,
+      "status_color": "blue",
       "fantasy_points": 15.45,
       "average_points": 0.0,
       "opponent": "BOU Fri 3:00PM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": {
+        "team_has_prediction": true,
+        "formation": "4-2-3-1",
+        "confirmed": false
+      }
     },
     {
       "id": "*06mow*",
@@ -169,12 +218,15 @@
       "position": "Forward",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "no_match_today",
+      "lineup_status": "no_prediction",
+      "predicted_status": "no_prediction",
+      "is_confirmed": false,
       "status_color": "gray",
       "fantasy_points": 14.0,
       "average_points": 0.0,
       "opponent": "MCI Sat 12:30PM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": null
     },
     {
       "id": "*06v0g*",
@@ -184,12 +236,19 @@
       "position": "Defender",
       "expected_status": "Res",
       "is_expected_starter": false,
-      "lineup_status": "no_match_today",
-      "status_color": "gray",
+      "lineup_status": "predicted_starting",
+      "predicted_status": "predicted_starting",
+      "is_confirmed": false,
+      "status_color": "blue",
       "fantasy_points": 12.21,
       "average_points": 0.0,
       "opponent": "WHU Sat 10:00AM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": {
+        "team_has_prediction": true,
+        "formation": "4-3-3",
+        "confirmed": false
+      }
     },
     {
       "id": "*06uyc*",
@@ -199,12 +258,19 @@
       "position": "Defender",
       "expected_status": "Res",
       "is_expected_starter": false,
-      "lineup_status": "no_match_today",
-      "status_color": "gray",
+      "lineup_status": "predicted_starting",
+      "predicted_status": "predicted_starting",
+      "is_confirmed": false,
+      "status_color": "blue",
       "fantasy_points": 6.98,
       "average_points": 0.0,
       "opponent": "@LIV Fri 3:00PM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": {
+        "team_has_prediction": true,
+        "formation": "4-2-3-1",
+        "confirmed": false
+      }
     },
     {
       "id": "*06zce*",
@@ -214,12 +280,15 @@
       "position": "Midfielder",
       "expected_status": "Res",
       "is_expected_starter": false,
-      "lineup_status": "no_match_today",
+      "lineup_status": "no_prediction",
+      "predicted_status": "no_prediction",
+      "is_confirmed": false,
       "status_color": "gray",
       "fantasy_points": 0.0,
       "average_points": 0.0,
       "opponent": "MCI Sat 12:30PM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": null
     },
     {
       "id": "*03frx*",
@@ -229,12 +298,254 @@
       "position": "Defender",
       "expected_status": "Res",
       "is_expected_starter": false,
-      "lineup_status": "no_match_today",
+      "lineup_status": "no_prediction",
+      "predicted_status": "no_prediction",
+      "is_confirmed": false,
       "status_color": "gray",
       "fantasy_points": 10.75,
       "average_points": 0.0,
       "opponent": "BRF Sun 9:00AM",
-      "match_info": null
+      "match_info": null,
+      "prediction_info": null
     }
-  ]
+  ],
+  "predicted_lineups": {
+    "Liverpool": {
+      "confirmed": false,
+      "formation": "4-2-3-1",
+      "starters": [
+        "Alisson",
+        "Jeremie Frimpong",
+        "Ibrahima Konaté",
+        "Virgil van Dijk",
+        "Miloš Kerkez",
+        "Dominik Szoboszlai",
+        "Alexis Mac Allister",
+        "Mohamed Salah",
+        "Florian Wirtz",
+        "Cody Gakpo",
+        "Hugo Ekitiké"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Ryan Gravenberch",
+        "Stefan Bajčetić",
+        "Conor Bradley",
+        "Joe Gomez"
+      ]
+    },
+    "Bournemouth": {
+      "confirmed": false,
+      "formation": "4-2-3-1",
+      "starters": [
+        "Đorđe Petrović",
+        "Adam Smith",
+        "James Hill",
+        "Marcos Senesi",
+        "Adrien Truffert",
+        "Alex Scott",
+        "Tyler Adams",
+        "Marcus Tavernier",
+        "David Brooks",
+        "Antoine Semenyo",
+        "Evanilson"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Enes Ünal",
+        "Lewis Cook",
+        "Ryan Christie",
+        "Luis Sinisterra",
+        "Justin Kluivert"
+      ]
+    },
+    "Aston Villa": {
+      "confirmed": false,
+      "formation": "4-2-3-1",
+      "starters": [
+        "Marco Bizot",
+        "Matty Cash",
+        "Ezri Konsa",
+        "Pau Torres",
+        "Ian Maatsen",
+        "Boubacar Kamara",
+        "Youri Tielemans",
+        "Donyell Malen",
+        "Morgan Rogers",
+        "John McGinn",
+        "Ollie Watkins"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Emiliano Martínez",
+        "Ross Barkley",
+        "Morgan Rogers",
+        "Andrés García"
+      ]
+    },
+    "Newcastle United": {
+      "confirmed": false,
+      "formation": "4-5-1",
+      "starters": [
+        "Nick Pope",
+        "Valentino Livramento",
+        "Fabian Schär",
+        "Dan Burn",
+        "Lewis Hall",
+        "Anthony Elanga",
+        "Bruno Guimarães",
+        "Sandro Tonali",
+        "Joelinton",
+        "Harvey Barnes",
+        "Anthony Gordon"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Joe Willock",
+        "Anthony Gordon"
+      ]
+    },
+    "Brighton & Hove Albion": {
+      "confirmed": false,
+      "formation": "4-2-3-1",
+      "starters": [
+        "Bart Verbruggen",
+        "Mats Wieffer",
+        "Lewis Dunk",
+        "Jan Paul van Hecke",
+        "Maxim De Cuyper",
+        "Diego Gómez",
+        "Yasin Ayari",
+        "Yankuba Minteh",
+        "Matt O'Riley",
+        "Kaoru Mitoma",
+        "Georginio Rutter"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Adam Webster",
+        "Julio Enciso",
+        "Solly March",
+        "Igor Júlio",
+        "Carlos Baleba"
+      ]
+    },
+    "Fulham": {
+      "confirmed": false,
+      "formation": "4-2-3-1",
+      "starters": [
+        "Bernd Leno",
+        "Kenny Tete",
+        "Joachim Andersen",
+        "Calvin Bassey",
+        "Ryan Sessegnon",
+        "Sander Berge",
+        "Saša Lukić",
+        "Harry Wilson",
+        "Emile Smith Rowe",
+        "Alex Iwobi",
+        "Raúl Jiménez"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Antonee Robinson",
+        "Ryan Sessegnon"
+      ]
+    },
+    "Sunderland": {
+      "confirmed": false,
+      "formation": "4-3-3",
+      "starters": [
+        "Robin Roefs",
+        "Trai Hume",
+        "Daniel Ballard",
+        "Jenson Seelt",
+        "Reinildo Mandava",
+        "Habib Diarra",
+        "Granit Xhaka",
+        "Noah Sadiki",
+        "Enzo Le Fée",
+        "Eliezer Mayenda",
+        "Simon Adingra"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Ajibola-Joshua Alese",
+        "Dennis Cirkin",
+        "Leo Fuhr Hjelde",
+        "Luke O'Nien",
+        "Romaine Mundle"
+      ]
+    },
+    "West Ham United": {
+      "confirmed": false,
+      "formation": "3-4-2-1",
+      "starters": [
+        "Alphonse Aréola",
+        "Jean-Clair Todibo",
+        "Max Kilman",
+        "Nayef Aguerd",
+        "Aaron Wan-Bissaka",
+        "Freddie Potts",
+        "James Ward-Prowse",
+        "El Hadji Malick Diouf",
+        "Jarrod Bowen",
+        "Lucas Paquetá",
+        "Niclas Füllkrug"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Crysencio Summerville"
+      ]
+    },
+    "Tottenham Hotspur": {
+      "confirmed": false,
+      "formation": "4-2-3-1",
+      "starters": [
+        "Guglielmo Vicario",
+        "Pedro Porro",
+        "Cristian Romero",
+        "Micky van de Ven",
+        "Djed Spence",
+        "João Palhinha",
+        "Rodrigo Bentancur",
+        "Mohammed Kudus",
+        "Pape Matar Sarr",
+        "Brennan Johnson",
+        "Richarlison"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Radu Drăguşin",
+        "Dejan Kulusevski",
+        "James Maddison",
+        "Destiny Udogie",
+        "Kota Takai",
+        "Manor Solomon",
+        "Dominic Solanke"
+      ]
+    },
+    "Burnley": {
+      "confirmed": false,
+      "formation": "4-2-3-1",
+      "starters": [
+        "Martin Dúbravka",
+        "Kyle Walker",
+        "Maxime Estève",
+        "Hjalmar Ekdal",
+        "Quilindschy Hartman",
+        "Josh Laurent",
+        "Josh Cullen",
+        "Marcus Edwards",
+        "Hannibal Mejbri",
+        "Jaidon Anthony",
+        "Lyle Foster"
+      ],
+      "substitutes": [],
+      "missing_players": [
+        "Zeki Amdouni",
+        "Bashir Humphreys"
+      ]
+    }
+  }
 }

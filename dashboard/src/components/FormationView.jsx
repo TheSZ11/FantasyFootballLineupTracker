@@ -116,26 +116,30 @@ const FormationView = ({ players }) => {
         </div>
         
         {/* Status Indicators Legend */}
-        <div className="flex flex-wrap justify-center gap-3 text-xs">
+        <div className="flex flex-wrap justify-center gap-2 text-xs">
           <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-xs">✅</div>
-            <span className="text-gray-300">Confirmed Starter</span>
+            <span className="text-gray-300">Confirmed</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-xs">🔮</div>
+            <span className="text-gray-300">Predicted</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-xs">🚨</div>
-            <span className="text-gray-300">Benched Alert</span>
+            <span className="text-gray-300">Alert</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center text-xs">⚡</div>
-            <span className="text-gray-300">Surprise Start</span>
+            <span className="text-gray-300">Surprise</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center text-xs">⏱️</div>
-            <span className="text-gray-300">Lineup Pending</span>
+            <span className="text-gray-300">Pending</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center text-xs grayscale">⚽</div>
-            <span className="text-gray-300">No Match Today</span>
+            <span className="text-gray-300">No Match</span>
           </div>
         </div>
       </div>
@@ -158,21 +162,41 @@ const PlayerFormationCard = ({ player }) => {
     return nameParts.length > 1 ? nameParts[nameParts.length - 1] : nameParts[0]
   }
 
+  // Determine if greyscale should be applied (no confirmed lineups available)
+  const shouldApplyGreyscale = (player) => {
+    return ['no_match_today', 'no_prediction', 'predicted_starting', 'predicted_bench', 'predicted_unavailable'].includes(player.lineup_status)
+  }
+
   // Get status indicators for the player
   const getStatusIndicator = () => {
-    // Red flags - expected starter but bad news
+    // Confirmed lineups (highest priority)
     if (player.is_expected_starter && player.lineup_status === 'confirmed_bench') {
       return { emoji: '🚨', color: 'bg-red-500', alert: true, text: 'Benched!' }
     }
     
-    // Positive confirmations - expected starter and confirmed starting
     if (player.is_expected_starter && player.lineup_status === 'confirmed_starting') {
       return { emoji: '✅', color: 'bg-green-500', alert: false, text: 'Confirmed' }
     }
     
-    // Unexpected starter (not expected but confirmed starting)
     if (!player.is_expected_starter && player.lineup_status === 'confirmed_starting') {
       return { emoji: '⚡', color: 'bg-orange-500', alert: true, text: 'Surprise start!' }
+    }
+    
+    // Predicted lineups (medium priority)
+    if (player.is_expected_starter && player.lineup_status === 'predicted_starting') {
+      return { emoji: '🔮', color: 'bg-blue-500', alert: false, text: 'Predicted start' }
+    }
+    
+    if (player.is_expected_starter && player.lineup_status === 'predicted_bench') {
+      return { emoji: '😰', color: 'bg-orange-400', alert: true, text: 'Predicted bench' }
+    }
+    
+    if (!player.is_expected_starter && player.lineup_status === 'predicted_starting') {
+      return { emoji: '💫', color: 'bg-purple-500', alert: true, text: 'Surprise prediction!' }
+    }
+    
+    if (player.lineup_status === 'predicted_unavailable') {
+      return { emoji: '⚠️', color: 'bg-red-400', alert: true, text: 'Predicted out' }
     }
     
     // Lineup pending - neutral but informative
@@ -199,13 +223,13 @@ const PlayerFormationCard = ({ player }) => {
               src={teamLogo}
               alt={`${player.team} logo`}
               className={`w-full h-full object-contain ${
-                player.lineup_status === 'no_match_today' ? 'grayscale' : ''
+                shouldApplyGreyscale(player) ? 'grayscale' : ''
               }`}
             />
           </div>
         ) : (
           <div className={`w-full h-full rounded-full flex items-center justify-center font-bold text-base shadow-lg border-2 ${
-            player.lineup_status === 'no_match_today' 
+            shouldApplyGreyscale(player)
               ? 'bg-gray-500 text-gray-300' 
               : 'bg-gray-600 text-white'
           } ${statusIndicator?.alert ? 'border-red-400' : 'border-white'}`}>
@@ -251,6 +275,11 @@ const BenchPlayerCard = ({ player }) => {
     return nameParts.length > 1 ? nameParts[nameParts.length - 1] : nameParts[0]
   }
 
+  // Determine if greyscale should be applied (no confirmed lineups available)
+  const shouldApplyGreyscale = (player) => {
+    return ['no_match_today', 'no_prediction', 'predicted_starting', 'predicted_bench', 'predicted_unavailable'].includes(player.lineup_status)
+  }
+
   // Get status indicators for bench players
   const getStatusIndicator = () => {
     // Bench player confirmed starting (unexpected!)
@@ -286,13 +315,13 @@ const BenchPlayerCard = ({ player }) => {
               src={teamLogo}
               alt={`${player.team} logo`}
               className={`w-full h-full object-contain ${
-                player.lineup_status === 'no_match_today' ? 'grayscale' : ''
+                shouldApplyGreyscale(player) ? 'grayscale' : ''
               }`}
             />
           </div>
         ) : (
           <div className={`w-full h-full rounded-full flex items-center justify-center text-xs font-bold shadow-md border ${
-            player.lineup_status === 'no_match_today' 
+            shouldApplyGreyscale(player)
               ? 'bg-gray-500 text-gray-300' 
               : 'bg-gray-600 text-white'
           } ${statusIndicator?.alert ? 'border-red-400' : 'border-gray-400'}`}>

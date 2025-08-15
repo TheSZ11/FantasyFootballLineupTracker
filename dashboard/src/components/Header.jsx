@@ -56,7 +56,13 @@ const Header = ({ summary, status, metadata, onRefresh, refreshing = false }) =>
               {summary?.confirmed_starting > 0 && (
                 <div className="flex items-center">
                   <span className="status-indicator green"></span>
-                  <span className="text-green-400 font-medium">{summary.confirmed_starting} Starting</span>
+                  <span className="text-green-400 font-medium">{summary.confirmed_starting} Confirmed</span>
+                </div>
+              )}
+              {summary?.predicted_starting > 0 && (
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
+                  <span className="text-blue-400 font-medium">{summary.predicted_starting} Predicted</span>
                 </div>
               )}
               {summary?.confirmed_bench > 0 && (
@@ -65,10 +71,10 @@ const Header = ({ summary, status, metadata, onRefresh, refreshing = false }) =>
                   <span className="text-red-400 font-medium">{summary.confirmed_bench} Benched</span>
                 </div>
               )}
-              {summary?.lineup_pending > 0 && (
+              {summary?.predicted_bench > 0 && (
                 <div className="flex items-center">
-                  <span className="status-indicator yellow"></span>
-                  <span className="text-yellow-400 font-medium">{summary.lineup_pending} Pending</span>
+                  <span className="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
+                  <span className="text-orange-400 font-medium">{summary.predicted_bench} Pred. Bench</span>
                 </div>
               )}
             </div>
@@ -111,16 +117,18 @@ const Header = ({ summary, status, metadata, onRefresh, refreshing = false }) =>
                 <div className="text-xs text-gray-400">Total Players</div>
               </div>
               <div className="bg-blue-900/30 rounded-lg p-3">
-                <div className="text-2xl font-bold text-blue-400">{summary.players_with_matches_today}</div>
-                <div className="text-xs text-gray-400">Playing Today</div>
+                <div className="text-2xl font-bold text-blue-400">
+                  {(summary.predicted_starting || 0) + (summary.confirmed_starting || 0)}
+                </div>
+                <div className="text-xs text-gray-400">Predicted Starting</div>
               </div>
-              <div className="bg-yellow-900/30 rounded-lg p-3">
-                <div className="text-2xl font-bold text-yellow-400">{summary.lineup_pending}</div>
-                <div className="text-xs text-gray-400">Lineups Pending</div>
+              <div className="bg-purple-900/30 rounded-lg p-3">
+                <div className="text-2xl font-bold text-purple-400">{summary.players_with_predictions || 0}</div>
+                <div className="text-xs text-gray-400">With Predictions</div>
               </div>
               <div className="bg-green-900/30 rounded-lg p-3">
                 <div className="text-2xl font-bold text-green-400">
-                  {summary.confirmed_starting + summary.confirmed_bench}
+                  {(summary.confirmed_starting || 0) + (summary.confirmed_bench || 0)}
                 </div>
                 <div className="text-xs text-gray-400">Lineups Confirmed</div>
               </div>

@@ -1,11 +1,24 @@
 {
-  "generated_at": "2025-08-14T15:17:06.865120",
+  "generated_at": "2025-08-14T15:54:49.913809",
   "monitoring": {
     "is_running": false,
     "last_check_time": null
   },
   "export_info": {
     "export_directory": "dashboard/public/data",
-    "note": "Squad-only export - API integration pending"
+    "note": "Squad export with predicted lineups from Sofascore",
+    "predicted_lineups_available": true,
+    "teams_with_predictions": [
+      "Liverpool",
+      "Bournemouth",
+      "Aston Villa",
+      "Newcastle United",
+      "Brighton & Hove Albion",
+      "Fulham",
+      "Sunderland",
+      "West Ham United",
+      "Tottenham Hotspur",
+      "Burnley"
+    ]
   }
 }
