@@ -107,43 +107,7 @@ const PlayerCard = ({ player }) => {
 
     return () => clearInterval(interval);
   }, [matchInfo?.matchDate]);
-  const getTeamClass = (teamName) => {
-    if (!teamName) return 'team-default'
-    
-    // Premier League 2025-26 teams only
-    const teamMap = {
-      'Arsenal': 'team-arsenal',
-      'Aston Villa': 'team-aston-villa',
-      'Bournemouth': 'team-bournemouth',
-      'AFC Bournemouth': 'team-bournemouth',
-      'Brentford': 'team-brentford',
-      'Brighton': 'team-brighton',
-      'Brighton & Hove Albion': 'team-brighton',
-      'Burnley': 'team-burnley',
-      'Chelsea': 'team-chelsea',
-      'Crystal Palace': 'team-crystal-palace',
-      'Everton': 'team-everton',
-      'Fulham': 'team-fulham',
-      'Leeds United': 'team-leeds',
-      'Leeds': 'team-leeds',
-      'Liverpool': 'team-liverpool',
-      'Manchester City': 'team-manchester-city',
-      'Manchester United': 'team-manchester-united',
-      'Newcastle United': 'team-newcastle',
-      'Newcastle': 'team-newcastle',
-      'Nottingham Forest': 'team-nottingham-forest',
-      'Sunderland': 'team-sunderland',
-      'Tottenham Hotspur': 'team-tottenham',
-      'Tottenham': 'team-tottenham',
-      'Spurs': 'team-tottenham',
-      'West Ham United': 'team-west-ham',
-      'West Ham': 'team-west-ham',
-      'Wolverhampton Wanderers': 'team-wolverhampton',
-      'Wolves': 'team-wolverhampton'
-    }
-    
-    return teamMap[teamName] || 'team-default'
-  }
+
 
   // Get team logo for background
   const getTeamLogo = () => {
@@ -230,7 +194,7 @@ const PlayerCard = ({ player }) => {
   const teamLogo = getTeamLogo();
   
   return (
-    <div className={`player-card team-card ${getTeamClass(player.team)} status-${player.status_color} ${isUrgent() ? 'ring-2 ring-red-400' : ''} relative overflow-hidden`}>
+    <div className={`player-card bg-gray-800 border border-gray-700 rounded-lg p-4 ${isUrgent() ? 'ring-2 ring-red-400' : ''} relative overflow-hidden`}>
       {/* Logo background with reduced opacity */}
       {teamLogo && (
         <img 
