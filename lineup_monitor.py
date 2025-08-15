@@ -1,9 +1,10 @@
 import pandas as pd
 import logging
 from datetime import datetime, timedelta
+import pytz
 from sofascore_client import FootballAPI
 from notifications import NotificationHandler
-from team_mappings import get_full_team_name
+from src.lineup_tracker.utils.team_mappings import get_full_team_name
 
 logger = logging.getLogger(__name__)
 
@@ -143,42 +144,204 @@ class LineupMonitor:
         return position_map.get(fantrax_position, fantrax_position)
     
     def get_matches_with_squad_players(self):
-        """Get today's Premier League matches that include squad players"""
-        fixtures = self.api.get_premier_league_fixtures()
+        """Get matches with squad players - combines CSV timing with API fixture data"""
         squad = self.load_squad()
         
         if not squad:
             return []
         
-        squad_teams = {player['team_name'] for player in squad}
-        relevant_matches = []
+        # First get CSV-based match timing (accurate)
+        csv_matches = self._get_csv_matches(squad)
         
-        for fixture in fixtures:
-            home_team = fixture['teams']['home']['name']
-            away_team = fixture['teams']['away']['name']
+        # Then get API fixtures to map to real fixture IDs
+        api_fixtures = self.api.get_premier_league_fixtures()
+        
+        # Combine both datasets
+        relevant_matches = []
+        eastern_tz = pytz.timezone('US/Eastern')
+        
+        for csv_match in csv_matches:
+            # Try to find matching API fixture
+            api_fixture = self._find_matching_api_fixture(csv_match, api_fixtures, eastern_tz)
             
-            if home_team in squad_teams or away_team in squad_teams:
-                kickoff_time = datetime.fromisoformat(fixture['fixture']['date'].replace('Z', '+00:00'))
-                
+            if api_fixture:
+                # Use CSV timing but API fixture data
                 relevant_matches.append({
-                    'fixture_id': fixture['fixture']['id'],
-                    'home_team': home_team,
-                    'away_team': away_team,
-                    'kickoff': kickoff_time,
-                    'status': fixture['fixture']['status']['short'],
-                    'elapsed': fixture['fixture']['status'].get('elapsed')
+                    'fixture_id': api_fixture['fixture']['id'],
+                    'home_team': api_fixture['teams']['home']['name'],
+                    'away_team': api_fixture['teams']['away']['name'],
+                    'kickoff': csv_match['kickoff'],  # Use accurate CSV timing
+                    'status': api_fixture['fixture']['status']['short'],
+                    'elapsed': api_fixture['fixture']['status'].get('elapsed'),
+                    'players': csv_match['players']
                 })
+            else:
+                # Fallback to CSV-only data (no lineup checking possible)
+                logger.warning(f"Could not find API fixture for {csv_match['home_team']} vs {csv_match['away_team']}")
+                csv_match['fixture_id'] = None  # Mark as no API data
+                relevant_matches.append(csv_match)
         
         if relevant_matches:
             logger.info(f"Found {len(relevant_matches)} matches with squad players")
             for match in relevant_matches:
-                logger.info(f"  {match['home_team']} vs {match['away_team']} - {match['kickoff'].strftime('%H:%M')}")
+                match_date = match['kickoff'].strftime('%a %b %d')
+                match_time = match['kickoff'].strftime('%I:%M %p')
+                tz_name = match['kickoff'].strftime('%Z')
+                players = ', '.join(match['players'])
+                fixture_info = f"(ID: {match.get('fixture_id', 'No API')})" 
+                logger.info(f"  {match['home_team']} vs {match['away_team']} - {match_date} {match_time} {tz_name} {fixture_info} ({players})")
         
         return relevant_matches
     
+    def _get_csv_matches(self, squad):
+        """Parse matches from CSV opponent data"""
+        csv_matches = []
+        eastern_tz = pytz.timezone('US/Eastern')
+        
+        for player in squad:
+            opponent_str = player.get('opponent', '')
+            
+            if not opponent_str or 'no match' in opponent_str.lower():
+                continue
+                
+            # Parse opponent string like "@LEE Mon 3:00PM" or "BOU Fri 3:00PM"
+            import re
+            match = re.match(r'^(@)?(\w+)\s+(\w+)\s+(\d{1,2}:\d{2}(AM|PM))$', opponent_str)
+            if not match:
+                continue
+                
+            is_away, opponent, day_of_week, time_str = match.groups()[:4]
+            
+            # Map day names to numbers (0 = Sunday, 1 = Monday, etc.)
+            day_map = {
+                'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6
+            }
+            
+            target_day = day_map.get(day_of_week)
+            if target_day is None:
+                continue
+                
+            # Get current date and calculate target date
+            now = datetime.now(eastern_tz)
+            current_day = (now.weekday() + 1) % 7  # Convert Python weekday to Sunday=0 format
+                
+            # Calculate days until target day
+            days_until = target_day - current_day
+            if days_until < 0:
+                days_until += 7  # Next week
+            elif days_until == 0:
+                # Same day - check if time has passed
+                time_part = time_str.split('M')[0] + 'M'  # Get "3:00PM" part
+                hour_min, period = time_part[:-2], time_part[-2:]
+                hours, minutes = map(int, hour_min.split(':'))
+                hour24 = hours + 12 if period == 'PM' and hours != 12 else (0 if period == 'AM' and hours == 12 else hours)
+                
+                target_time = now.replace(hour=hour24, minute=minutes, second=0, microsecond=0)
+                if target_time <= now:
+                    days_until = 7  # Next week same day
+            
+            # Create target datetime
+            target_date = now + timedelta(days=days_until)
+            time_part = time_str.split('M')[0] + 'M'  # Get "3:00PM" part
+            hour_min, period = time_part[:-2], time_part[-2:]
+            hours, minutes = map(int, hour_min.split(':'))
+            hour24 = hours + 12 if period == 'PM' and hours != 12 else (0 if period == 'AM' and hours == 12 else hours)
+            
+            kickoff_time = target_date.replace(hour=hour24, minute=minutes, second=0, microsecond=0)
+            
+            # Convert opponent abbreviation to full team name
+            from src.lineup_tracker.utils.team_mappings import TEAM_ABBREVIATIONS
+            opponent_full = TEAM_ABBREVIATIONS.get(opponent, opponent)
+            
+            # Create match entry  
+            home_team = player['team_name'] if not is_away else opponent_full
+            away_team = opponent_full if not is_away else player['team_name']
+            
+            match_key = f"{home_team}_vs_{away_team}_{kickoff_time.isoformat()}"
+            
+            # Avoid duplicates
+            existing_match = next((m for m in csv_matches if m.get('match_key') == match_key), None)
+            if not existing_match:
+                csv_matches.append({
+                    'match_key': match_key,
+                    'home_team': home_team,
+                    'away_team': away_team,
+                    'kickoff': kickoff_time,
+                    'status': 'scheduled',
+                    'players': [player['player_name']]
+                })
+            else:
+                # Add player to existing match
+                existing_match['players'].append(player['player_name'])
+        
+        return csv_matches
+    
+    def _find_matching_api_fixture(self, csv_match, api_fixtures, eastern_tz):
+        """Find API fixture that matches CSV match data"""
+        from src.lineup_tracker.utils.team_mappings import TEAM_NAME_VARIANTS
+        
+        def normalize_team_name(team_name):
+            """Normalize team name using variants mapping"""
+            # Check if it's a variant that should be normalized
+            normalized = TEAM_NAME_VARIANTS.get(team_name, team_name)
+            return normalized
+        
+        def teams_match(api_home, api_away, csv_home, csv_away):
+            """Check if teams match with flexible name matching"""
+            # Normalize API team names
+            norm_api_home = normalize_team_name(api_home)
+            norm_api_away = normalize_team_name(api_away)
+            
+            # Direct match
+            if ((norm_api_home == csv_home and norm_api_away == csv_away) or 
+                (norm_api_home == csv_away and norm_api_away == csv_home)):
+                return True
+            
+            # Partial name matching (e.g., "Brighton & Hove Albion" matches "Brighton")
+            def name_contains(full_name, partial_name):
+                return partial_name.lower() in full_name.lower() or full_name.lower() in partial_name.lower()
+            
+            # Check all combinations with both original and normalized names
+            teams_to_check = [
+                (api_home, api_away, csv_home, csv_away),
+                (norm_api_home, norm_api_away, csv_home, csv_away),
+                (api_home, api_away, csv_away, csv_home),
+                (norm_api_home, norm_api_away, csv_away, csv_home)
+            ]
+            
+            for ah, aa, ch, ca in teams_to_check:
+                if ((name_contains(ah, ch) and name_contains(aa, ca)) or
+                    (ah == ch and aa == ca)):
+                    return True
+                    
+            return False
+        
+        for fixture in api_fixtures:
+            api_home = fixture['teams']['home']['name']
+            api_away = fixture['teams']['away']['name']
+            
+            if teams_match(api_home, api_away, csv_match['home_team'], csv_match['away_team']):
+                # Convert API time to Eastern to compare
+                api_kickoff_utc = datetime.fromisoformat(fixture['fixture']['date'].replace('Z', '+00:00'))
+                api_kickoff_eastern = api_kickoff_utc.astimezone(eastern_tz)
+                
+                # Check if times are within 6 hours (to handle timezone issues)
+                time_diff = abs((api_kickoff_eastern - csv_match['kickoff']).total_seconds() / 3600)
+                logger.info(f"🕐 Time comparison: API={api_kickoff_eastern} vs CSV={csv_match['kickoff']} (diff: {time_diff:.1f}h)")
+                if time_diff <= 6:
+                    logger.info(f"✅ Matched CSV '{csv_match['home_team']} vs {csv_match['away_team']}' to API '{api_home} vs {api_away}'")
+                    return fixture
+        
+        return None
+    
     def check_lineups_for_match(self, match):
         """Check lineups for a specific match and send notifications"""
-        fixture_id = match['fixture_id']
+        fixture_id = match.get('fixture_id')
+        
+        # Skip if no API fixture ID available
+        if not fixture_id:
+            logger.debug(f"Skipping {match['home_team']} vs {match['away_team']} - no API fixture ID")
+            return
         
         # Skip if match already started or finished
         if match['status'] not in ['TBD', 'NS']:  # TBD = To Be Determined, NS = Not Started

@@ -2,7 +2,8 @@ import os
 import logging
 import schedule
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+import pytz
 from dotenv import load_dotenv
 from lineup_monitor import LineupMonitor
 
@@ -31,17 +32,30 @@ class SmartScheduler:
     def check_if_monitoring_needed(self):
         """Check if any matches need monitoring in the next 60 minutes"""
         matches = self.monitor.get_matches_with_squad_players()
-        now = datetime.now()
+        # Use Eastern timezone consistently 
+        eastern_tz = pytz.timezone('US/Eastern')
+        now = datetime.now(eastern_tz)
         
+        logger.info(f"DEBUG: Current Eastern time: {now}")
+        
+        imminent_matches = []
         for match in matches:
             time_until_kickoff = (match['kickoff'] - now).total_seconds() / 60
+            logger.info(f"DEBUG: {match['home_team']} vs {match['away_team']}")
+            logger.info(f"DEBUG: Match kickoff: {match['kickoff']}")
+            logger.info(f"DEBUG: Time until kickoff: {time_until_kickoff:.1f} minutes")
             
             # Start monitoring 60 minutes before kickoff
             if 0 <= time_until_kickoff <= 60:
-                if not self.monitoring_active:
-                    logger.info(f"Starting active monitoring - match in {time_until_kickoff:.0f} minutes")
-                    self.start_active_monitoring()
-                return True
+                imminent_matches.append((match, time_until_kickoff))
+                logger.info(f"DEBUG: MATCH WITHIN 60 MINUTES - SHOULD START MONITORING")
+        
+        if imminent_matches:
+            if not self.monitoring_active:
+                for match, time_until in imminent_matches:
+                    logger.info(f"Starting active monitoring - {match['home_team']} vs {match['away_team']} in {time_until:.0f} minutes")
+                self.start_active_monitoring()
+            return True
                 
         # Stop monitoring if no matches in next 60 minutes
         if self.monitoring_active:
@@ -75,7 +89,9 @@ class SmartScheduler:
     def run_cycle_with_frequency_adjustment(self):
         """Run monitoring cycle with dynamic frequency based on kickoff times"""
         matches = self.monitor.get_matches_with_squad_players()
-        now = datetime.now()
+        # Use Eastern timezone consistently
+        eastern_tz = pytz.timezone('US/Eastern')
+        now = datetime.now(eastern_tz)
         
         next_check_interval = 15  # Default 15 minutes
         
@@ -90,6 +106,7 @@ class SmartScheduler:
                 break
         
         # Run the actual monitoring
+        logger.info("⚡ Running lineup monitoring cycle...")
         self.monitor.run_monitoring_cycle()
         
         # Reschedule next check based on calculated interval

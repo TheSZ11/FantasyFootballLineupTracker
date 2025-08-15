@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-08-14T15:54:49.913812",
+  "generated_at": "2025-08-15T14:41:48.140355",
   "format_version": "1.0",
   "dashboard_version": "1.0.0",
   "data_files": {
@@ -8,8 +8,8 @@
     "status": "status.json"
   },
   "refresh_info": {
-    "last_refresh": "2025-08-14T15:54:49.913814",
+    "last_refresh": "2025-08-15T14:41:48.140356",
     "refresh_interval_seconds": 300,
-    "next_recommended_refresh": "2025-08-14T15:54:49.913815"
+    "next_recommended_refresh": "2025-08-15T14:41:48.140357"
   }
 }

@@ -1,12 +1,12 @@
 {
-  "generated_at": "2025-08-14T15:54:49.913796",
-  "date": "2025-08-14",
+  "generated_at": "2025-08-15T14:41:48.140332",
+  "date": "2025-08-15",
   "summary": {
     "total_players": 15,
     "players_with_predictions": 6,
-    "predicted_starting": 6,
+    "predicted_starting": 4,
     "predicted_bench": 0,
-    "confirmed_starting": 0,
+    "confirmed_starting": 2,
     "confirmed_bench": 0,
     "predicted_unavailable": 0,
     "no_prediction": 9,
@@ -196,10 +196,10 @@
       "position": "Forward",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "predicted_starting",
-      "predicted_status": "predicted_starting",
-      "is_confirmed": false,
-      "status_color": "blue",
+      "lineup_status": "confirmed_starting",
+      "predicted_status": "confirmed_starting",
+      "is_confirmed": true,
+      "status_color": "green",
       "fantasy_points": 15.45,
       "average_points": 0.0,
       "opponent": "BOU Fri 3:00PM",
@@ -207,7 +207,7 @@
       "prediction_info": {
         "team_has_prediction": true,
         "formation": "4-2-3-1",
-        "confirmed": false
+        "confirmed": true
       }
     },
     {
@@ -258,10 +258,10 @@
       "position": "Defender",
       "expected_status": "Res",
       "is_expected_starter": false,
-      "lineup_status": "predicted_starting",
-      "predicted_status": "predicted_starting",
-      "is_confirmed": false,
-      "status_color": "blue",
+      "lineup_status": "confirmed_starting",
+      "predicted_status": "confirmed_starting",
+      "is_confirmed": true,
+      "status_color": "green",
       "fantasy_points": 6.98,
       "average_points": 0.0,
       "opponent": "@LIV Fri 3:00PM",
@@ -269,7 +269,7 @@
       "prediction_info": {
         "team_has_prediction": true,
         "formation": "4-2-3-1",
-        "confirmed": false
+        "confirmed": true
       }
     },
     {
@@ -311,7 +311,7 @@
   ],
   "predicted_lineups": {
     "Liverpool": {
-      "confirmed": false,
+      "confirmed": true,
       "formation": "4-2-3-1",
       "starters": [
         "Alisson",
@@ -319,38 +319,57 @@
         "Ibrahima Konaté",
         "Virgil van Dijk",
         "Miloš Kerkez",
-        "Dominik Szoboszlai",
         "Alexis Mac Allister",
+        "Dominik Szoboszlai",
         "Mohamed Salah",
         "Florian Wirtz",
         "Cody Gakpo",
         "Hugo Ekitiké"
       ],
-      "substitutes": [],
+      "substitutes": [
+        "Giorgi Mamardashvili",
+        "Andrew Robertson",
+        "Joe Gomez",
+        "Wataru Endo",
+        "Curtis Jones",
+        "Harvey Elliott",
+        "Trey Nyoni",
+        "Federico Chiesa",
+        "Rio Ngumoha"
+      ],
       "missing_players": [
         "Ryan Gravenberch",
         "Stefan Bajčetić",
-        "Conor Bradley",
-        "Joe Gomez"
+        "Conor Bradley"
       ]
     },
     "Bournemouth": {
-      "confirmed": false,
+      "confirmed": true,
       "formation": "4-2-3-1",
       "starters": [
         "Đorđe Petrović",
         "Adam Smith",
-        "James Hill",
+        "Bafodé Diakité",
         "Marcos Senesi",
         "Adrien Truffert",
-        "Alex Scott",
         "Tyler Adams",
-        "Marcus Tavernier",
+        "Alex Scott",
         "David Brooks",
+        "Marcus Tavernier",
         "Antoine Semenyo",
         "Evanilson"
       ],
-      "substitutes": [],
+      "substitutes": [
+        "Will Dennis",
+        "Julián Araujo",
+        "James Hill",
+        "Julio Soler",
+        "Philip Billing",
+        "Ben Winterburn",
+        "Hamed Junior Traorè",
+        "Eli Junior Kroupi",
+        "Remy Rees-Dottin"
+      ],
       "missing_players": [
         "Enes Ünal",
         "Lewis Cook",
@@ -378,8 +397,8 @@
       "substitutes": [],
       "missing_players": [
         "Emiliano Martínez",
-        "Ross Barkley",
         "Morgan Rogers",
+        "Ross Barkley",
         "Andrés García"
       ]
     },
@@ -402,7 +421,7 @@
       "substitutes": [],
       "missing_players": [
         "Joe Willock",
-        "Anthony Gordon"
+        "Alexander Isak"
       ]
     },
     "Brighton & Hove Albion": {
@@ -425,9 +444,7 @@
       "missing_players": [
         "Adam Webster",
         "Julio Enciso",
-        "Solly March",
-        "Igor Júlio",
-        "Carlos Baleba"
+        "Solly March"
       ]
     },
     "Fulham": {
@@ -495,7 +512,8 @@
       ],
       "substitutes": [],
       "missing_players": [
-        "Crysencio Summerville"
+        "Crysencio Summerville",
+        "George Earthy"
       ]
     },
     "Tottenham Hotspur": {
@@ -522,7 +540,7 @@
         "Destiny Udogie",
         "Kota Takai",
         "Manor Solomon",
-        "Dominic Solanke"
+        "Bryan Gil"
       ]
     },
     "Burnley": {
@@ -544,7 +562,10 @@
       "substitutes": [],
       "missing_players": [
         "Zeki Amdouni",
-        "Bashir Humphreys"
+        "Bashir Humphreys",
+        "Jordan Beyer",
+        "Manuel Benson",
+        "Zian Flemming"
       ]
     }
   }
