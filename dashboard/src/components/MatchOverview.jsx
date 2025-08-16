@@ -1,4 +1,14 @@
 const MatchOverview = ({ matches }) => {
+  const getMatchDisplay = (match) => {
+    // Get the team name from the first player in the match
+    const playerTeam = match.players[0]?.team || 'Team'
+    
+    if (match.isAway) {
+      return `${playerTeam} @ ${match.opponent}`
+    } else {
+      return `${match.opponent} vs ${playerTeam}`
+    }
+  }
   const formatKickoffTime = (kickoff) => {
     return kickoff.toLocaleTimeString('en-US', {
       hour: 'numeric',
@@ -38,7 +48,7 @@ const MatchOverview = ({ matches }) => {
             {/* Match Header */}
             <div className="flex justify-between items-center mb-3">
               <div className="text-lg font-semibold text-gray-100">
-                {match.homeTeam} vs {match.awayTeam}
+                {getMatchDisplay(match)}
               </div>
               <div className={`px-2 py-1 rounded text-sm font-medium ${
                 timeUntil === 'Started' 

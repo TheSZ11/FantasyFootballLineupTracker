@@ -1,66 +1,8 @@
 import { getTeamLogoConfig } from '../utils/teamLogos';
 import { useState, useEffect } from 'react';
+import { parseMatchTime } from '../utils/matchUtils';
 
 const PlayerCard = ({ player }) => {
-  // Parse opponent string to get match date and time
-  const parseMatchTime = (opponentString) => {
-    if (!opponentString || opponentString.toLowerCase().includes('no match')) return null;
-    
-    // Format: "@LEE Mon 3:00PM" or "BOU Fri 3:00PM"
-    const match = opponentString.match(/^(@)?(\w+)\s+(\w+)\s+(\d{1,2}:\d{2}(AM|PM))$/);
-    if (!match) return null;
-    
-    const [, isAway, opponent, dayOfWeek, timeStr] = match;
-    
-    // Map day names to numbers (0 = Sunday, 1 = Monday, etc.)
-    const dayMap = {
-      'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6
-    };
-    
-    const targetDay = dayMap[dayOfWeek];
-    if (targetDay === undefined) return null;
-    
-    // Get current date and calculate target date
-    const now = new Date();
-    const currentDay = now.getDay();
-    
-    // Calculate days until target day (this week or next week)
-    let daysUntil = targetDay - currentDay;
-    if (daysUntil < 0) {
-      daysUntil += 7; // Next week
-    } else if (daysUntil === 0) {
-      // Same day - check if time has passed
-      const [time, period] = timeStr.split(/(?=[AP]M)/);
-      const [hours, minutes] = time.split(':').map(Number);
-      const hour24 = period === 'PM' && hours !== 12 ? hours + 12 : (period === 'AM' && hours === 12 ? 0 : hours);
-      
-      const targetTime = new Date(now);
-      targetTime.setHours(hour24, minutes, 0, 0);
-      
-      if (targetTime <= now) {
-        daysUntil = 7; // Next week same day
-      }
-    }
-    
-    // Create target date
-    const targetDate = new Date(now);
-    targetDate.setDate(now.getDate() + daysUntil);
-    
-    // Parse time
-    const [time, period] = timeStr.split(/(?=[AP]M)/);
-    const [hours, minutes] = time.split(':').map(Number);
-    const hour24 = period === 'PM' && hours !== 12 ? hours + 12 : (period === 'AM' && hours === 12 ? 0 : hours);
-    
-    targetDate.setHours(hour24, minutes, 0, 0);
-    
-    return {
-      matchDate: targetDate,
-      opponent,
-      isAway,
-      dayOfWeek,
-      timeStr
-    };
-  };
   
   // Calculate countdown
   const calculateCountdown = (matchDate) => {

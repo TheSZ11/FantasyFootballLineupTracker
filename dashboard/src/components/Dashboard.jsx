@@ -3,6 +3,7 @@ import Header from './Header'
 import PlayerCard from './PlayerCard'
 import MatchOverview from './MatchOverview'
 import FormationView from './FormationView'
+import { isPlayingToday, getTodaysMatches, getPlayersPlayingToday } from '../utils/matchUtils'
 
 const Dashboard = ({ data, onRefresh, refreshing = false }) => {
   const [filterStatus, setFilterStatus] = useState('all')
@@ -18,28 +19,13 @@ const Dashboard = ({ data, onRefresh, refreshing = false }) => {
   const filteredPlayers = players.filter(player => {
     if (filterStatus === 'all') return true
     if (filterStatus === 'active') return player.is_expected_starter
-    if (filterStatus === 'matches_today') return player.match_info !== null
+    if (filterStatus === 'matches_today') return isPlayingToday(player)
     if (filterStatus === 'lineup_pending') return player.lineup_status === 'lineup_pending'
     return true
   })
 
   // Get unique matches for today
-  const todaysMatches = players
-    .filter(p => p.match_info)
-    .reduce((matches, player) => {
-      const matchId = player.match_info.id
-      if (!matches.find(m => m.id === matchId)) {
-        matches.push({
-          id: matchId,
-          homeTeam: player.match_info.home_team,
-          awayTeam: player.match_info.away_team,
-          kickoff: new Date(player.match_info.kickoff),
-          players: players.filter(p => p.match_info?.id === matchId)
-        })
-      }
-      return matches
-    }, [])
-    .sort((a, b) => a.kickoff - b.kickoff)
+  const todaysMatches = getTodaysMatches(players)
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -93,7 +79,7 @@ const Dashboard = ({ data, onRefresh, refreshing = false }) => {
                   : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
               }`}
             >
-              Playing Today ({summary.players_with_matches_today})
+              Playing Today ({getPlayersPlayingToday(players).length})
             </button>
             <button
               onClick={() => setFilterStatus('lineup_pending')}
