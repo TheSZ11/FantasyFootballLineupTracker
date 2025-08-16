@@ -37,15 +37,13 @@ class LineupMonitoringService:
         squad_repository: SquadRepository,
         notification_service: 'NotificationService',  # Forward reference
         lineup_analyzer: LineupAnalyzer,
-        alert_generator: AlertGenerator,
-        squad_file_path: str = "my_roster.csv"
+        alert_generator: AlertGenerator
     ):
         self.football_api = football_api
         self.squad_repository = squad_repository
         self.notification_service = notification_service
         self.lineup_analyzer = lineup_analyzer
         self.alert_generator = alert_generator
-        self.squad_file_path = squad_file_path
         
         # State tracking
         self._last_squad_load: Optional[datetime] = None

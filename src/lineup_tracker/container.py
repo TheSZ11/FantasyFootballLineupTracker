@@ -7,6 +7,7 @@ enabling loose coupling and easy testing with mocks.
 
 import asyncio
 import logging
+import os
 from typing import Dict, Any, Optional
 from dataclasses import dataclass, field
 
@@ -61,7 +62,15 @@ class Container:
         """Create minimal configuration for testing/fallback."""
         from .config import (
             APIConfig, NotificationConfig, MonitoringConfig, 
-            LoggingConfig, SecurityConfig
+            LoggingConfig, SecurityConfig, FantraxConfig
+        )
+        
+        # Create minimal Fantrax config with required fields
+        # These should be overridden by actual environment variables
+        fantrax_config = FantraxConfig(
+            league_id=os.getenv('FANTRAX_LEAGUE_ID', 'test-league'),
+            team_id=os.getenv('FANTRAX_TEAM_ID', 'test-team'),
+            enabled=True
         )
         
         return AppConfig(
@@ -70,6 +79,7 @@ class Container:
             monitoring_settings=MonitoringConfig(),
             logging_settings=LoggingConfig(),
             security_settings=SecurityConfig(),
+            fantrax_settings=fantrax_config,
             environment='development',
             debug_mode=True
         )
@@ -160,9 +170,26 @@ class Container:
         return AsyncSofascoreClient(self.config.api_settings)
     
     def _create_squad_repository(self) -> SquadRepository:
-        """Create the squad repository."""
-        from .repositories.csv_squad_repository import CSVSquadRepository
-        return CSVSquadRepository()
+        """Create the Fantrax squad repository."""
+        # Check if Fantrax is enabled
+        if not self.config.fantrax_settings.enabled:
+            raise ConfigurationError(
+                "Fantrax integration is disabled. Please set FANTRAX_ENABLED=true "
+                "environment variable."
+            )
+        
+        logger.info("Creating Fantrax squad repository")
+        from .repositories.fantrax_squad_repository import FantraxSquadRepository
+        from .providers.fantrax_client import FantraxClient
+        
+        # Create Fantrax client
+        fantrax_client = FantraxClient()
+        
+        return FantraxSquadRepository(
+            league_id=self.config.fantrax_settings.league_id,
+            team_id=self.config.fantrax_settings.team_id,
+            fantrax_client=fantrax_client
+        )
     
     def _create_notification_service(self) -> Any:
         """Create the notification service with all configured providers."""

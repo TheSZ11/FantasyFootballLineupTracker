@@ -92,6 +92,35 @@ class DiscordConfig:
 
 
 @dataclass
+class FantraxConfig:
+    """Fantrax integration configuration with validation."""
+    
+    league_id: str
+    team_id: str
+    enabled: bool = True
+    base_url: str = "https://www.fantrax.com/fxea/general"
+    timeout_seconds: int = 30
+    max_retries: int = 3
+    
+    def __post_init__(self):
+        """Validate Fantrax configuration."""
+        if not self.league_id:
+            raise InvalidConfigurationError("Fantrax league ID is required")
+        
+        if not self.team_id:
+            raise InvalidConfigurationError("Fantrax team ID is required")
+        
+        if not self.base_url.startswith(('http://', 'https://')):
+            raise InvalidConfigurationError("Fantrax base URL must start with http:// or https://")
+        
+        if self.timeout_seconds <= 0:
+            raise InvalidConfigurationError("Fantrax timeout must be positive")
+        
+        if self.max_retries < 0:
+            raise InvalidConfigurationError("Fantrax max retries cannot be negative")
+
+
+@dataclass
 class NotificationConfig:
     """Notification system configuration with provider settings."""
     
@@ -128,9 +157,9 @@ class MonitoringConfig:
     final_sprint_minutes: int = 5
     final_sprint_interval_minutes: int = 1
     
-    # File and data settings
-    squad_file_path: str = "my_roster.csv"
-    backup_squad_file_path: Optional[str] = None
+    # Legacy file settings (no longer used - using Fantrax API)
+    # squad_file_path: str = "my_roster.csv"  # Removed - using Fantrax
+    # backup_squad_file_path: Optional[str] = None  # Removed - using Fantrax
     
     # Analysis settings
     min_analysis_interval_minutes: int = 5
@@ -160,8 +189,7 @@ class MonitoringConfig:
         if self.min_analysis_interval_minutes <= 0:
             raise InvalidConfigurationError("Minimum analysis interval must be positive")
         
-        if not self.squad_file_path:
-            raise InvalidConfigurationError("Squad file path is required")
+        # Note: squad_file_path validation removed - using Fantrax API instead
         
         if self.max_concurrent_requests <= 0:
             raise InvalidConfigurationError("Max concurrent requests must be positive")
@@ -227,6 +255,7 @@ class AppConfig:
     monitoring_settings: MonitoringConfig
     logging_settings: LoggingConfig
     security_settings: SecurityConfig
+    fantrax_settings: FantraxConfig
     
     # Global application settings
     user_timezone: str = "UTC"
@@ -298,6 +327,24 @@ class AppConfig:
                     retry_attempts=int(os.getenv('DISCORD_RETRY_ATTEMPTS', '3'))
                 )
             
+            # Fantrax settings (required)
+            league_id = os.getenv('FANTRAX_LEAGUE_ID')
+            team_id = os.getenv('FANTRAX_TEAM_ID')
+            
+            if not league_id:
+                raise MissingConfigurationError("FANTRAX_LEAGUE_ID environment variable is required")
+            if not team_id:
+                raise MissingConfigurationError("FANTRAX_TEAM_ID environment variable is required")
+                
+            fantrax_config = FantraxConfig(
+                league_id=league_id,
+                team_id=team_id,
+                enabled=os.getenv('FANTRAX_ENABLED', 'true').lower() == 'true',
+                base_url=os.getenv('FANTRAX_BASE_URL', 'https://www.fantrax.com/fxea/general'),
+                timeout_seconds=int(os.getenv('FANTRAX_TIMEOUT_SECONDS', '30')),
+                max_retries=int(os.getenv('FANTRAX_MAX_RETRIES', '3'))
+            )
+            
             # Notification settings
             notification_settings = NotificationConfig(
                 email_enabled=email_config is not None and os.getenv('EMAIL_ENABLED', 'true').lower() == 'true',
@@ -316,8 +363,7 @@ class AppConfig:
                 pre_match_window_minutes=int(os.getenv('PRE_MATCH_WINDOW_MINUTES', '60')),
                 final_sprint_minutes=int(os.getenv('FINAL_SPRINT_MINUTES', '5')),
                 final_sprint_interval_minutes=int(os.getenv('FINAL_SPRINT_INTERVAL_MINUTES', '1')),
-                squad_file_path=os.getenv('SQUAD_FILE_PATH', 'my_roster.csv'),
-                backup_squad_file_path=os.getenv('BACKUP_SQUAD_FILE_PATH'),
+                # Note: squad_file_path and backup_squad_file_path removed - using Fantrax API
                 min_analysis_interval_minutes=int(os.getenv('MIN_ANALYSIS_INTERVAL_MINUTES', '5')),
                 cache_lineup_data_minutes=int(os.getenv('CACHE_LINEUP_DATA_MINUTES', '10')),
                 max_concurrent_requests=int(os.getenv('MAX_CONCURRENT_REQUESTS', '5')),
@@ -350,6 +396,7 @@ class AppConfig:
                 monitoring_settings=monitoring_settings,
                 logging_settings=logging_settings,
                 security_settings=security_settings,
+                fantrax_settings=fantrax_config,
                 user_timezone=os.getenv('USER_TIMEZONE', 'UTC'),
                 environment=os.getenv('ENVIRONMENT', 'production'),
                 debug_mode=os.getenv('DEBUG_MODE', 'false').lower() == 'true'
@@ -486,18 +533,10 @@ class AppConfig:
         """
         issues = []
         
-        # Check squad file exists
-        squad_path = Path(self.monitoring_settings.squad_file_path)
-        if not squad_path.exists():
-            issues.append(f"Squad file not found: {squad_path}")
-        elif not squad_path.is_file():
-            issues.append(f"Squad path is not a file: {squad_path}")
-        
-        # Check backup squad file if specified
-        if self.monitoring_settings.backup_squad_file_path:
-            backup_path = Path(self.monitoring_settings.backup_squad_file_path)
-            if not backup_path.exists():
-                issues.append(f"Backup squad file not found: {backup_path}")
+        # Note: Squad file validation removed - using Fantrax API instead of CSV files
+        # Check that Fantrax is properly configured
+        if not self.fantrax_settings.enabled:
+            issues.append("Fantrax integration is disabled but is required for squad data")
         
         # Check log file directory if specified
         if self.logging_settings.log_file:
@@ -542,7 +581,7 @@ class AppConfig:
             "",
             f"⏰ Monitoring:",
             f"   Check Interval: {self.monitoring_settings.check_interval_minutes} minutes",
-            f"   Squad File: {self.monitoring_settings.squad_file_path}",
+            f"   Squad Source: Fantrax API",
             f"   Pre-match Window: {self.monitoring_settings.pre_match_window_minutes} minutes",
             "",
             f"📝 Logging:",

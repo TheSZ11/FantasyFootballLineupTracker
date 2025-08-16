@@ -97,9 +97,8 @@ class DashboardExportService:
             return ""
         
         try:
-            # Use the default squad file path from config
-            squad_file_path = "my_roster.csv"  # This should match your actual roster file
-            squad = self.squad_repository.load_squad(squad_file_path)
+            # Get squad from Fantrax API repository
+            squad = await self.squad_repository.get_squad()
             
             squad_data = {
                 'last_updated': squad.last_updated.isoformat(),
@@ -192,9 +191,8 @@ class DashboardExportService:
             return ""
         
         try:
-            # Load squad
-            squad_file_path = "my_roster.csv"  # This should match your actual roster file  
-            squad = self.squad_repository.load_squad(squad_file_path)
+            # Get squad from Fantrax API
+            squad = await self.squad_repository.get_squad()
             
             # Get today's matches
             today = datetime.now()
