@@ -33,6 +33,10 @@ jobs:
         pip install -r requirements.txt
         
     - name: Export roster data from Fantrax API
+      env:
+        FANTRAX_LEAGUE_ID: ${{ secrets.FANTRAX_LEAGUE_ID }}
+        FANTRAX_TEAM_ID: ${{ secrets.FANTRAX_TEAM_ID }}
+        FANTRAX_ENABLED: true
       run: |
         python -m src.lineup_tracker.async_main export
         
