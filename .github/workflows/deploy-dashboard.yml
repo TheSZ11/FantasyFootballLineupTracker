@@ -32,9 +32,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Export roster data
+    - name: Export roster data from Fantrax API
       run: |
-        python export_squad_only.py
+        python -m src.lineup_tracker.async_main export
         
     - name: Set up Node.js
       uses: actions/setup-node@v4

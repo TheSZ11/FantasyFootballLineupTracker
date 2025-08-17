@@ -32,12 +32,17 @@ USER_TIMEZONE=UTC
 ### API Configuration
 
 ```bash
-# Sofascore API settings
+# Sofascore API settings (for lineup data)
 API_BASE_URL=https://api.sofascore.com
 API_TIMEOUT_SECONDS=30
 API_MAX_RETRIES=3
 API_RATE_LIMIT_PER_MINUTE=60
 API_CONNECTION_POOL_SIZE=10
+
+# Fantrax API settings (for your team roster)
+FANTRAX_ENABLED=true
+FANTRAX_LEAGUE_ID=your-league-id-here
+FANTRAX_TEAM_ID=your-team-id-here
 ```
 
 ### Discord Notifications

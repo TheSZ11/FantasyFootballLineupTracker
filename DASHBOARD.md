@@ -22,7 +22,8 @@ The LineupTracker Dashboard provides a clean, mobile-friendly interface to view 
 ### Prerequisites
 
 - Node.js 18+ installed
-- Your LineupTracker project set up with `my_roster.csv`
+- Your LineupTracker project set up with Fantrax API integration
+- Valid `FANTRAX_LEAGUE_ID` and `FANTRAX_TEAM_ID` in your `.env` file
 
 ### 1. Set Up Dashboard Locally
 
@@ -33,8 +34,8 @@ cd dashboard
 # Install dependencies (first time only)
 npm install
 
-# Export your roster data
-npm run export-data
+# Export your roster data from Fantrax API
+python -m src.lineup_tracker.async_main export
 
 # Start development server
 npm run dev
@@ -67,8 +68,11 @@ npm run dev
 ```bash
 cd dashboard
 
-# Update data and build for production
-npm run build-with-data
+# Export live data from Fantrax API
+python -m src.lineup_tracker.async_main export
+
+# Build for production
+npm run build
 
 # Deploy to GitHub Pages
 npm run deploy
@@ -91,8 +95,8 @@ Each player is displayed as a card with color-coded status:
 
 Use the filter tabs to focus on specific players:
 
-- **All Players**: Your complete roster
-- **Starters**: Only players expected to start (Status = "Act" in CSV)
+- **All Players**: Your complete roster from Fantrax
+- **Starters**: Only players marked as active in your Fantrax team
 - **Playing Today**: Players whose teams have matches today
 - **Pending**: Players with lineups not yet confirmed
 
@@ -145,31 +149,31 @@ The dashboard reads data from JSON files exported by your Python application.
 ### Manual Export
 
 ```bash
-# Quick export (bypasses API issues)
-python export_squad_only.py
+# Export live data from Fantrax API
+python -m src.lineup_tracker.async_main export
 
-# Full export (requires working API connection)
-python -m src.lineup_tracker.async_main export --export-dir dashboard/public/data
+# Data will be exported to dashboard/public/data/
 ```
 
 ### Automatic Export
 
-The dashboard npm scripts handle data export automatically:
+Data export is handled via Python commands:
 
 ```bash
-# Export data only
-npm run export-data
+# Export live data from Fantrax API
+python -m src.lineup_tracker.async_main export
 
-# Export data and build dashboard
-npm run build-with-data
+# Then build dashboard
+cd dashboard && npm run build
 ```
 
 ### Data Files
 
 The exported data includes:
 
-- **`squad.json`**: Your complete roster information
+- **`squad.json`**: Your complete roster from Fantrax with real player names
 - **`lineup_status.json`**: Current lineup status for each player
+- **`matches.json`**: Today's matches involving your players
 - **`status.json`**: System monitoring status
 - **`metadata.json`**: Dashboard metadata and refresh info
 
@@ -177,17 +181,17 @@ The exported data includes:
 
 ## 🔄 Updating Your Roster
 
-### 1. Update CSV File
+### 1. Update Fantrax Team
 
-Edit your `my_roster.csv` file:
-- Add/remove players
-- Update player status (`Act` for starters, `Res` for bench)
-- Modify any player information
+Modify your team in your Fantrax league:
+- Add/remove players through trades or waivers
+- Set starting lineup and bench players
+- Update player positions if needed
 
 ### 2. Export Fresh Data
 
 ```bash
-python export_squad_only.py
+python -m src.lineup_tracker.async_main export
 ```
 
 ### 3. Rebuild Dashboard
@@ -224,16 +228,17 @@ cd dashboard
 rm -rf node_modules package-lock.json
 npm install
 
-# Rebuild data and dashboard
-npm run build-with-data
+# Export fresh data and rebuild dashboard
+python -m src.lineup_tracker.async_main export
+npm run build
 ```
 
 ### Data Not Updating
 
 **Ensure data export is working:**
 ```bash
-# Test data export
-python export_squad_only.py
+# Test data export from Fantrax API
+python -m src.lineup_tracker.async_main export
 
 # Check if files were created
 ls -la dashboard/public/data/
@@ -274,12 +279,8 @@ ls -la dashboard/public/data/
 # Development
 npm run dev                 # Start development server
 
-# Data Export
-npm run export-data         # Export roster data only
-npm run build-with-data     # Export data + build for production
-
 # Building
-npm run build              # Build for production (no data export)
+npm run build              # Build for production
 npm run preview           # Preview production build locally
 
 # Deployment
@@ -287,6 +288,9 @@ npm run deploy            # Deploy to GitHub Pages (manual)
 
 # Maintenance
 npm run lint              # Check code quality
+
+# Data Export (via Python)
+python -m src.lineup_tracker.async_main export  # Export live Fantrax data
 ```
 
 ---
@@ -296,9 +300,10 @@ npm run lint              # Check code quality
 ```
 dashboard/
 ├── 📦 public/                    # Static assets
-│   ├── 📊 data/                  # Exported JSON data
-│   │   ├── squad.json           # Your roster
+│   ├── 📊 data/                  # Exported JSON data from Fantrax API
+│   │   ├── squad.json           # Your roster with real player names
 │   │   ├── lineup_status.json   # Player statuses
+│   │   ├── matches.json         # Today's matches
 │   │   ├── status.json          # System status
 │   │   └── metadata.json        # Dashboard metadata
 │   └── 🖼️ favicon.ico            # Site icon

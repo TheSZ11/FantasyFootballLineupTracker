@@ -15,10 +15,10 @@ Never miss when your expected starters are benched! LineupTracker monitors offic
 - **🧠 Smart Scheduling**: Only monitors 60 minutes before matches (no 24/7 polling)
 - **⚽ Premier League 2025-26**: Supports all 20 teams in the current season
 - **📢 Multi-Platform Notifications**: Discord webhooks + Email alerts
-- **📊 CSV Squad Management**: Simple file-based roster updates
+- **🔗 Live API Integration**: Real-time data from Fantrax fantasy platform
 - **🔓 No API Key Required**: Uses free Sofascore data source
 - **⚡ Real-time Monitoring**: Checks every minute in final 5 minutes before kickoff
-- **🎨 Rich Notifications**: Beautiful Discord embeds with player stats
+- **🎨 Discord Lineup Summaries**: Comprehensive match-day summaries with all your players
 - **📊 Web Dashboard**: Beautiful, responsive dashboard for monitoring your lineup
 - **🏈 Team Logos**: Official logos for all 20 Premier League 2025-26 teams
 
@@ -48,7 +48,7 @@ The setup script will guide you through:
 - ✅ Dependency verification
 - ⚙️ Environment configuration  
 - 📧 Notification setup (Discord/Email)
-- 📋 Squad file creation
+- 🔗 Fantrax API integration setup
 - 🧪 System testing
 
 ### Manual Setup
@@ -95,33 +95,30 @@ EMAIL_USERNAME=your-email@gmail.com
 EMAIL_PASSWORD=your-app-password
 EMAIL_RECIPIENT=recipient@example.com
 
-# Squad Configuration
-SQUAD_FILE_PATH=my_roster.csv
+# Fantrax Integration
+FANTRAX_ENABLED=true
+FANTRAX_LEAGUE_ID=your-league-id
+FANTRAX_TEAM_ID=your-team-id
 CHECK_INTERVAL_MINUTES=15
 ```
 
-#### 3. Squad Setup
+#### 3. Fantrax API Setup
 
-Choose one option:
+**Get Your Fantrax League Information:**
+1. Log into your Fantrax league
+2. Go to your team page
+3. Copy the League ID and Team ID from the URL:
+   - URL format: `fantrax.com/fantasy/league/LEAGUE_ID/team/TEAM_ID`
+4. Add these to your `.env` file:
+   ```bash
+   FANTRAX_LEAGUE_ID=your-league-id-here
+   FANTRAX_TEAM_ID=your-team-id-here
+   ```
 
-**Option A: Fantrax Export (Recommended)**
-1. Export your roster from Fantrax as CSV
-2. Save as `my_roster.csv`
-3. Set `Status` column: `Act` for starters, `Res` for bench
-
-**Option B: Simple Format**
-```csv
-player_name,team_name,position,currently_starting,notes
-Mohamed Salah,Liverpool,Forward,true,Captain choice
-Erling Haaland,Manchester City,Forward,true,Premium striker
-Kevin De Bruyne,Manchester City,Midfielder,false,Rotation risk
-```
-
-**Option C: Use Example**
-```bash
-cp examples/sample_roster.csv my_roster.csv
-# Edit to match your actual team
-```
+**Player Mapping File:**
+- The system uses `playerMapping.csv` to map Fantrax player IDs to real names
+- This file is included and contains 600+ Premier League players
+- Your players will be automatically matched when monitoring starts
 
 </details>
 
@@ -136,8 +133,11 @@ python main.py
 
 ### Test Your Setup
 ```bash
-# Test all components
-python test_system.py
+# Test all components (moved to tests directory)
+python tests/integration/test_system.py
+
+# Test Fantrax API connection
+python -m src.lineup_tracker.async_main test
 
 # Test notifications only
 python -c "from src.lineup_tracker.providers.discord_provider import DiscordProvider; provider = DiscordProvider('your-webhook'); provider.test_connection()"
@@ -170,8 +170,8 @@ LineupTracker includes a beautiful, responsive web dashboard that displays your 
 ### 🚀 Quick Dashboard Setup
 
 ```bash
-# 1. Export your squad data
-python export_squad_only.py
+# 1. Export your squad data from live Fantrax API
+python -m src.lineup_tracker.async_main export
 
 # 2. Start the dashboard locally
 cd dashboard
@@ -209,8 +209,9 @@ Make your dashboard available online for free with GitHub Pages:
 ```bash
 cd dashboard
 
-# Update your roster data and build
-npm run build-with-data
+# Export live data and build
+python -m src.lineup_tracker.async_main export
+npm run build
 
 # Deploy to GitHub Pages
 npm run deploy
@@ -248,12 +249,12 @@ export default defineConfig({
 
 #### Customize for Your Roster
 
-The dashboard automatically reads your `my_roster.csv` file. To update:
+The dashboard automatically reads live data from your Fantrax team. To update:
 
-1. **Update your roster**: Edit `my_roster.csv` 
-2. **Export fresh data**: `python export_squad_only.py`
+1. **Update your Fantrax team**: Add/remove players in your Fantrax league
+2. **Export fresh data**: `python -m src.lineup_tracker.async_main export`
 3. **Rebuild dashboard**: `cd dashboard && npm run build`
-4. **Deploy updates**: `git add . && git commit -m "Update roster" && git push`
+4. **Deploy updates**: `git add . && git commit -m "Update roster data" && git push`
 
 ### 📁 Dashboard Structure
 
@@ -290,27 +291,31 @@ dashboard/
 
 ### 📱 Notification Types
 
-#### 🚨 Urgent Alerts (Email + Discord)
-- **Player Benched**: Expected starter is on the bench
-- **Unexpected Starter**: Bench player is starting
+#### 🎯 Match-Day Lineup Summaries (Discord)
+- **Comprehensive Overview**: All your players in confirmed lineups
+- **Starting Status**: Who's starting vs. benched for each match
+- **Match Details**: Opponent, kickoff time, venue
+- **Sent Once Per Match**: When lineups are confirmed (usually 60 minutes before kickoff)
 
-#### ℹ️ Info Updates (Discord Only)  
-- Lineup confirmations
-- System status messages
-- Connection tests
+#### 🔧 System Updates (Discord)  
+- Monitoring status messages
+- API connection tests
+- Error notifications
 
-### 📋 Example Alert
+### 📋 Example Lineup Summary
 
 ```
-🚨 Mohamed Salah BENCHED!
+⚽ LINEUP SUMMARY - 2 Matches Today
 
-Team: Liverpool
-Position: Forward  
-Match: Liverpool vs Arsenal
-Kickoff: 15:00
-Avg Points: 18.4 per game
+🔴 Liverpool vs Arsenal (15:00)
+✅ Mohamed Salah - Starting
+❌ Diogo Jota - Benched
 
-⚠️ You may want to update your lineup!
+🔵 Manchester City vs Chelsea (17:30)  
+✅ Erling Haaland - Starting
+✅ Kevin De Bruyne - Starting
+
+📊 Summary: 3 starting, 1 benched
 ```
 
 ---
@@ -324,8 +329,8 @@ LineupTracker/
 ├── 🧪 test_system.py            # System testing
 ├── ⚙️ requirements.txt           # Dependencies
 ├── 📄 .env                       # Your configuration
-├── 📊 my_roster.csv             # Your squad data
-├── 🗂️ export_squad_only.py       # Quick dashboard data export
+├── 📊 playerMapping.csv         # Player ID to name mappings
+├── 📂 dashboard/public/data/    # Dashboard JSON exports
 │
 ├── 📂 src/lineup_tracker/        # Core application
 │   ├── 🔧 config/               # Configuration management
@@ -405,9 +410,9 @@ LineupTracker/
 <summary>🔴 Common Issues</summary>
 
 ### "No squad loaded"
-- ✅ Check `my_roster.csv` exists in project directory
-- ✅ Verify CSV has required columns
-- ✅ Run `python test_system.py` to diagnose
+- ✅ Check Fantrax API credentials in `.env` file
+- ✅ Verify `FANTRAX_LEAGUE_ID` and `FANTRAX_TEAM_ID` are correct
+- ✅ Run `python tests/integration/test_system.py` to diagnose
 
 ### "API connection failed"  
 - ✅ Check internet connection
@@ -417,7 +422,7 @@ LineupTracker/
 ### "Notification failed"
 - **Discord**: Verify webhook URL is correct and channel exists
 - **Email**: Check app password (not regular password) 
-- ✅ Test with: `python test_system.py`
+- ✅ Test with: `python tests/integration/test_system.py`
 
 ### "No matches detected"
 - ✅ System only monitors Premier League matches

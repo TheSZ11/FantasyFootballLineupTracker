@@ -39,10 +39,10 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Configure
+# Configure environment and Fantrax API
 python setup.py
 
-# Run
+# Run monitoring
 python main.py
 ```
 
