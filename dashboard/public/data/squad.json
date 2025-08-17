@@ -1,146 +1,179 @@
 {
-  "last_updated": "2025-08-15T14:41:47.517879",
+  "last_updated": "2025-08-17T14:22:23.741732",
   "total_players": 15,
   "active_players": 11,
   "reserve_players": 4,
   "teams_represented": [
-    "Newcastle United",
-    "Bournemouth",
-    "Liverpool",
-    "Nottingham Forest",
-    "Manchester United",
-    "West Ham United",
-    "Sunderland",
-    "Brighton",
-    "Brentford",
-    "Everton",
-    "Wolverhampton Wanderers"
+    "BRF",
+    "MUN",
+    "BOU",
+    "WOL",
+    "SUN",
+    "WHU",
+    "EVE",
+    "LIV",
+    "BHA",
+    "NEW"
   ],
   "players": [
     {
-      "id": "*032f9*",
+      "id": "032f9",
       "name": "Jordan Pickford",
       "team": {
-        "name": "Everton",
+        "name": "EVE",
         "abbreviation": "EVE"
       },
       "position": "Goalkeeper",
       "status": "Act",
       "is_active": true,
-      "fantasy_points": 10.57,
+      "fantasy_points": 0.0,
       "average_points": 0.0,
-      "age": 31,
-      "opponent": "@LEE Mon 3:00PM",
+      "age": null,
+      "opponent": null,
       "games_played": null,
-      "draft_percentage": "100"
+      "draft_percentage": null
     },
     {
-      "id": "*05y9n*",
-      "name": "Lewis Hall",
+      "id": "06ymu",
+      "name": "El Hadji Malick Diouf",
       "team": {
-        "name": "Newcastle United",
-        "abbreviation": "NEW"
+        "name": "WHU",
+        "abbreviation": "WHU"
       },
-      "position": "Defender",
+      "position": "Midfielder",
       "status": "Act",
       "is_active": true,
-      "fantasy_points": 10.82,
+      "fantasy_points": 0.0,
       "average_points": 0.0,
-      "age": 20,
-      "opponent": "@AVL Sat 7:30AM",
+      "age": null,
+      "opponent": null,
       "games_played": null,
-      "draft_percentage": "100"
+      "draft_percentage": null
     },
     {
-      "id": "*0427d*",
+      "id": "0427d",
       "name": "James Tarkowski",
       "team": {
-        "name": "Everton",
+        "name": "EVE",
         "abbreviation": "EVE"
       },
       "position": "Defender",
       "status": "Act",
       "is_active": true,
-      "fantasy_points": 10.61,
+      "fantasy_points": 0.0,
       "average_points": 0.0,
-      "age": 32,
-      "opponent": "@LEE Mon 3:00PM",
+      "age": null,
+      "opponent": null,
       "games_played": null,
-      "draft_percentage": "100"
+      "draft_percentage": null
     },
     {
-      "id": "*04adp*",
-      "name": "Aaron Wan-Bissaka",
+      "id": "06mow",
+      "name": "Jorgen Strand Larsen",
       "team": {
-        "name": "West Ham United",
-        "abbreviation": "WHU"
+        "name": "WOL",
+        "abbreviation": "WOL"
+      },
+      "position": "Forward",
+      "status": "Act",
+      "is_active": true,
+      "fantasy_points": 0.0,
+      "average_points": 0.0,
+      "age": null,
+      "opponent": null,
+      "games_played": null,
+      "draft_percentage": null
+    },
+    {
+      "id": "05y9n",
+      "name": "Lewis Hall",
+      "team": {
+        "name": "NEW",
+        "abbreviation": "NEW"
       },
       "position": "Defender",
       "status": "Act",
       "is_active": true,
-      "fantasy_points": 13.04,
+      "fantasy_points": 0.0,
       "average_points": 0.0,
-      "age": 27,
-      "opponent": "@SUN Sat 10:00AM",
+      "age": null,
+      "opponent": null,
       "games_played": null,
-      "draft_percentage": "100"
+      "draft_percentage": null
     },
     {
-      "id": "*063q8*",
+      "id": "06zce",
+      "name": "Jhon Arias",
+      "team": {
+        "name": "WOL",
+        "abbreviation": "WOL"
+      },
+      "position": "Midfielder",
+      "status": "Res",
+      "is_active": false,
+      "fantasy_points": 0.0,
+      "average_points": 0.0,
+      "age": null,
+      "opponent": null,
+      "games_played": null,
+      "draft_percentage": null
+    },
+    {
+      "id": "03aqp",
+      "name": "Mohamed Salah",
+      "team": {
+        "name": "LIV",
+        "abbreviation": "LIV"
+      },
+      "position": "Forward",
+      "status": "Act",
+      "is_active": true,
+      "fantasy_points": 0.0,
+      "average_points": 0.0,
+      "age": null,
+      "opponent": null,
+      "games_played": null,
+      "draft_percentage": null
+    },
+    {
+      "id": "063q8",
       "name": "Mikkel Damsgaard",
       "team": {
-        "name": "Brentford",
+        "name": "BRF",
         "abbreviation": "BRF"
       },
       "position": "Midfielder",
       "status": "Act",
       "is_active": true,
-      "fantasy_points": 11.41,
+      "fantasy_points": 0.0,
       "average_points": 0.0,
-      "age": 25,
-      "opponent": "@NOT Sun 9:00AM",
+      "age": null,
+      "opponent": null,
       "games_played": null,
-      "draft_percentage": "99"
+      "draft_percentage": null
     },
     {
-      "id": "*06ymu*",
-      "name": "El Hadji Malick Diouf",
+      "id": "04adp",
+      "name": "Aaron Wan-Bissaka",
       "team": {
-        "name": "West Ham United",
+        "name": "WHU",
         "abbreviation": "WHU"
       },
-      "position": "Midfielder",
+      "position": "Defender",
       "status": "Act",
       "is_active": true,
-      "fantasy_points": 11.31,
+      "fantasy_points": 0.0,
       "average_points": 0.0,
-      "age": 20,
-      "opponent": "@SUN Sat 10:00AM",
+      "age": null,
+      "opponent": null,
       "games_played": null,
-      "draft_percentage": "52"
+      "draft_percentage": null
     },
     {
-      "id": "*062ci*",
-      "name": "Kaoru Mitoma",
-      "team": {
-        "name": "Brighton",
-        "abbreviation": "BHA"
-      },
-      "position": "Midfielder",
-      "status": "Act",
-      "is_active": true,
-      "fantasy_points": 14.04,
-      "average_points": 0.0,
-      "age": 28,
-      "opponent": "FUL Sat 10:00AM",
-      "games_played": null,
-      "draft_percentage": "100"
-    },
-    {
-      "id": "*052cd*",
+      "id": "052cd",
       "name": "Mason Mount",
       "team": {
-        "name": "Manchester United",
+        "name": "MUN",
         "abbreviation": "MUN"
       },
       "position": "Midfielder",
@@ -148,129 +181,95 @@
       "is_active": true,
       "fantasy_points": 0.0,
       "average_points": 0.0,
-      "age": 26,
-      "opponent": "ARS Sun 11:30AM",
+      "age": null,
+      "opponent": null,
       "games_played": null,
-      "draft_percentage": "22"
+      "draft_percentage": null
     },
     {
-      "id": "*06fvn*",
-      "name": "Beto",
-      "team": {
-        "name": "Everton",
-        "abbreviation": "EVE"
-      },
-      "position": "Forward",
-      "status": "Act",
-      "is_active": true,
-      "fantasy_points": 9.37,
-      "average_points": 0.0,
-      "age": 27,
-      "opponent": "@LEE Mon 3:00PM",
-      "games_played": null,
-      "draft_percentage": "67"
-    },
-    {
-      "id": "*03aqp*",
-      "name": "Mohamed Salah",
-      "team": {
-        "name": "Liverpool",
-        "abbreviation": "LIV"
-      },
-      "position": "Forward",
-      "status": "Act",
-      "is_active": true,
-      "fantasy_points": 15.45,
-      "average_points": 0.0,
-      "age": 33,
-      "opponent": "BOU Fri 3:00PM",
-      "games_played": null,
-      "draft_percentage": "100"
-    },
-    {
-      "id": "*06mow*",
-      "name": "Jorgen Strand Larsen",
-      "team": {
-        "name": "Wolverhampton Wanderers",
-        "abbreviation": "WOL"
-      },
-      "position": "Forward",
-      "status": "Act",
-      "is_active": true,
-      "fantasy_points": 14.0,
-      "average_points": 0.0,
-      "age": 25,
-      "opponent": "MCI Sat 12:30PM",
-      "games_played": null,
-      "draft_percentage": "99"
-    },
-    {
-      "id": "*06v0g*",
-      "name": "Trai Hume",
-      "team": {
-        "name": "Sunderland",
-        "abbreviation": "SUN"
-      },
-      "position": "Defender",
-      "status": "Res",
-      "is_active": false,
-      "fantasy_points": 12.21,
-      "average_points": 0.0,
-      "age": 23,
-      "opponent": "WHU Sat 10:00AM",
-      "games_played": null,
-      "draft_percentage": "39"
-    },
-    {
-      "id": "*06uyc*",
+      "id": "06uyc",
       "name": "Adrien Truffert",
       "team": {
-        "name": "Bournemouth",
+        "name": "BOU",
         "abbreviation": "BOU"
       },
       "position": "Defender",
       "status": "Res",
       "is_active": false,
-      "fantasy_points": 6.98,
-      "average_points": 0.0,
-      "age": 23,
-      "opponent": "@LIV Fri 3:00PM",
-      "games_played": null,
-      "draft_percentage": "91"
-    },
-    {
-      "id": "*06zce*",
-      "name": "Jhon Arias",
-      "team": {
-        "name": "Wolverhampton Wanderers",
-        "abbreviation": "WOL"
-      },
-      "position": "Midfielder",
-      "status": "Res",
-      "is_active": false,
       "fantasy_points": 0.0,
       "average_points": 0.0,
-      "age": 27,
-      "opponent": "MCI Sat 12:30PM",
+      "age": null,
+      "opponent": null,
       "games_played": null,
-      "draft_percentage": "56"
+      "draft_percentage": null
     },
     {
-      "id": "*03frx*",
-      "name": "Ola Aina",
+      "id": "05l27",
+      "name": "Jarrad Branthwaite",
       "team": {
-        "name": "Nottingham Forest",
-        "abbreviation": "NOT"
+        "name": "EVE",
+        "abbreviation": "EVE"
       },
       "position": "Defender",
       "status": "Res",
       "is_active": false,
-      "fantasy_points": 10.75,
+      "fantasy_points": 0.0,
       "average_points": 0.0,
-      "age": 28,
-      "opponent": "BRF Sun 9:00AM",
+      "age": null,
+      "opponent": null,
       "games_played": null,
-      "draft_percentage": "62"
+      "draft_percentage": null
+    },
+    {
+      "id": "06fvn",
+      "name": "Beto",
+      "team": {
+        "name": "EVE",
+        "abbreviation": "EVE"
+      },
+      "position": "Forward",
+      "status": "Act",
+      "is_active": true,
+      "fantasy_points": 0.0,
+      "average_points": 0.0,
+      "age": null,
+      "opponent": null,
+      "games_played": null,
+      "draft_percentage": null
+    },
+    {
+      "id": "062ci",
+      "name": "Kaoru Mitoma",
+      "team": {
+        "name": "BHA",
+        "abbreviation": "BHA"
+      },
+      "position": "Midfielder",
+      "status": "Act",
+      "is_active": true,
+      "fantasy_points": 0.0,
+      "average_points": 0.0,
+      "age": null,
+      "opponent": null,
+      "games_played": null,
+      "draft_percentage": null
+    },
+    {
+      "id": "06v0g",
+      "name": "Trai Hume",
+      "team": {
+        "name": "SUN",
+        "abbreviation": "SUN"
+      },
+      "position": "Defender",
+      "status": "Res",
+      "is_active": false,
+      "fantasy_points": 0.0,
+      "average_points": 0.0,
+      "age": null,
+      "opponent": null,
+      "games_played": null,
+      "draft_percentage": null
     }
   ]
 }

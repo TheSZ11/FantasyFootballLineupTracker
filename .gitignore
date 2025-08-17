@@ -180,6 +180,23 @@ test_data/
 sample_data/
 dev_data/
 
+# Temporary debugging and test scripts (prevent future accumulation)
+debug_*.py
+test_*.py
+*_debug.py
+*_test.py
+compare_*.py
+inspect_*.py
+verify_*.py
+cleanup_*.py
+temp_*.py
+manual_*.py
+
+# Dashboard build and backup directories
+dashboard/dist/
+dashboard/data_backup_*/
+*_backup_*/
+
 # User-specific configuration overrides
 config/local.py
 config/development.py

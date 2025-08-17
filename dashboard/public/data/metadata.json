@@ -1,15 +1,16 @@
 {
-  "generated_at": "2025-08-15T14:41:48.140355",
+  "generated_at": "2025-08-17T14:22:23.864388",
   "format_version": "1.0",
   "dashboard_version": "1.0.0",
   "data_files": {
     "squad": "squad.json",
+    "matches": "matches.json",
     "lineup_status": "lineup_status.json",
     "status": "status.json"
   },
   "refresh_info": {
-    "last_refresh": "2025-08-15T14:41:48.140356",
+    "last_refresh": "2025-08-17T14:22:23.864391",
     "refresh_interval_seconds": 300,
-    "next_recommended_refresh": "2025-08-15T14:41:48.140357"
+    "next_recommended_refresh": "2025-08-17T14:27:23.864392"
   }
 }

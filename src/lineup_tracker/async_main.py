@@ -183,7 +183,7 @@ class AsyncLineupTracker:
         
         return status
     
-    async def export_dashboard_data(self, export_directory: str = "dashboard/data") -> Dict[str, str]:
+    async def export_dashboard_data(self, export_directory: str = "dashboard/public/data") -> Dict[str, str]:
         """Export current data for dashboard consumption."""
         if not self.container:
             raise LineupMonitoringError("Application not initialized. Call initialize() first.")
@@ -309,7 +309,7 @@ async def run_test_connection():
         return 1
 
 
-async def run_dashboard_export(export_directory: str = "dashboard/data"):
+async def run_dashboard_export(export_directory: str = "dashboard/public/data"):
     """Export dashboard data and exit."""
     try:
         async with create_app() as app:
@@ -354,8 +354,8 @@ def main():
     
     parser.add_argument(
         '--export-dir',
-        default='dashboard/data',
-        help='Directory to export dashboard data (default: dashboard/data)'
+        default='dashboard/public/data',
+        help='Directory to export dashboard data (default: dashboard/public/data)'
     )
     
     args = parser.parse_args()

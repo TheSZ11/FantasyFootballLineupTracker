@@ -31,7 +31,7 @@ class DashboardExportService:
     
     def __init__(
         self,
-        export_directory: str = "dashboard/data",
+        export_directory: str = "dashboard/public/data",
         football_api: Optional[FootballDataProvider] = None,
         squad_repository: Optional[SquadRepository] = None,
         lineup_analyzer: Optional[LineupAnalyzer] = None,

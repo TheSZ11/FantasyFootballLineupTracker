@@ -25,16 +25,19 @@ const teamLogoMapping = {
   "Bournemouth": "AFC Bournemouth.png",
   "AFC Bournemouth": "AFC Bournemouth.png",
   "Bournemouth FC": "AFC Bournemouth.png",
+  "BOU": "AFC Bournemouth.png",
   
   // Brentford
   "Brentford": "Brentford FC.png",
   "Brentford FC": "Brentford FC.png",
+  "BRF": "Brentford FC.png",
   
   // Brighton
   "Brighton": "Brighton & Hove Albion.png",
   "Brighton & Hove Albion": "Brighton & Hove Albion.png",
   "Brighton & Hove Albion FC": "Brighton & Hove Albion.png",
   "Brighton and Hove Albion": "Brighton & Hove Albion.png",
+  "BHA": "Brighton & Hove Albion.png",
   
   // Burnley
   "Burnley": "Burnley FC.png",
@@ -51,6 +54,7 @@ const teamLogoMapping = {
   // Everton
   "Everton": "Everton FC.png",
   "Everton FC": "Everton FC.png",
+  "EVE": "Everton FC.png",
   
   // Fulham
   "Fulham": "Fulham FC.png",
@@ -64,6 +68,7 @@ const teamLogoMapping = {
   // Liverpool
   "Liverpool": "Liverpool FC.png",
   "Liverpool FC": "Liverpool FC.png",
+  "LIV": "Liverpool FC.png",
   
   // Manchester City
   "Manchester City": "Manchester City.png",
@@ -75,11 +80,13 @@ const teamLogoMapping = {
   "Manchester United FC": "Manchester United.png",
   "Man United": "Manchester United.png",
   "Man Utd": "Manchester United.png",
+  "MUN": "Manchester United.png",
   
   // Newcastle United
   "Newcastle": "Newcastle United.png",
   "Newcastle United": "Newcastle United.png",
   "Newcastle United FC": "Newcastle United.png",
+  "NEW": "Newcastle United.png",
   
   // Nottingham Forest
   "Nottingham Forest": "Nottingham Forest.png",
@@ -90,6 +97,7 @@ const teamLogoMapping = {
   "Sunderland": "Sunderland AFC.png",
   "Sunderland AFC": "Sunderland AFC.png",
   "Sunderland FC": "Sunderland AFC.png",
+  "SUN": "Sunderland AFC.png",
   
   // Tottenham
   "Tottenham": "Tottenham Hotspur.png",
@@ -101,12 +109,14 @@ const teamLogoMapping = {
   "West Ham": "West Ham United.png",
   "West Ham United": "West Ham United.png",
   "West Ham United FC": "West Ham United.png",
+  "WHU": "West Ham United.png",
   
   // Wolverhampton Wanderers
   "Wolves": "Wolverhampton Wanderers.png",
   "Wolverhampton": "Wolverhampton Wanderers.png",
   "Wolverhampton Wanderers": "Wolverhampton Wanderers.png",
-  "Wolverhampton Wanderers FC": "Wolverhampton Wanderers.png"
+  "Wolverhampton Wanderers FC": "Wolverhampton Wanderers.png",
+  "WOL": "Wolverhampton Wanderers.png"
 };
 
 /**

@@ -3,7 +3,9 @@ Fantrax API client for fetching league and team data.
 """
 
 import asyncio
+import csv
 import logging
+from pathlib import Path
 from typing import Dict, List, Optional
 import aiohttp
 
@@ -23,6 +25,7 @@ class FantraxClient:
     def __init__(self, session: Optional[aiohttp.ClientSession] = None):
         self.session = session
         self._should_close_session = session is None
+        self._player_mapping = None
         
     async def __aenter__(self):
         if self.session is None:
@@ -38,6 +41,45 @@ class FantraxClient:
         if self.session is None:
             self.session = aiohttp.ClientSession()
             self._should_close_session = True
+    
+    def _load_player_mapping(self) -> Dict[str, Dict[str, str]]:
+        """
+        Load player mapping from playerMapping.csv file.
+        
+        Returns:
+            Dictionary mapping player IDs to player info
+        """
+        if self._player_mapping is not None:
+            return self._player_mapping
+            
+        mapping_file = Path(__file__).parent.parent.parent.parent / "playerMapping.csv"
+        
+        if not mapping_file.exists():
+            logger.warning(f"Player mapping file not found: {mapping_file}")
+            return {}
+            
+        self._player_mapping = {}
+        
+        try:
+            with open(mapping_file, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    # Remove asterisks from ID if present
+                    player_id = row['ID'].strip('*')
+                    self._player_mapping[player_id] = {
+                        'name': row['Player'],
+                        'team': row['Team'], 
+                        'position': row['Position'],
+                        'age': row['Age']
+                    }
+                    
+            logger.info(f"Loaded {len(self._player_mapping)} player mappings from {mapping_file}")
+            
+        except Exception as e:
+            logger.error(f"Error loading player mapping: {e}")
+            self._player_mapping = {}
+            
+        return self._player_mapping
     
     @retry(max_attempts=3, base_delay=1.0)
     async def get_team_roster(self, league_id: str, team_id: str) -> List[Dict]:
@@ -190,10 +232,9 @@ class FantraxClient:
             List of Player objects ready for lineup tracker
         """
         roster_items = await self.get_team_roster(league_id, team_id)
-        league_info = await self.get_league_info(league_id)
         
-        # Get player pool information for names and details
-        player_info = league_info.get("playerInfo", {})
+        # Load player mapping from CSV
+        player_mapping = self._load_player_mapping()
         
         players = []
         for item in roster_items:
@@ -201,29 +242,51 @@ class FantraxClient:
             fantrax_position = item["position"]
             fantrax_status = item["status"]
             
-            # Get additional player info from league data
-            player_details = player_info.get(player_id, {})
+            # Get real player data from mapping
+            player_data = player_mapping.get(player_id)
             
-            # Create team object - placeholder for now
-            team = Team(
-                name="Unknown Team",  # Would need team lookup
-                abbreviation="UNK"
-            )
-            
-            # Create player with proper types
-            player = Player(
-                id=player_id,
-                name=f"Player_{player_id}",  # Placeholder - would need player name lookup
-                team=team,
-                position=self.map_fantrax_position(fantrax_position),
-                status=self.map_fantrax_status(fantrax_status),
-                fantasy_points=0.0,  # Placeholder
-                average_points=0.0   # Placeholder
-            )
+            if player_data:
+                # Use real player data from mapping
+                player_name = player_data["name"]
+                team_abbr = player_data["team"]
+                
+                team = Team(
+                    name=team_abbr,  # Using abbreviation as name for now
+                    abbreviation=team_abbr
+                )
+                
+                # Create player with real data
+                player = Player(
+                    id=player_id,
+                    name=player_name,
+                    team=team,
+                    position=self.map_fantrax_position(fantrax_position),
+                    status=self.map_fantrax_status(fantrax_status),
+                    fantasy_points=0.0,  # Still need to get from somewhere else
+                    average_points=0.0   # Still need to get from somewhere else
+                )
+            else:
+                # Fallback to placeholder if not found in mapping
+                logger.warning(f"Player {player_id} not found in mapping file")
+                
+                team = Team(
+                    name="Unknown Team",
+                    abbreviation="UNK"
+                )
+                
+                player = Player(
+                    id=player_id,
+                    name=f"Player_{player_id}",
+                    team=team,
+                    position=self.map_fantrax_position(fantrax_position),
+                    status=self.map_fantrax_status(fantrax_status),
+                    fantasy_points=0.0,
+                    average_points=0.0
+                )
             
             players.append(player)
             
-        logger.info(f"Mapped {len(players)} Fantrax players to Player objects")
+        logger.info(f"Mapped {len(players)} Fantrax players to Player objects ({len([p for p in players if not p.name.startswith('Player_')])} with real names)")
         return players
 
 
