@@ -374,13 +374,15 @@ class LineupMonitor:
         # Record successful check
         self.last_check[last_check_key] = now
         
-        # Process lineups for each team
-        for team_lineup in lineup_data:
-            team_name = team_lineup['team']['name']
-            starting_xi = [player['player']['name'] for player in team_lineup['startXI']]
-            
-            logger.info(f"Processing lineup for {team_name}: {len(starting_xi)} starters")
-            self.check_team_lineup(team_name, starting_xi, match)
+        # Create and send lineup summary for this match
+        match_summary = self.create_match_lineup_summary(lineup_data, match)
+        
+        if match_summary and match_summary.get('players'):
+            self.send_lineup_summary([match_summary])
+            player_count = len(match_summary['players'])
+            logger.info(f"📨 Sent lineup summary for match ({player_count} squad players)")
+        else:
+            logger.info("✅ No squad players found in this match")
     
     def check_team_lineup(self, team_name, starting_xi, match):
         """Check specific team lineup against squad expectations"""
@@ -436,6 +438,121 @@ class LineupMonitor:
                     message = f"✅ {player_name} confirmed starting for {team_name} vs {match['away_team'] if team_name == match['home_team'] else match['home_team']}"
                     self.notifier.send_info_update(message)
                     logger.info(f"Confirmed: {player_name} starting as expected")
+    
+    def create_match_lineup_summary(self, lineup_data, match):
+        """Create a summary of squad players' lineup status for a match."""
+        squad = self.load_squad()
+        
+        # Get all starting and bench players from both teams
+        all_starting_players = set()
+        all_bench_players = set()
+        
+        for team_lineup in lineup_data:
+            team_name = team_lineup['team']['name']
+            
+            # Get starting XI players
+            starting_xi = [player['player']['name'] for player in team_lineup['startXI']]
+            all_starting_players.update(starting_xi)
+            
+            # Get substitute players (if available)
+            if 'substitutes' in team_lineup:
+                substitutes = [player['player']['name'] for player in team_lineup['substitutes']]
+                all_bench_players.update(substitutes)
+        
+        # Find squad players in this match
+        match_teams = [match['home_team'], match['away_team']]
+        squad_players_in_match = [
+            player for player in squad 
+            if player['team_name'] in match_teams
+        ]
+        
+        if not squad_players_in_match:
+            return {}
+        
+        # Create summary for each squad player
+        player_summaries = []
+        for player in squad_players_in_match:
+            player_name = player['player_name']
+            is_starting = player_name in all_starting_players
+            is_on_bench = player_name in all_bench_players
+            
+            player_summaries.append({
+                'name': player_name,
+                'position': player.get('position', 'Unknown'),
+                'team': player['team_name'],
+                'is_starting': is_starting,
+                'is_on_bench': is_on_bench,
+                'status': 'Starting' if is_starting else 'Benched' if is_on_bench else 'Not in Squad'
+            })
+        
+        return {
+            'match': {
+                'home_team': match['home_team'],
+                'away_team': match['away_team'],
+                'kickoff': match['kickoff'].strftime('%H:%M') if match['kickoff'] else 'TBD',
+                'id': match.get('fixture_id', 'Unknown')
+            },
+            'players': player_summaries
+        }
+    
+    def send_lineup_summary(self, match_summaries):
+        """Send lineup summary via Discord notification."""
+        if not match_summaries:
+            return
+        
+        try:
+            # Format the summary for Discord
+            message = self.format_lineup_summary_message(match_summaries)
+            
+            # Send via Discord notification
+            self.notifier.send_discord_message(message, urgency="info")
+            logger.info("Lineup summary sent successfully")
+            
+        except Exception as e:
+            logger.error(f"Error sending lineup summary: {e}")
+    
+    def format_lineup_summary_message(self, match_summaries):
+        """Format match summaries into a Discord message."""
+        total_matches = len(match_summaries)
+        total_players = sum(len(summary.get('players', [])) for summary in match_summaries)
+        
+        message = f"📋 **Lineup Summary - Confirmed Lineups**\n"
+        message += f"**{total_matches}** match{'es' if total_matches != 1 else ''} • **{total_players}** squad players tracked\n\n"
+        
+        for match_summary in match_summaries:
+            match_info = match_summary.get('match', {})
+            players = match_summary.get('players', [])
+            
+            # Match header
+            match_title = f"**{match_info.get('home_team', 'TBD')} vs {match_info.get('away_team', 'TBD')}**"
+            kickoff_time = match_info.get('kickoff', 'TBD')
+            if kickoff_time != 'TBD':
+                match_title += f" • {kickoff_time}"
+            
+            message += f"{match_title}\n"
+            
+            # Separate starting and benched players
+            starting_players = [p for p in players if p.get('is_starting', False)]
+            benched_players = [p for p in players if not p.get('is_starting', False)]
+            
+            if starting_players:
+                message += "🟢 **Starting:**\n"
+                for player in starting_players:
+                    message += f"• {player.get('name', 'Unknown')} ({player.get('position', 'Unknown')})\n"
+            
+            if benched_players:
+                if starting_players:
+                    message += "\n"
+                message += "🔴 **Benched:**\n"
+                for player in benched_players:
+                    message += f"• {player.get('name', 'Unknown')} ({player.get('position', 'Unknown')})\n"
+            
+            if not starting_players and not benched_players:
+                message += "No squad players in this match\n"
+            
+            message += "\n"
+        
+        return message.strip()
     
     def run_monitoring_cycle(self):
         """Run one complete monitoring cycle"""

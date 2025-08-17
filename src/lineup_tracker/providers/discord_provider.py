@@ -99,6 +99,28 @@ class DiscordProvider(BaseNotificationProvider):
             logger.error(f"Failed to send Discord message: {e}")
             return False
     
+    async def send_lineup_summary(self, match_summaries: list) -> bool:
+        """Send a comprehensive lineup summary for all matches with confirmed lineups."""
+        try:
+            webhook = DiscordWebhook(url=self.webhook_url)
+            
+            # Create rich embed for lineup summary
+            embed = self._create_lineup_summary_embed(match_summaries)
+            webhook.add_embed(embed)
+            
+            response = webhook.execute()
+            
+            if response.status_code == 200:
+                logger.debug(f"Discord lineup summary sent successfully")
+                return True
+            else:
+                logger.error(f"Discord webhook failed with status {response.status_code}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"Failed to send Discord lineup summary: {e}")
+            return False
+
     async def test_connection(self) -> bool:
         """Test Discord webhook connection."""
         try:
@@ -174,6 +196,61 @@ class DiscordProvider(BaseNotificationProvider):
         
         embed.set_timestamp()
         embed.set_footer(text="Fantrax Lineup Monitor")
+        
+        return embed
+    
+    def _create_lineup_summary_embed(self, match_summaries: list) -> DiscordEmbed:
+        """Create a rich Discord embed for lineup summaries."""
+        total_matches = len(match_summaries)
+        total_players = sum(len(summary.get('players', [])) for summary in match_summaries)
+        
+        embed = DiscordEmbed(
+            title="📋 Lineup Summary - Confirmed Lineups",
+            description=f"**{total_matches}** matches with confirmed lineups • **{total_players}** squad players tracked",
+            color=0x36a64f  # Green
+        )
+        
+        for match_summary in match_summaries:
+            match_info = match_summary.get('match', {})
+            players = match_summary.get('players', [])
+            
+            # Match header
+            match_title = f"{match_info.get('home_team', 'TBD')} vs {match_info.get('away_team', 'TBD')}"
+            kickoff_time = match_info.get('kickoff', 'TBD')
+            if kickoff_time != 'TBD':
+                match_title += f" • {kickoff_time}"
+            
+            # Separate starting and benched players
+            starting_players = [p for p in players if p.get('is_starting', False)]
+            benched_players = [p for p in players if not p.get('is_starting', False)]
+            
+            # Format player lists
+            lineup_text = ""
+            
+            if starting_players:
+                lineup_text += "🟢 **Starting:**\n"
+                for player in starting_players:
+                    lineup_text += f"• {player.get('name', 'Unknown')} ({player.get('position', 'Unknown')})\n"
+            
+            if benched_players:
+                if starting_players:
+                    lineup_text += "\n"
+                lineup_text += "🔴 **Benched:**\n"
+                for player in benched_players:
+                    lineup_text += f"• {player.get('name', 'Unknown')} ({player.get('position', 'Unknown')})\n"
+            
+            if not lineup_text:
+                lineup_text = "No squad players in this match"
+            
+            # Add field for this match
+            embed.add_embed_field(
+                name=match_title,
+                value=lineup_text[:1024],  # Discord field value limit
+                inline=False
+            )
+        
+        embed.set_timestamp()
+        embed.set_footer(text="Fantrax Lineup Monitor • SofaScore Data")
         
         return embed
     

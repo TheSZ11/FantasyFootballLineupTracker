@@ -326,31 +326,75 @@ class AsyncLineupMonitoringService:
             raise
     
     async def _analyze_and_alert(self, match: Match, lineup: Lineup, monitor_info: MatchMonitoringInfo):
-        """Analyze lineup and send alerts if needed."""
+        """Analyze lineup and send summary notification."""
         try:
-            # Analyze lineup for discrepancies
-            discrepancies = self.lineup_analyzer.analyze_match_lineups(
-                match, [lineup], self.squad
-            )
+            # Create lineup summary for all squad players in this match
+            match_summary = await self._create_match_lineup_summary(match, lineup)
             
-            if discrepancies:
-                logger.warning(f"⚠️ Found {len(discrepancies)} lineup discrepancies")
+            if match_summary and match_summary.get('players'):
+                # Send lineup summary notification
+                await self.notification_service.send_lineup_summary([match_summary])
                 
-                # Generate alerts
-                alerts = self.alert_generator.generate_alerts(discrepancies, match)
-                
-                if alerts:
-                    # Send notifications concurrently
-                    await self._send_alerts_concurrently(alerts)
-                    monitor_info.alerts_sent += len(alerts)
-                    
-                    logger.info(f"📨 Sent {len(alerts)} alerts for match {match.id}")
+                player_count = len(match_summary['players'])
+                logger.info(f"📨 Sent lineup summary for match {match.id} ({player_count} squad players)")
+                monitor_info.alerts_sent += 1  # Count as one summary notification
             else:
-                logger.info(f"✅ No lineup issues found for match {match.id}")
+                logger.info(f"✅ No squad players found in match {match.id} lineup")
                 
         except Exception as e:
             logger.error(f"Error analyzing lineup for match {match.id}: {e}")
             raise
+    
+    async def _create_match_lineup_summary(self, match: Match, lineup: Lineup) -> dict:
+        """Create a summary of squad players' lineup status for a match."""
+        # Get all squad players for teams in this match
+        match_teams = [match.home_team.name, match.away_team.name]
+        squad_players_in_match = [
+            player for player in self.squad.players 
+            if player.team.name in match_teams
+        ]
+        
+        if not squad_players_in_match:
+            return {}
+        
+        # Get starting and bench players from the lineup
+        starting_players = set()
+        bench_players = set()
+        
+        for team_lineup in lineup.team_lineups:
+            # Add starting XI players
+            for player in team_lineup.starting_xi:
+                starting_players.add(player.name)
+            
+            # Add substitute players
+            for player in team_lineup.substitutes:
+                bench_players.add(player.name)
+        
+        # Create summary for each squad player
+        player_summaries = []
+        for player in squad_players_in_match:
+            is_starting = player.name in starting_players
+            is_on_bench = player.name in bench_players
+            
+            # Include all squad players (starting, benched, or not in squad)
+            player_summaries.append({
+                'name': player.name,
+                'position': player.position.value if hasattr(player.position, 'value') else str(player.position),
+                'team': player.team.name,
+                'is_starting': is_starting,
+                'is_on_bench': is_on_bench,
+                'status': 'Starting' if is_starting else 'Benched' if is_on_bench else 'Not in Squad'
+            })
+        
+        return {
+            'match': {
+                'home_team': match.home_team.name,
+                'away_team': match.away_team.name,
+                'kickoff': match.start_time.strftime('%H:%M') if match.start_time else 'TBD',
+                'id': match.id
+            },
+            'players': player_summaries
+        }
     
     async def _send_alerts_concurrently(self, alerts: List[Alert]):
         """Send multiple alerts concurrently."""

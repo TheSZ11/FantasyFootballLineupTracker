@@ -148,6 +148,40 @@ class NotificationService:
         """Send error notification."""
         return await self.send_message(error_message, AlertUrgency.WARNING)
     
+    async def send_lineup_summary(self, match_summaries: list) -> bool:
+        """Send lineup summary through Discord provider."""
+        if not match_summaries:
+            logger.debug("No match summaries to send")
+            return True
+        
+        # Only send through Discord provider (avoid email spam)
+        discord_providers = [name for name in self.providers.keys() if 'discord' in name.lower()]
+        
+        if not discord_providers:
+            logger.warning("No Discord provider available for lineup summary")
+            return False
+        
+        success_count = 0
+        for provider_name in discord_providers:
+            provider = self.providers[provider_name]
+            
+            # Check if provider has send_lineup_summary method
+            if hasattr(provider, 'send_lineup_summary'):
+                try:
+                    result = await provider.send_lineup_summary(match_summaries)
+                    if result:
+                        success_count += 1
+                        logger.info(f"Lineup summary sent successfully via {provider_name}")
+                    else:
+                        logger.warning(f"Lineup summary failed to send via {provider_name}")
+                        
+                except Exception as e:
+                    logger.error(f"Error sending lineup summary via {provider_name}: {e}")
+            else:
+                logger.warning(f"Provider {provider_name} doesn't support lineup summaries")
+        
+        return success_count > 0
+
     async def send_cycle_summary(self, cycle_result: Dict) -> bool:
         """Send monitoring cycle summary."""
         if cycle_result['status'] == 'Success' and cycle_result['alerts_generated'] == 0:
