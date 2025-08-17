@@ -32,13 +32,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Export roster data from Fantrax API
-      env:
-        FANTRAX_LEAGUE_ID: ${{ secrets.FANTRAX_LEAGUE_ID }}
-        FANTRAX_TEAM_ID: ${{ secrets.FANTRAX_TEAM_ID }}
-        FANTRAX_ENABLED: true
+    - name: Verify dashboard data exists
       run: |
-        python -m src.lineup_tracker.async_main export
+        if [ ! -f "dashboard/public/data/squad.json" ]; then
+          echo "❌ Dashboard data not found. Please run 'python -m src.lineup_tracker.async_main export' locally and commit the data."
+          exit 1
+        else
+          echo "✅ Dashboard data found, proceeding with build"
+          ls -la dashboard/public/data/
+        fi
         
     - name: Set up Node.js
       uses: actions/setup-node@v4
