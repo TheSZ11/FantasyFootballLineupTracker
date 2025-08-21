@@ -113,15 +113,6 @@ const PlayerCard = ({ player }) => {
     }
   }
 
-  const formatKickoffTime = (kickoff) => {
-    if (!kickoff) return null
-    const date = new Date(kickoff)
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit'
-    })
-  }
-
   const getPositionColor = (position) => {
     switch (position.toLowerCase()) {
       case 'goalkeeper':
@@ -202,18 +193,6 @@ const PlayerCard = ({ player }) => {
           {getStatusText()}
         </div>
 
-        {/* Match Info */}
-        {player.match_info && (
-          <div className="bg-gray-700/80 backdrop-blur-sm rounded p-2 mb-3 text-sm">
-            <div className="font-medium text-gray-200">
-              {player.match_info.home_team} vs {player.match_info.away_team}
-            </div>
-            <div className="text-gray-400">
-              Kickoff: {formatKickoffTime(player.match_info.kickoff)}
-            </div>
-          </div>
-        )}
-
         {/* Countdown Timer */}
         {matchInfo && countdown ? (
           <div className={`rounded-lg p-3 mb-3 text-center ${
@@ -255,34 +234,6 @@ const PlayerCard = ({ player }) => {
             <div className="text-sm text-gray-400">😴 No Match Scheduled</div>
           </div>
         ) : null}
-
-        {/* Fantasy Stats */}
-        <div className="border-t border-gray-600 pt-3 mt-3">
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div>
-              <div className="text-gray-400">Avg Points</div>
-              <div className="font-semibold text-gray-100">{player.average_points}</div>
-            </div>
-            <div>
-              <div className="text-gray-400">Total Points</div>
-              <div className="font-semibold text-gray-100">{player.fantasy_points}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Expected Status Indicator */}
-        <div className="mt-2 flex items-center justify-between text-xs">
-          <span className={`px-2 py-1 rounded ${
-            player.is_expected_starter 
-              ? 'bg-blue-900/30 text-blue-300 border border-blue-700' 
-              : 'bg-gray-700 text-gray-300 border border-gray-600'
-          }`}>
-            {player.expected_status === 'Act' ? 'Expected Starter' : 'Bench Player'}
-          </span>
-          
-          {/* Status color indicator */}
-          <span className={`status-indicator ${player.status_color}`}></span>
-        </div>
       </div>
     </div>
   )

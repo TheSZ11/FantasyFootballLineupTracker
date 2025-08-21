@@ -261,9 +261,7 @@ class FantraxClient:
                     name=player_name,
                     team=team,
                     position=self.map_fantrax_position(fantrax_position),
-                    status=self.map_fantrax_status(fantrax_status),
-                    fantasy_points=0.0,  # Still need to get from somewhere else
-                    average_points=0.0   # Still need to get from somewhere else
+                    status=self.map_fantrax_status(fantrax_status)
                 )
             else:
                 # Fallback to placeholder if not found in mapping
@@ -279,9 +277,7 @@ class FantraxClient:
                     name=f"Player_{player_id}",
                     team=team,
                     position=self.map_fantrax_position(fantrax_position),
-                    status=self.map_fantrax_status(fantrax_status),
-                    fantasy_points=0.0,
-                    average_points=0.0
+                    status=self.map_fantrax_status(fantrax_status)
                 )
             
             players.append(player)

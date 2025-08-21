@@ -31,8 +31,6 @@ class Player:
     team: Team
     position: Position
     status: PlayerStatus
-    fantasy_points: float
-    average_points: float
     
     # Optional Fantrax metadata
     age: Optional[int] = None
@@ -44,8 +42,6 @@ class Player:
     def __post_init__(self):
         if not self.id or not self.name:
             raise InvalidDataError("Player ID and name are required")
-        if self.fantasy_points < 0 or self.average_points < 0:
-            raise InvalidDataError("Fantasy points cannot be negative")
     
     @property
     def is_active(self) -> bool:

@@ -236,27 +236,23 @@ class EmailProvider(BaseNotificationProvider):
         return html
     
     def _create_fantasy_stats_html(self, player) -> str:
-        """Create HTML section for fantasy statistics."""
-        if player.average_points == 0 and player.fantasy_points == 0:
+        """Create HTML section for player statistics."""
+        stats_data = []
+        
+        if player.games_played:
+            stats_data.append(f"<p><strong>Games Played:</strong> {player.games_played}</p>")
+        
+        if player.draft_percentage:
+            stats_data.append(f"<p><strong>Draft Percentage:</strong> {player.draft_percentage}%</p>")
+        
+        if not stats_data:
             return ""
         
         html = """
-        <div class="fantasy-stats">
-            <h4>Fantasy Statistics</h4>
+        <div class="player-stats">
+            <h4>Player Statistics</h4>
         """
-        
-        if player.average_points > 0:
-            html += f"<p><strong>Average Points:</strong> {player.average_points:.1f} per game</p>"
-        
-        if player.fantasy_points > 0:
-            html += f"<p><strong>Total Points:</strong> {player.fantasy_points:.1f}</p>"
-        
-        if player.games_played:
-            html += f"<p><strong>Games Played:</strong> {player.games_played}</p>"
-        
-        if player.draft_percentage:
-            html += f"<p><strong>Draft Percentage:</strong> {player.draft_percentage}%</p>"
-        
+        html += "".join(stats_data)
         html += "</div>"
         return html
     

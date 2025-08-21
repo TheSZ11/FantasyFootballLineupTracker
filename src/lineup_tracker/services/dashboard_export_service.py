@@ -122,8 +122,6 @@ class DashboardExportService:
                         'position': player.position.value,
                         'status': player.status.value,
                         'is_active': player.is_active,
-                        'fantasy_points': player.fantasy_points,
-                        'average_points': player.average_points,
                         'age': player.age,
                         'opponent': player.opponent,
                         'games_played': player.games_played,
@@ -448,8 +446,6 @@ class DashboardExportService:
                     'is_expected_starter': player.is_active,
                     'lineup_status': lineup_status,
                     'status_color': status_color,
-                    'fantasy_points': player.fantasy_points,
-                    'average_points': player.average_points,
                     'opponent': opponent,
                     'match_info': {
                         'id': player_match.id if player_match else None,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-08-21T15:16:19.286494",
+  "generated_at": "2025-08-21T15:51:55.489829",
   "date": "2025-08-21",
   "summary": {
     "total_players": 15,
@@ -21,8 +21,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Brighton & Hove Albion",
       "match_info": {
         "id": "14025077",
@@ -42,8 +40,6 @@
       "is_expected_starter": false,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Chelsea",
       "match_info": {
         "id": "14025088",
@@ -63,8 +59,6 @@
       "is_expected_starter": false,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Fulham",
       "match_info": {
         "id": "14025080",
@@ -84,8 +78,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Brighton & Hove Albion",
       "match_info": {
         "id": "14025077",
@@ -105,8 +97,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Bournemouth",
       "match_info": {
         "id": "14025062",
@@ -126,8 +116,6 @@
       "is_expected_starter": false,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Bournemouth",
       "match_info": {
         "id": "14025062",
@@ -147,8 +135,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Newcastle United",
       "match_info": {
         "id": "14147154",
@@ -168,8 +154,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Aston Villa",
       "match_info": {
         "id": "14025068",
@@ -189,8 +173,6 @@
       "is_expected_starter": false,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Chelsea",
       "match_info": {
         "id": "14025088",
@@ -210,8 +192,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Wolverhampton",
       "match_info": {
         "id": "14025062",
@@ -231,8 +211,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Sunderland",
       "match_info": {
         "id": "14025071",
@@ -252,8 +230,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Arsenal",
       "match_info": {
         "id": "14025065",
@@ -273,8 +249,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Fulham",
       "match_info": {
         "id": "14025080",
@@ -294,8 +268,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Everton",
       "match_info": {
         "id": "14025077",
@@ -315,8 +287,6 @@
       "is_expected_starter": true,
       "lineup_status": "lineup_pending",
       "status_color": "yellow",
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
       "opponent": "Burnley",
       "match_info": {
         "id": "14025071",

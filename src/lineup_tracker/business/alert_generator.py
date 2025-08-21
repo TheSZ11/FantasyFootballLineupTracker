@@ -110,8 +110,6 @@ class AlertGenerator:
             away_team=match.away_team.name,
             opponent=opponent_team,
             kickoff_time=match.kickoff.strftime('%H:%M'),
-            avg_points=player.average_points,
-            fantasy_points=player.fantasy_points,
             games_played=player.games_played or 'N/A',
             draft_percentage=player.draft_percentage or 'N/A'
         )
@@ -142,9 +140,7 @@ class AlertGenerator:
             'team_abbreviation': player.team.abbreviation,
             'match_id': match.id,
             'kickoff_timestamp': match.kickoff.isoformat(),
-            'fantasy_data': {
-                'fantasy_points': player.fantasy_points,
-                'average_points': player.average_points,
+            'player_data': {
                 'games_played': player.games_played,
                 'age': player.age,
                 'draft_percentage': player.draft_percentage,
@@ -166,8 +162,6 @@ class AlertGenerator:
                 "**Position:** {position}\n"
                 "**Match:** {home_team} vs {away_team}\n"
                 "**Kickoff:** {kickoff_time}\n"
-                "**Avg Points:** {avg_points} per game\n"
-                "**Total Points:** {fantasy_points}\n"
                 "**Games Played:** {games_played}\n\n"
                 "⚠️ You may want to update your lineup!"
             ),
@@ -177,9 +171,7 @@ class AlertGenerator:
                 "**Position:** {position}\n"
                 "**Match:** {home_team} vs {away_team}\n"
                 "**Kickoff:** {kickoff_time}\n"
-                "**Avg Points:** {avg_points} per game\n"
-                "**Draft %:** {draft_percentage}%\n"
-                "**Total Points:** {fantasy_points}\n\n"
+                "**Draft %:** {draft_percentage}%\n\n"
                 "💡 Consider moving to starting XI!"
             ),
             'default': (

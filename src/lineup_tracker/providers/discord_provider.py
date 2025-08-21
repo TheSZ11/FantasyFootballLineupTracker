@@ -163,17 +163,11 @@ class DiscordProvider(BaseNotificationProvider):
             inline=True
         )
         
-        # Add fantasy data if available
-        if alert.player.average_points > 0:
-            fantasy_info = f"**Avg Points:** {alert.player.average_points:.1f}\n"
-            fantasy_info += f"**Total Points:** {alert.player.fantasy_points:.1f}"
-            
-            if alert.player.games_played:
-                fantasy_info += f"\n**Games:** {alert.player.games_played}"
-            
+        # Add games played if available
+        if alert.player.games_played:
             embed.add_embed_field(
-                name="Fantasy Stats",
-                value=fantasy_info,
+                name="Games Played",
+                value=str(alert.player.games_played),
                 inline=True
             )
         
