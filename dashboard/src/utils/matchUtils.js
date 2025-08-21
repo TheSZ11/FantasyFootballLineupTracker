@@ -1,7 +1,53 @@
 // Utility functions for match data parsing and analysis
 
 /**
- * Parse opponent string to get match date and time
+ * Parse structured match info to get match date and time
+ * @param {Object} matchInfo - Match info object with kickoff, home_team, away_team
+ * @param {string} playerTeam - Player's team abbreviation
+ * @param {string} opponent - Opponent team name
+ * @returns {Object|null} - Match info object or null if invalid
+ */
+export const parseStructuredMatchTime = (matchInfo, playerTeam, opponent) => {
+  if (!matchInfo || !matchInfo.kickoff) return null;
+  
+  try {
+    // Parse ISO datetime string
+    const matchDate = new Date(matchInfo.kickoff);
+    if (isNaN(matchDate.getTime())) return null;
+    
+    // Determine if away game (player's team is away team)
+    // If opponent is home team, then player is away
+    const isAway = matchInfo.home_team === opponent;
+    
+    // Get day of week and time string
+    const dayOfWeek = matchDate.toLocaleDateString('en-US', { weekday: 'short' });
+    const timeStr = matchDate.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+    
+    // Calculate days until match
+    const now = new Date();
+    const timeDiff = matchDate.getTime() - now.getTime();
+    const daysUntil = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    
+    return {
+      matchDate,
+      opponent,
+      isAway,
+      dayOfWeek,
+      timeStr,
+      daysUntil
+    };
+  } catch (error) {
+    console.error('Error parsing structured match time:', error);
+    return null;
+  }
+};
+
+/**
+ * Parse opponent string to get match date and time (legacy format)
  * @param {string} opponentString - Format: "@LEE Mon 3:00PM" or "BOU Fri 3:00PM"
  * @returns {Object|null} - Match info object or null if invalid
  */
@@ -67,13 +113,22 @@ export const parseMatchTime = (opponentString) => {
 
 /**
  * Check if a player is playing today
- * @param {Object} player - Player object with opponent field
+ * @param {Object} player - Player object with opponent field and match_info
  * @returns {boolean} - True if playing today
  */
 export const isPlayingToday = (player) => {
   if (!player.opponent) return false;
   
-  const matchInfo = parseMatchTime(player.opponent);
+  // Try structured format first, then fallback to legacy format
+  let matchInfo = null;
+  if (player.match_info) {
+    matchInfo = parseStructuredMatchTime(player.match_info, player.team, player.opponent);
+  }
+  
+  if (!matchInfo) {
+    matchInfo = parseMatchTime(player.opponent);
+  }
+  
   if (!matchInfo) return false;
   
   return matchInfo.daysUntil === 0;
@@ -118,7 +173,16 @@ export const getTodaysMatches = (players) => {
   const matchMap = new Map();
   
   playersPlayingToday.forEach(player => {
-    const matchInfo = parseMatchTime(player.opponent);
+    // Try structured format first, then fallback to legacy format
+    let matchInfo = null;
+    if (player.match_info) {
+      matchInfo = parseStructuredMatchTime(player.match_info, player.team, player.opponent);
+    }
+    
+    if (!matchInfo) {
+      matchInfo = parseMatchTime(player.opponent);
+    }
+    
     if (!matchInfo) return;
     
     const matchKey = `${matchInfo.opponent}-${matchInfo.dayOfWeek}-${matchInfo.timeStr}`;

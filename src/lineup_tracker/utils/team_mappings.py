@@ -14,6 +14,7 @@ TEAM_ABBREVIATIONS = {
     'BOU': 'Bournemouth',
     'BRF': 'Brentford',
     'BHA': 'Brighton',
+    'BUR': 'Burnley',
     'CHE': 'Chelsea',
     'CRY': 'Crystal Palace',
     'EVE': 'Everton',
@@ -44,6 +45,7 @@ TEAM_NAME_VARIANTS = {
     'Man City': 'Manchester City',
     'Newcastle': 'Newcastle United',
     'West Ham': 'West Ham United',
+    'Wolverhampton': 'Wolverhampton Wanderers',
     'Wolves': 'Wolverhampton Wanderers',
     'Nottm Forest': 'Nottingham Forest',
     'Crystal Palace': 'Crystal Palace'

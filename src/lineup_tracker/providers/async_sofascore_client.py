@@ -128,9 +128,10 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
                 connector=connector,
                 timeout=timeout_config,
                 headers={
-                    'User-Agent': 'LineupTracker/1.0',
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                     'Accept': 'application/json',
-                    'Accept-Encoding': 'gzip, deflate'
+                    'Accept-Encoding': 'gzip, deflate',
+                    'Accept-Language': 'en-US,en;q=0.9'
                 }
             )
             
@@ -292,6 +293,220 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
         
         return lineups
     
+    def _get_gameweek_dates(self, reference_date: Optional[datetime] = None) -> List[datetime]:
+        """
+        Calculate the 4-day gameweek window: Friday through Monday.
+        Always returns upcoming/current gameweek regardless of current day.
+        
+        Args:
+            reference_date: Reference point for determining gameweek (defaults to now)
+            
+        Returns:
+            List of 4 datetime objects representing Friday, Saturday, Sunday, Monday
+        """
+        if reference_date is None:
+            reference_date = datetime.now()
+        
+        # Find the upcoming/current Friday
+        # If today is Friday (4), Saturday (5), Sunday (6), or Monday (0), use current week
+        # Otherwise, use next week
+        current_weekday = reference_date.weekday()  # Monday=0, Sunday=6
+        
+        if current_weekday <= 0:  # Monday
+            # If it's Monday, check if we want current or next gameweek
+            # For simplicity, always get current week if it's early Monday, next week if later
+            days_to_friday = 4  # Next Friday
+        elif current_weekday >= 4:  # Friday, Saturday, Sunday
+            days_to_friday = 4 - current_weekday  # Current Friday (0 if it's Friday)
+        else:  # Tuesday, Wednesday, Thursday
+            days_to_friday = 4 - current_weekday  # Next Friday
+        
+        friday = reference_date + timedelta(days=days_to_friday)
+        # Set to start of day (midnight)
+        friday = friday.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Generate Friday through Monday
+        gameweek_dates = [
+            friday,                           # Friday
+            friday + timedelta(days=1),      # Saturday
+            friday + timedelta(days=2),      # Sunday  
+            friday + timedelta(days=3)       # Monday
+        ]
+        
+        logger.debug(f"Gameweek dates for reference {reference_date.date()}: "
+                    f"{[d.date() for d in gameweek_dates]}")
+        
+        return gameweek_dates
+    
+    async def _fetch_single_day_with_error_handling(self, date: datetime) -> Dict[str, Any]:
+        """
+        Wrapper around existing get_fixtures() with structured error reporting.
+        
+        Args:
+            date: Date to fetch fixtures for
+            
+        Returns:
+            Dict with 'date', 'success', 'matches', 'error' fields
+        """
+        date_str = date.strftime("%Y-%m-%d")
+        
+        try:
+            matches = await self.get_fixtures(date)
+            return {
+                'date': date_str,
+                'success': True,
+                'matches': matches,
+                'error': None
+            }
+        except Exception as e:
+            logger.warning(f"Failed to fetch fixtures for {date_str}: {e}")
+            return {
+                'date': date_str,
+                'success': False,
+                'matches': [],
+                'error': str(e)
+            }
+    
+    def _deduplicate_matches(self, all_matches: List[Match]) -> List[Match]:
+        """
+        Deduplicate matches by ID, preserving order.
+        
+        Args:
+            all_matches: List of matches that may contain duplicates
+            
+        Returns:
+            List of unique matches
+        """
+        seen_match_ids = set()
+        unique_matches = []
+        
+        for match in all_matches:
+            if match.id not in seen_match_ids:
+                seen_match_ids.add(match.id)
+                unique_matches.append(match)
+        
+        logger.debug(f"Deduplicated {len(all_matches)} matches to {len(unique_matches)} unique matches")
+        return unique_matches
+    
+    def _merge_gameweek_results(self, dates: List[datetime], results: List[Dict]) -> Dict[str, Any]:
+        """
+        Merge results from 4 concurrent API calls.
+        Handle asyncio.gather exceptions and deduplicate matches by ID.
+        
+        Args:
+            dates: List of dates that were fetched
+            results: List of results from concurrent API calls
+            
+        Returns:
+            Merged gameweek results dictionary
+        """
+        successful_dates = []
+        failed_dates = []
+        all_matches = []
+        errors = []
+        
+        for i, result in enumerate(results):
+            date_str = dates[i].strftime("%Y-%m-%d")
+            
+            # Handle exceptions from asyncio.gather
+            if isinstance(result, Exception):
+                failed_dates.append(date_str)
+                errors.append(f"{date_str}: {str(result)}")
+                logger.warning(f"Exception for {date_str}: {result}")
+                continue
+            
+            # Handle structured error responses
+            if result['success']:
+                successful_dates.append(date_str)
+                all_matches.extend(result['matches'])
+            else:
+                failed_dates.append(date_str)
+                if result['error']:
+                    errors.append(f"{date_str}: {result['error']}")
+        
+        # Deduplicate matches
+        unique_matches = self._deduplicate_matches(all_matches)
+        
+        # Create summary message
+        total_days = len(dates)
+        successful_days = len(successful_dates)
+        fetch_summary = f"Successfully fetched {successful_days}/{total_days} days"
+        if failed_dates:
+            fetch_summary += f" (failed: {', '.join(failed_dates)})"
+        
+        return {
+            'matches': unique_matches,
+            'total_matches': len(unique_matches),
+            'successful_dates': successful_dates,
+            'failed_dates': failed_dates,
+            'errors': errors,
+            'fetch_summary': fetch_summary
+        }
+    
+    @cached_async(ttl=1800)  # Cache gameweek fixtures for 30 minutes
+    async def get_gameweek_fixtures(self, reference_date: Optional[datetime] = None) -> Dict[str, Any]:
+        """
+        Get all Premier League fixtures for the gameweek (Friday-Monday).
+        
+        Args:
+            reference_date: Reference point for determining gameweek (defaults to now)
+            
+        Returns:
+            Dict containing:
+            - 'matches': List[Match] - All unique matches from the gameweek
+            - 'total_matches': int - Count of unique matches
+            - 'successful_dates': List[str] - Dates successfully fetched (YYYY-MM-DD format)
+            - 'failed_dates': List[str] - Dates that failed to fetch
+            - 'errors': List[str] - Error messages from failed fetches
+            - 'fetch_summary': str - Human-readable summary
+        """
+        logger.info("Fetching gameweek fixtures (Friday-Monday)")
+        
+        # Get gameweek dates
+        gameweek_dates = self._get_gameweek_dates(reference_date)
+        
+        # Create concurrent tasks for all 4 days
+        tasks = [
+            self._fetch_single_day_with_error_handling(date) 
+            for date in gameweek_dates
+        ]
+        
+        try:
+            # Execute all 4 API calls concurrently
+            start_time = time.time()
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            fetch_time = time.time() - start_time
+            
+            # Merge and process results
+            gameweek_result = self._merge_gameweek_results(gameweek_dates, results)
+            
+            logger.info(
+                f"Gameweek fetch completed in {fetch_time:.2f}s: "
+                f"{gameweek_result['fetch_summary']}, "
+                f"{gameweek_result['total_matches']} total matches"
+            )
+            
+            if gameweek_result['failed_dates']:
+                logger.warning(f"Failed to fetch fixtures for dates: {', '.join(gameweek_result['failed_dates'])}")
+                if gameweek_result['errors']:
+                    logger.debug(f"Fetch errors: {'; '.join(gameweek_result['errors'])}")
+            
+            return gameweek_result
+            
+        except Exception as e:
+            self._error_count += 1
+            logger.error(f"Unexpected error in gameweek fixture fetch: {e}")
+            
+            # Return partial results structure on complete failure
+            return {
+                'matches': [],
+                'total_matches': 0,
+                'successful_dates': [],
+                'failed_dates': [date.strftime("%Y-%m-%d") for date in gameweek_dates],
+                'errors': [f"Complete gameweek fetch failed: {str(e)}"],
+                'fetch_summary': "Complete gameweek fetch failed"
+            }
+    
     @graceful_degradation(fallback_value=False)
     @timeout(10)
     async def test_connection(self) -> bool:
@@ -327,17 +542,30 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
                 url = f"https://api.sofascore.com/api/v1/sport/football/scheduled-events/{today}"
             
             async with self._session.get(url) as response:
+                logger.debug(f"API request to {url} returned status {response.status}")
+                
                 if response.status == 200:
                     data = await response.json()
-                    # Filter for Premier League matches (tournament ID 17)
                     events = data.get('events', [])
+                    logger.debug(f"API returned {len(events)} total events")
+                    
+                    # Log some tournament info to debug filtering
+                    if events:
+                        tournaments = set()
+                        for event in events[:5]:  # Check first 5 events
+                            tournament_info = event.get('tournament', {})
+                            tournaments.add(f"{tournament_info.get('name')} (ID: {tournament_info.get('id')})")
+                        logger.debug(f"Sample tournaments: {tournaments}")
+                    
+                    # Filter for Premier League matches (tournament ID 1)
                     premier_league_fixtures = [
                         event for event in events 
-                        if event.get('tournament', {}).get('id') == 17
+                        if event.get('tournament', {}).get('id') == 1
                     ]
+                    logger.debug(f"Found {len(premier_league_fixtures)} Premier League matches")
                     return premier_league_fixtures
                 else:
-                    logger.warning(f"API returned status {response.status}")
+                    logger.error(f"API request failed: {response.status} - {await response.text()}")
                     return []
             
         except Exception as e:

@@ -197,11 +197,20 @@ class AsyncLineupMonitoringService:
     async def _get_relevant_matches(self) -> List[Match]:
         """Get matches that are relevant for monitoring."""
         try:
-            with CorrelationContext.create():
-                logger.debug("🔍 Fetching relevant matches")
+            with CorrelationContext():
+                logger.debug("🔍 Fetching relevant matches for gameweek")
                 
-                # Get upcoming fixtures
-                fixtures = await self.football_api.get_fixtures()
+                # Get gameweek fixtures (Friday-Monday)
+                gameweek_result = await self.football_api.get_gameweek_fixtures()
+                fixtures = gameweek_result['matches']
+                
+                # Log any fetch issues for monitoring
+                if gameweek_result['failed_dates']:
+                    logger.warning(f"Could not fetch fixtures for: {', '.join(gameweek_result['failed_dates'])}")
+                    if gameweek_result['errors']:
+                        logger.debug(f"Gameweek fetch errors: {'; '.join(gameweek_result['errors'])}")
+                
+                logger.info(f"🎯 Gameweek fetch result: {gameweek_result['fetch_summary']}")
                 
                 # Filter for relevant matches (within monitoring window)
                 now = datetime.now()
@@ -209,7 +218,7 @@ class AsyncLineupMonitoringService:
                 
                 relevant_matches = []
                 for match in fixtures:
-                    time_until_match = match.start_time - now
+                    time_until_match = match.kickoff - now
                     
                     # Include matches starting within our monitoring window
                     if timedelta(0) <= time_until_match <= monitoring_window:
@@ -218,8 +227,8 @@ class AsyncLineupMonitoringService:
                     # Include live matches
                     elif match.status == MatchStatus.LIVE:
                         relevant_matches.append(match)
-                
-                logger.info(f"📅 Found {len(relevant_matches)} relevant matches")
+
+                logger.info(f"📅 Found {len(relevant_matches)} relevant matches from gameweek data")
                 return relevant_matches
                 
         except Exception as e:
@@ -267,7 +276,7 @@ class AsyncLineupMonitoringService:
         # Sort matches by priority
         sorted_matches = sorted(
             self.monitored_matches.values(),
-            key=lambda x: (x.priority, x.match.start_time)
+            key=lambda x: (x.priority, x.match.kickoff)
         )
         
         # Create concurrent tasks
@@ -303,7 +312,7 @@ class AsyncLineupMonitoringService:
         match = monitor_info.match
         
         try:
-            with CorrelationContext.create(match_id=match.id):
+            with CorrelationContext(match_id=match.id):
                 logger.debug(f"🔍 Checking lineup for {match.home_team.name} vs {match.away_team.name}")
                 
                 # Get lineup from API
@@ -390,7 +399,7 @@ class AsyncLineupMonitoringService:
             'match': {
                 'home_team': match.home_team.name,
                 'away_team': match.away_team.name,
-                'kickoff': match.start_time.strftime('%H:%M') if match.start_time else 'TBD',
+                'kickoff': match.kickoff.strftime('%H:%M') if match.kickoff else 'TBD',
                 'id': match.id
             },
             'players': player_summaries
@@ -429,7 +438,7 @@ class AsyncLineupMonitoringService:
             return True
         
         # Check based on match timing
-        time_until_match = match.start_time - now
+        time_until_match = match.kickoff - now
         
         # More frequent checks closer to match time
         if time_until_match <= timedelta(minutes=self.config.final_sprint_minutes):
@@ -449,7 +458,7 @@ class AsyncLineupMonitoringService:
     def _calculate_match_priority(self, match: Match) -> int:
         """Calculate priority for match monitoring (1=highest, 5=lowest)."""
         now = datetime.now()
-        time_until_match = match.start_time - now
+        time_until_match = match.kickoff - now
         
         # Higher priority for matches starting soon
         if time_until_match <= timedelta(minutes=15):
@@ -470,9 +479,9 @@ class AsyncLineupMonitoringService:
         
         now = datetime.now()
         min_time_until_match = min(
-            (info.match.start_time - now).total_seconds()
+            (info.match.kickoff - now).total_seconds()
             for info in self.monitored_matches.values()
-            if info.match.start_time > now
+            if info.match.kickoff > now
         )
         
         # Adaptive interval based on proximity to matches

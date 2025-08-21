@@ -1,6 +1,6 @@
 import { getTeamLogoConfig } from '../utils/teamLogos';
 import { useState, useEffect } from 'react';
-import { parseMatchTime } from '../utils/matchUtils';
+import { parseMatchTime, parseStructuredMatchTime } from '../utils/matchUtils';
 
 const PlayerCard = ({ player }) => {
   
@@ -34,7 +34,16 @@ const PlayerCard = ({ player }) => {
 
   // State for countdown
   const [countdown, setCountdown] = useState(null);
-  const matchInfo = parseMatchTime(player.opponent);
+  
+  // Try structured format first, then fallback to legacy format
+  let matchInfo = null;
+  if (player.match_info) {
+    matchInfo = parseStructuredMatchTime(player.match_info, player.team, player.opponent);
+  }
+  
+  if (!matchInfo) {
+    matchInfo = parseMatchTime(player.opponent);
+  }
 
   // Update countdown every second
   useEffect(() => {

@@ -17,6 +17,7 @@ from ..domain.interfaces import FootballDataProvider, SquadRepository
 from ..business.lineup_analyzer import LineupAnalyzer
 from ..business.alert_generator import AlertGenerator
 from ..utils.logging import get_logger
+from ..utils.team_mappings import get_full_team_name, normalize_team_name
 
 logger = get_logger(__name__)
 
@@ -67,9 +68,13 @@ class DashboardExportService:
             squad_file = await self.export_squad_data()
             exported_files['squad'] = squad_file
             
-            # Export today's matches
+            # Export today's matches (backward compatibility)
             matches_file = await self.export_todays_matches()
             exported_files['matches'] = matches_file
+            
+            # Export gameweek matches (new feature)
+            gameweek_file = await self.export_gameweek_matches()
+            exported_files['gameweek_matches'] = gameweek_file
             
             # Export system status
             status_file = await self.export_system_status(monitoring_status)
@@ -184,6 +189,186 @@ class DashboardExportService:
             logger.error(f"Failed to export matches data: {e}")
             raise
     
+    async def export_gameweek_matches(self) -> str:
+        """Export complete gameweek matches (Friday-Monday) with fetch status information."""
+        if not self.football_api:
+            logger.warning("No football API available for gameweek match export")
+            return ""
+        
+        try:
+            # Get gameweek fixtures (Friday-Monday)
+            gameweek_result = await self.football_api.get_gameweek_fixtures()
+            
+            # Build comprehensive gameweek data
+            gameweek_data = {
+                'generated_at': datetime.now().isoformat(),
+                'gameweek_info': {
+                    'total_matches': gameweek_result['total_matches'],
+                    'successful_dates': gameweek_result['successful_dates'],
+                    'failed_dates': gameweek_result['failed_dates'],
+                    'fetch_summary': gameweek_result['fetch_summary'],
+                    'data_quality': 'complete' if not gameweek_result['failed_dates'] else 'partial',
+                    'errors': gameweek_result['errors']
+                },
+                'matches': [
+                    {
+                        'id': match.id,
+                        'home_team': {
+                            'name': match.home_team.name,
+                            'abbreviation': match.home_team.abbreviation
+                        },
+                        'away_team': {
+                            'name': match.away_team.name,
+                            'abbreviation': match.away_team.abbreviation
+                        },
+                        'kickoff': match.kickoff.isoformat(),
+                        'kickoff_day': match.kickoff.strftime('%A'),  # e.g., "Friday"
+                        'kickoff_date': match.kickoff.date().isoformat(),
+                        'kickoff_time': match.kickoff.strftime('%H:%M'),
+                        'status': match.status.value,
+                        'elapsed_time': match.elapsed_time,
+                        'is_started': match.is_started,
+                        'time_until_kickoff': self._calculate_time_until_kickoff(match.kickoff),
+                        'match_day_category': self._get_match_day_category(match.kickoff)
+                    }
+                    for match in gameweek_result['matches']
+                ],
+                'date_breakdown': self._create_date_breakdown(gameweek_result['matches']),
+                'summary_stats': {
+                    'total_matches': len(gameweek_result['matches']),
+                    'matches_by_status': self._get_matches_by_status(gameweek_result['matches']),
+                    'matches_by_day': self._get_matches_by_day(gameweek_result['matches'])
+                }
+            }
+            
+            file_path = self.export_directory / "gameweek_matches.json"
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(gameweek_data, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Gameweek matches exported to {file_path} - {gameweek_result['fetch_summary']}")
+            return str(file_path)
+            
+        except Exception as e:
+            logger.error(f"Failed to export gameweek matches: {e}")
+            raise
+    
+    def _calculate_time_until_kickoff(self, kickoff: datetime) -> Dict[str, Any]:
+        """Calculate time remaining until kickoff."""
+        now = datetime.now()
+        
+        if kickoff <= now:
+            return {
+                'status': 'started_or_finished',
+                'seconds': 0,
+                'human_readable': 'Match started'
+            }
+        
+        time_diff = kickoff - now
+        total_seconds = int(time_diff.total_seconds())
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        
+        if hours > 24:
+            days = hours // 24
+            remaining_hours = hours % 24
+            human_readable = f"{days}d {remaining_hours}h"
+        elif hours > 0:
+            human_readable = f"{hours}h {minutes}m"
+        else:
+            human_readable = f"{minutes}m"
+        
+        return {
+            'status': 'upcoming',
+            'seconds': total_seconds,
+            'human_readable': human_readable
+        }
+    
+    def _get_match_day_category(self, kickoff: datetime) -> str:
+        """Categorize match by timing (today, tomorrow, this_weekend, etc.)."""
+        now = datetime.now()
+        today = now.date()
+        match_date = kickoff.date()
+        
+        days_diff = (match_date - today).days
+        
+        if days_diff < 0:
+            return "past"
+        elif days_diff == 0:
+            return "today"
+        elif days_diff == 1:
+            return "tomorrow"
+        elif days_diff <= 3:
+            return "this_weekend"
+        else:
+            return "future"
+    
+    def _create_date_breakdown(self, matches: List[Match]) -> Dict[str, List[Dict]]:
+        """Create breakdown of matches by date."""
+        date_breakdown = {}
+        
+        for match in matches:
+            date_str = match.kickoff.date().isoformat()
+            day_name = match.kickoff.strftime('%A')
+            
+            if date_str not in date_breakdown:
+                date_breakdown[date_str] = {
+                    'date': date_str,
+                    'day_name': day_name,
+                    'matches': []
+                }
+            
+            date_breakdown[date_str]['matches'].append({
+                'id': match.id,
+                'home_team': match.home_team.name,
+                'away_team': match.away_team.name,
+                'kickoff_time': match.kickoff.strftime('%H:%M'),
+                'status': match.status.value
+            })
+        
+        # Sort by date
+        return dict(sorted(date_breakdown.items()))
+    
+    def _get_matches_by_status(self, matches: List[Match]) -> Dict[str, int]:
+        """Count matches by status."""
+        status_counts = {}
+        for match in matches:
+            status = match.status.value
+            status_counts[status] = status_counts.get(status, 0) + 1
+        return status_counts
+    
+    def _get_matches_by_day(self, matches: List[Match]) -> Dict[str, int]:
+        """Count matches by day of week."""
+        day_counts = {}
+        for match in matches:
+            day = match.kickoff.strftime('%A')
+            day_counts[day] = day_counts.get(day, 0) + 1
+        return day_counts
+
+    def _player_team_matches_fixture(self, player_team_abbrev: str, match: Match) -> bool:
+        """
+        Check if a player's team (abbreviation) matches either team in a fixture (full names).
+        
+        Args:
+            player_team_abbrev: Player's team abbreviation (e.g., 'EVE')
+            match: Match object with full team names
+            
+        Returns:
+            True if the player's team is playing in this match
+        """
+        if not player_team_abbrev:
+            return False
+            
+        # Convert player's team abbreviation to full name
+        player_full_team_name = get_full_team_name(player_team_abbrev)
+        
+        # Normalize all team names for comparison
+        player_normalized = normalize_team_name(player_full_team_name).lower()
+        home_normalized = normalize_team_name(match.home_team.name).lower()  
+        away_normalized = normalize_team_name(match.away_team.name).lower()
+        
+        # Check if player's team matches either home or away team
+        return player_normalized == home_normalized or player_normalized == away_normalized
+
     async def export_lineup_status(self) -> str:
         """Export combined lineup status for dashboard main view."""
         if not (self.squad_repository and self.football_api):
@@ -194,15 +379,15 @@ class DashboardExportService:
             # Get squad from Fantrax API
             squad = await self.squad_repository.get_squad()
             
-            # Get today's matches
-            today = datetime.now()
-            all_matches = await self.football_api.get_fixtures(today)
+            # Get gameweek matches (Friday-Monday)
+            gameweek_result = await self.football_api.get_gameweek_fixtures()
+            all_matches = gameweek_result['matches']
             
             # Filter matches involving squad players
             squad_teams = set(squad.get_teams())
             relevant_matches = [
                 match for match in all_matches
-                if any(match.involves_team(team) for team in squad_teams)
+                if any(self._player_team_matches_fixture(team, match) for team in squad_teams)
             ]
             
             # Build player lineup status
@@ -215,10 +400,12 @@ class DashboardExportService:
                 opponent = None
                 
                 for match in relevant_matches:
-                    if match.involves_team(player.team.name):
+                    if self._player_team_matches_fixture(player.team.name, match):
                         player_match = match
+                        # Get opponent based on which team the player plays for
+                        player_full_team_name = get_full_team_name(player.team.name)
                         opponent = (
-                            match.away_team.name if player.team.name == match.home_team.name
+                            match.away_team.name if normalize_team_name(match.home_team.name) == normalize_team_name(player_full_team_name)
                             else match.home_team.name
                         )
                         
@@ -229,7 +416,11 @@ class DashboardExportService:
                             # Try to get actual lineup status
                             try:
                                 lineups = await self.football_api.get_lineups(match.id)
-                                team_lineup = next((l for l in lineups if l.team.name == player.team.name), None)
+                                player_full_team_name = get_full_team_name(player.team.name)
+                                team_lineup = next((
+                                    l for l in lineups 
+                                    if normalize_team_name(l.team.name).lower() == normalize_team_name(player_full_team_name).lower()
+                                ), None)
                                 
                                 if team_lineup:
                                     if team_lineup.has_player_starting(player.name):
@@ -283,7 +474,7 @@ class DashboardExportService:
             
             lineup_data = {
                 'generated_at': datetime.now().isoformat(),
-                'date': today.date().isoformat(),
+                'date': datetime.now().date().isoformat(),
                 'summary': summary,
                 'relevant_matches': len(relevant_matches),
                 'players': player_status
@@ -333,13 +524,26 @@ class DashboardExportService:
         try:
             metadata = {
                 'generated_at': datetime.now().isoformat(),
-                'format_version': '1.0',
-                'dashboard_version': '1.0.0',
+                'format_version': '1.1',
+                'dashboard_version': '1.1.0',
                 'data_files': {
                     'squad': 'squad.json',
                     'matches': 'matches.json',
+                    'gameweek_matches': 'gameweek_matches.json',
                     'lineup_status': 'lineup_status.json',
                     'status': 'status.json'
+                },
+                'features': {
+                    'gameweek_fixtures': {
+                        'enabled': True,
+                        'description': 'Complete Friday-Monday gameweek fixture data',
+                        'fetch_method': '4x concurrent API calls',
+                        'error_handling': 'graceful degradation with partial data'
+                    },
+                    'legacy_matches': {
+                        'enabled': True,
+                        'description': 'Today-only matches for backward compatibility'
+                    }
                 },
                 'refresh_info': {
                     'last_refresh': datetime.now().isoformat(),

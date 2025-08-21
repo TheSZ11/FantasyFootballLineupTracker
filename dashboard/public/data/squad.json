@@ -1,19 +1,20 @@
 {
-  "last_updated": "2025-08-17T15:00:18.401261",
+  "last_updated": "2025-08-21T15:16:17.739747",
   "total_players": 15,
   "active_players": 11,
   "reserve_players": 4,
   "teams_represented": [
+    "MUN",
+    "BOU",
+    "BUR",
+    "EVE",
+    "BRF",
     "BHA",
     "WHU",
-    "MUN",
-    "SUN",
-    "EVE",
-    "NEW",
-    "BOU",
-    "WOL",
     "LIV",
-    "BRF"
+    "LEE",
+    "SUN",
+    "WOL"
   ],
   "players": [
     {
@@ -41,8 +42,25 @@
         "abbreviation": "WHU"
       },
       "position": "Midfielder",
-      "status": "Act",
-      "is_active": true,
+      "status": "Res",
+      "is_active": false,
+      "fantasy_points": 0.0,
+      "average_points": 0.0,
+      "age": null,
+      "opponent": null,
+      "games_played": null,
+      "draft_percentage": null
+    },
+    {
+      "id": "062pl",
+      "name": "Lisandro Martinez",
+      "team": {
+        "name": "MUN",
+        "abbreviation": "MUN"
+      },
+      "position": "Defender",
+      "status": "Res",
+      "is_active": false,
       "fantasy_points": 0.0,
       "average_points": 0.0,
       "age": null,
@@ -75,23 +93,6 @@
         "abbreviation": "WOL"
       },
       "position": "Forward",
-      "status": "Act",
-      "is_active": true,
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
-      "age": null,
-      "opponent": null,
-      "games_played": null,
-      "draft_percentage": null
-    },
-    {
-      "id": "05y9n",
-      "name": "Lewis Hall",
-      "team": {
-        "name": "NEW",
-        "abbreviation": "NEW"
-      },
-      "position": "Defender",
       "status": "Act",
       "is_active": true,
       "fantasy_points": 0.0,
@@ -160,25 +161,8 @@
         "abbreviation": "WHU"
       },
       "position": "Defender",
-      "status": "Act",
-      "is_active": true,
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
-      "age": null,
-      "opponent": null,
-      "games_played": null,
-      "draft_percentage": null
-    },
-    {
-      "id": "052cd",
-      "name": "Mason Mount",
-      "team": {
-        "name": "MUN",
-        "abbreviation": "MUN"
-      },
-      "position": "Midfielder",
-      "status": "Act",
-      "is_active": true,
+      "status": "Res",
+      "is_active": false,
       "fantasy_points": 0.0,
       "average_points": 0.0,
       "age": null,
@@ -194,8 +178,8 @@
         "abbreviation": "BOU"
       },
       "position": "Defender",
-      "status": "Res",
-      "is_active": false,
+      "status": "Act",
+      "is_active": true,
       "fantasy_points": 0.0,
       "average_points": 0.0,
       "age": null,
@@ -204,30 +188,47 @@
       "draft_percentage": null
     },
     {
-      "id": "05l27",
-      "name": "Jarrad Branthwaite",
+      "id": "06c4o",
+      "name": "Lyle Foster",
       "team": {
-        "name": "EVE",
-        "abbreviation": "EVE"
-      },
-      "position": "Defender",
-      "status": "Res",
-      "is_active": false,
-      "fantasy_points": 0.0,
-      "average_points": 0.0,
-      "age": null,
-      "opponent": null,
-      "games_played": null,
-      "draft_percentage": null
-    },
-    {
-      "id": "06fvn",
-      "name": "Beto",
-      "team": {
-        "name": "EVE",
-        "abbreviation": "EVE"
+        "name": "BUR",
+        "abbreviation": "BUR"
       },
       "position": "Forward",
+      "status": "Act",
+      "is_active": true,
+      "fantasy_points": 0.0,
+      "average_points": 0.0,
+      "age": null,
+      "opponent": null,
+      "games_played": null,
+      "draft_percentage": null
+    },
+    {
+      "id": "06zbx",
+      "name": "Anton Stach",
+      "team": {
+        "name": "LEE",
+        "abbreviation": "LEE"
+      },
+      "position": "Midfielder",
+      "status": "Act",
+      "is_active": true,
+      "fantasy_points": 0.0,
+      "average_points": 0.0,
+      "age": null,
+      "opponent": null,
+      "games_played": null,
+      "draft_percentage": null
+    },
+    {
+      "id": "06p4k",
+      "name": "Matthijs de Ligt",
+      "team": {
+        "name": "MUN",
+        "abbreviation": "MUN"
+      },
+      "position": "Defender",
       "status": "Act",
       "is_active": true,
       "fantasy_points": 0.0,
@@ -262,8 +263,8 @@
         "abbreviation": "SUN"
       },
       "position": "Defender",
-      "status": "Res",
-      "is_active": false,
+      "status": "Act",
+      "is_active": true,
       "fantasy_points": 0.0,
       "average_points": 0.0,
       "age": null,
