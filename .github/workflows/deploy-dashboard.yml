@@ -3,7 +3,16 @@ name: Deploy Dashboard to GitHub Pages
 on:
   push:
     branches: [ main ]
+    # Skip deployment if it's just an automated data update
+    paths-ignore:
+      - 'dashboard/public/data/*.json'
   workflow_dispatch:  # Allow manual trigger
+    inputs:
+      force_data_refresh:
+        description: 'Force fresh data generation during deployment'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -35,15 +44,88 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Verify dashboard data exists
+    - name: Verify or generate dashboard data
       run: |
+        echo "🔍 Checking dashboard data availability..."
+        
+        # Function to check if data is stale (older than 24 hours)
+        data_is_stale() {
+          if [ ! -f "dashboard/public/data/metadata.json" ]; then
+            return 0  # No metadata means stale
+          fi
+          
+          local last_update=$(python3 -c "
+          import json, datetime
+          try:
+              with open('dashboard/public/data/metadata.json') as f:
+                  data = json.load(f)
+              last_update = datetime.datetime.fromisoformat(data['generated_at'].replace('Z', '+00:00'))
+              now = datetime.datetime.now(datetime.timezone.utc)
+              hours_diff = (now - last_update).total_seconds() / 3600
+              if hours_diff > 24:
+                  print('stale')
+              else:
+                  print('fresh')
+          except:
+              print('stale')
+          ")
+          
+          [ "$last_update" = "stale" ]
+        }
+        
+        # Check if we need to generate fresh data
+        should_generate_data=false
+        
         if [ ! -f "dashboard/public/data/squad.json" ]; then
-          echo "❌ Dashboard data not found. Please run 'python -m src.lineup_tracker.async_main export' locally and commit the data."
-          exit 1
+          echo "📂 No existing dashboard data found"
+          should_generate_data=true
+        elif [ "${{ github.event.inputs.force_data_refresh }}" = "true" ]; then
+          echo "🔄 Force refresh requested"
+          should_generate_data=true
+        elif data_is_stale; then
+          echo "⏰ Existing data is stale (>24h old)"
+          should_generate_data=true
         else
-          echo "✅ Dashboard data found, proceeding with build"
+          echo "✅ Fresh dashboard data found"
           ls -la dashboard/public/data/
         fi
+        
+        # Generate data if needed
+        if [ "$should_generate_data" = "true" ]; then
+          echo "🔄 Generating fresh dashboard data..."
+          
+          # Attempt data generation with timeout
+          timeout 300 python -m src.lineup_tracker.async_main export --export-dir dashboard/public/data || {
+            echo "⚠️  Data generation failed or timed out, checking for any existing data..."
+            
+            if [ ! -f "dashboard/public/data/squad.json" ]; then
+              echo "❌ No dashboard data available and generation failed."
+              echo "Please ensure your configuration is correct or run:"
+              echo "  python -m src.lineup_tracker.async_main export"
+              echo "locally and commit the data files."
+              exit 1
+            else
+              echo "⚠️  Using existing data despite generation failure"
+            fi
+          }
+          
+          # Verify the generated/existing data
+          echo "🔍 Verifying dashboard data..."
+          required_files=("squad.json" "matches.json" "gameweek_matches.json" "lineup_status.json" "metadata.json" "status.json")
+          
+          for file in "${required_files[@]}"; do
+            if [ ! -f "dashboard/public/data/$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            else
+              echo "✅ $file ($(stat -f%z "dashboard/public/data/$file" 2>/dev/null || stat -c%s "dashboard/public/data/$file" 2>/dev/null) bytes)"
+            fi
+          done
+        fi
+        
+        echo ""
+        echo "📊 Dashboard data summary:"
+        ls -la dashboard/public/data/
         
     - name: Set up Node.js
       uses: actions/setup-node@v4
