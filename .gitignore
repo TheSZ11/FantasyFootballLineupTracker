@@ -194,6 +194,8 @@ manual_*.py
 
 # Dashboard build and backup directories
 dashboard/dist/
+dashboard/build/
+dashboard/.cache/
 dashboard/data_backup_*/
 *_backup_*/
 

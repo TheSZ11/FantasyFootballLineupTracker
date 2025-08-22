@@ -128,7 +128,7 @@ CHECK_INTERVAL_MINUTES=15
 
 ### Start Monitoring
 ```bash
-python main.py
+python -m src.lineup_tracker.async_main run
 ```
 
 ### Test Your Setup
@@ -324,9 +324,8 @@ dashboard/
 
 ```
 LineupTracker/
-├── 🚀 main.py                    # Application entry point
 ├── 📋 setup.py                   # Interactive setup script
-├── 🧪 test_system.py            # System testing
+├── 🧪 tests/                     # System and unit testing
 ├── ⚙️ requirements.txt           # Dependencies
 ├── 📄 .env                       # Your configuration
 ├── 📊 playerMapping.csv         # Player ID to name mappings
