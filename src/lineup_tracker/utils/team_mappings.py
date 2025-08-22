@@ -43,12 +43,14 @@ TEAM_NAME_VARIANTS = {
     'Spurs': 'Tottenham',
     'Manchester United': 'Manchester United',
     'Man United': 'Manchester United',
+    'Man Utd': 'Manchester United',
     'Man City': 'Manchester City',
     'Newcastle': 'Newcastle United',
     'West Ham': 'West Ham United',
     'Wolverhampton': 'Wolverhampton Wanderers',
     'Wolves': 'Wolverhampton Wanderers',
     'Nottm Forest': 'Nottingham Forest',
+    'Forest': 'Nottingham Forest',
     'Crystal Palace': 'Crystal Palace'
 }
 

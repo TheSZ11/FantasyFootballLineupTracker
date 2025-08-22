@@ -82,7 +82,16 @@ class Match:
     
     def involves_team(self, team_name: str) -> bool:
         """Check if match involves a specific team."""
-        return team_name in [self.home_team.name, self.away_team.name]
+        from ..utils.team_mappings import normalize_team_name
+        
+        # Normalize the input team name (handles abbreviations like "WHU" -> "West Ham United")
+        normalized_input = normalize_team_name(team_name)
+        
+        # Normalize match team names and check for match
+        normalized_home = normalize_team_name(self.home_team.name)
+        normalized_away = normalize_team_name(self.away_team.name)
+        
+        return normalized_input in [normalized_home, normalized_away]
 
 
 @dataclass

@@ -321,41 +321,76 @@ def log_function_call(func_name: str, **kwargs):
 
 def log_performance(operation_name: str):
     """
-    Decorator for logging performance metrics.
+    Decorator for logging performance metrics (supports both sync and async functions).
     
     Args:
         operation_name: Name of the operation being measured
     """
     def decorator(func):
-        def wrapper(*args, **kwargs):
-            import time
-            
-            logger = LoggerManager.get_logger(func.__module__)
-            start_time = time.time()
-            
-            try:
-                result = func(*args, **kwargs)
-                duration = time.time() - start_time
-                
-                logger.info(
-                    f"Performance: {operation_name} completed",
-                    duration_seconds=duration,
-                    operation=operation_name
-                )
-                
-                return result
-            except Exception as e:
-                duration = time.time() - start_time
-                
-                logger.error(
-                    f"Performance: {operation_name} failed",
-                    duration_seconds=duration,
-                    operation=operation_name,
-                    error=str(e)
-                )
-                raise
+        import inspect
         
-        return wrapper
+        if inspect.iscoroutinefunction(func):
+            # Async function wrapper
+            async def async_wrapper(*args, **kwargs):
+                import time
+                
+                logger = LoggerManager.get_logger(func.__module__)
+                start_time = time.time()
+                
+                try:
+                    result = await func(*args, **kwargs)
+                    duration = time.time() - start_time
+                    
+                    logger.info(
+                        f"Performance: {operation_name} completed",
+                        duration_seconds=duration,
+                        operation=operation_name
+                    )
+                    
+                    return result
+                except Exception as e:
+                    duration = time.time() - start_time
+                    
+                    logger.error(
+                        f"Performance: {operation_name} failed",
+                        duration_seconds=duration,
+                        operation=operation_name,
+                        error=str(e)
+                    )
+                    raise
+            
+            return async_wrapper
+        else:
+            # Sync function wrapper (original code)
+            def wrapper(*args, **kwargs):
+                import time
+                
+                logger = LoggerManager.get_logger(func.__module__)
+                start_time = time.time()
+                
+                try:
+                    result = func(*args, **kwargs)
+                    duration = time.time() - start_time
+                    
+                    logger.info(
+                        f"Performance: {operation_name} completed",
+                        duration_seconds=duration,
+                        operation=operation_name
+                    )
+                    
+                    return result
+                except Exception as e:
+                    duration = time.time() - start_time
+                    
+                    logger.error(
+                        f"Performance: {operation_name} failed",
+                        duration_seconds=duration,
+                        operation=operation_name,
+                        error=str(e)
+                    )
+                    raise
+            
+            return wrapper
     return decorator
 
 

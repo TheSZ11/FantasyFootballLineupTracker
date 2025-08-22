@@ -47,7 +47,18 @@ class AsyncLineupTracker:
             # Load configuration
             self.config = load_config()
             
-            # Configure logging from config
+            # Reset and configure logging from config
+            from .utils.logging import LoggerManager
+            LoggerManager.reset()  # Reset any previous logging configuration
+            
+            # Clear existing log file if it exists
+            if self.config.logging_settings.log_file:
+                import os
+                log_file_path = self.config.logging_settings.log_file
+                if os.path.exists(log_file_path):
+                    with open(log_file_path, 'w') as f:
+                        f.write("")  # Clear the file
+            
             configure_logging(
                 log_level=self.config.logging_settings.level,
                 enable_console=self.config.logging_settings.enable_console,

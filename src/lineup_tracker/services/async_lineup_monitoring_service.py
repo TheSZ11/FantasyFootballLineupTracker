@@ -212,21 +212,38 @@ class AsyncLineupMonitoringService:
                 
                 logger.info(f"🎯 Gameweek fetch result: {gameweek_result['fetch_summary']}")
                 
-                # Filter for relevant matches (within monitoring window)
+                # Filter for relevant matches (involving squad teams)
+                if not self.squad:
+                    logger.warning("No squad loaded, cannot filter relevant matches")
+                    return []
+                
+                squad_teams = set(self.squad.get_teams())
                 now = datetime.now()
                 monitoring_window = timedelta(minutes=self.config.pre_match_window_minutes)
                 
                 relevant_matches = []
                 for match in fixtures:
+                    # First check if match involves our squad teams
+                    if not any(match.involves_team(team) for team in squad_teams):
+                        continue
+                    
                     time_until_match = match.kickoff - now
                     
                     # Include matches starting within our monitoring window
                     if timedelta(0) <= time_until_match <= monitoring_window:
                         relevant_matches.append(match)
+                        logger.debug(f"Relevant match (in window): {match.home_team.name} vs {match.away_team.name}")
                     
                     # Include live matches
                     elif match.status == MatchStatus.LIVE:
                         relevant_matches.append(match)
+                        logger.debug(f"Relevant match (live): {match.home_team.name} vs {match.away_team.name}")
+                    
+                    # Also include matches that involve our players (even if not in monitoring window yet)
+                    # This allows us to see upcoming matches for planning
+                    else:
+                        relevant_matches.append(match)
+                        logger.debug(f"Relevant match (squad team): {match.home_team.name} vs {match.away_team.name}")
 
                 logger.info(f"📅 Found {len(relevant_matches)} relevant matches from gameweek data")
                 return relevant_matches
@@ -264,7 +281,7 @@ class AsyncLineupMonitoringService:
             del self.monitored_matches[match_id]
             logger.debug(f"🗑️ Removed old match from monitoring: {match_id}")
     
-    @log_performance
+    @log_performance("lineup_checks")
     async def _perform_concurrent_lineup_checks(self):
         """Perform lineup checks for all monitored matches concurrently."""
         if not self.monitored_matches:
@@ -315,18 +332,18 @@ class AsyncLineupMonitoringService:
             with CorrelationContext(match_id=match.id):
                 logger.debug(f"🔍 Checking lineup for {match.home_team.name} vs {match.away_team.name}")
                 
-                # Get lineup from API
-                lineup = await self.football_api.get_lineup(match.id)
+                # Get lineups from API (both home and away teams)
+                lineups_dict = await self.football_api.get_match_lineups(match.id)
                 
                 # Update monitoring info
                 monitor_info.last_lineup_check = datetime.now()
                 
-                if lineup:
+                if lineups_dict:
                     monitor_info.lineup_found = True
                     logger.info(f"📋 Lineup found for match {match.id}")
                     
                     # Analyze lineup against our squad
-                    await self._analyze_and_alert(match, lineup, monitor_info)
+                    await self._analyze_and_alert(match, lineups_dict, monitor_info)
                 else:
                     logger.debug(f"📋 No lineup yet available for match {match.id}")
                     
@@ -334,11 +351,11 @@ class AsyncLineupMonitoringService:
             logger.error(f"Error checking lineup for match {match.id}: {e}")
             raise
     
-    async def _analyze_and_alert(self, match: Match, lineup: Lineup, monitor_info: MatchMonitoringInfo):
+    async def _analyze_and_alert(self, match: Match, lineups_dict: Dict[str, Lineup], monitor_info: MatchMonitoringInfo):
         """Analyze lineup and send summary notification."""
         try:
             # Create lineup summary for all squad players in this match
-            match_summary = await self._create_match_lineup_summary(match, lineup)
+            match_summary = await self._create_match_lineup_summary(match, lineups_dict)
             
             if match_summary and match_summary.get('players'):
                 # Send lineup summary notification
@@ -354,46 +371,106 @@ class AsyncLineupMonitoringService:
             logger.error(f"Error analyzing lineup for match {match.id}: {e}")
             raise
     
-    async def _create_match_lineup_summary(self, match: Match, lineup: Lineup) -> dict:
+    async def _create_match_lineup_summary(self, match: Match, lineups_dict: Dict[str, Lineup]) -> dict:
         """Create a summary of squad players' lineup status for a match."""
-        # Get all squad players for teams in this match
-        match_teams = [match.home_team.name, match.away_team.name]
+        from ..utils.team_mappings import normalize_team_name
+        from typing import Dict
+        
+        # Get normalized team names for this match
+        normalized_home = normalize_team_name(match.home_team.name)
+        normalized_away = normalize_team_name(match.away_team.name)
+        match_teams_normalized = [normalized_home, normalized_away]
+        
+        # Get all squad players for teams in this match (using normalized team names)
         squad_players_in_match = [
             player for player in self.squad.players 
-            if player.team.name in match_teams
+            if normalize_team_name(player.team.name) in match_teams_normalized
         ]
         
         if not squad_players_in_match:
+            logger.info(f"🚫 No squad players found for match: {match.home_team.name} vs {match.away_team.name}")
             return {}
         
-        # Get starting and bench players from the lineup
+        # Get starting and bench players from both team lineups
         starting_players = set()
         bench_players = set()
         
-        for team_lineup in lineup.team_lineups:
+        # Iterate over all lineups (home and away)
+        for lineup_key, lineup in lineups_dict.items():
             # Add starting XI players
-            for player in team_lineup.starting_xi:
-                starting_players.add(player.name)
+            for player_name in lineup.starting_eleven:
+                starting_players.add(player_name)
             
             # Add substitute players
-            for player in team_lineup.substitutes:
-                bench_players.add(player.name)
+            for player_name in lineup.substitutes:
+                bench_players.add(player_name)
         
         # Create summary for each squad player
         player_summaries = []
         for player in squad_players_in_match:
+            # Try exact match first
             is_starting = player.name in starting_players
             is_on_bench = player.name in bench_players
             
+            # If no exact match, try fuzzy matching
+            if not is_starting and not is_on_bench:
+                player_name_lower = player.name.lower()
+                
+                # Check starting players with fuzzy matching
+                for lineup_player in starting_players:
+                    if self._names_match_fuzzy(player_name_lower, lineup_player.lower()):
+                        is_starting = True
+                        break
+                
+                # Check bench players with fuzzy matching
+                if not is_starting:
+                    for lineup_player in bench_players:
+                        if self._names_match_fuzzy(player_name_lower, lineup_player.lower()):
+                            is_on_bench = True
+                            break
+            
             # Include all squad players (starting, benched, or not in squad)
+            status = 'Starting' if is_starting else 'Benched' if is_on_bench else 'Not in Squad'
             player_summaries.append({
                 'name': player.name,
                 'position': player.position.value if hasattr(player.position, 'value') else str(player.position),
                 'team': player.team.name,
                 'is_starting': is_starting,
                 'is_on_bench': is_on_bench,
-                'status': 'Starting' if is_starting else 'Benched' if is_on_bench else 'Not in Squad'
+                'status': status
             })
+        
+        # Log detailed lineup information for each match
+        logger.info(f"🏟️  LINEUP ANALYSIS: {match.home_team.name} vs {match.away_team.name}")
+        
+        starting_count = sum(1 for p in player_summaries if p['is_starting'])
+        benched_count = sum(1 for p in player_summaries if p['is_on_bench'])
+        not_in_squad_count = len(player_summaries) - starting_count - benched_count
+        
+        logger.info(f"📊 Squad players: {len(player_summaries)} total | ✅ {starting_count} starting | 🪑 {benched_count} benched | ❌ {not_in_squad_count} not selected")
+        
+        # Log each player's status
+        for player in player_summaries:
+            status_emoji = "✅" if player['is_starting'] else "🪑" if player['is_on_bench'] else "❌"
+            logger.info(f"   {status_emoji} {player['name']} ({player['position']}, {player['team']}) - {player['status']}")
+        
+        # Determine if lineups are confirmed or predicted
+        confirmed_lineups = []
+        predicted_lineups = []
+        
+        for lineup_key, lineup in lineups_dict.items():
+            if lineup.confirmed:
+                confirmed_lineups.append(lineup_key)
+            else:
+                predicted_lineups.append(lineup_key)
+        
+        # Determine overall status - if any lineup is confirmed, call it mixed; if all confirmed, call it confirmed
+        if confirmed_lineups and predicted_lineups:
+            lineup_status = 'mixed'  # Some confirmed, some predicted
+        elif confirmed_lineups:
+            lineup_status = 'confirmed'  # All confirmed
+        else:
+            lineup_status = 'predicted'  # All predicted (or no lineups)
         
         return {
             'match': {
@@ -402,8 +479,40 @@ class AsyncLineupMonitoringService:
                 'kickoff': match.kickoff.strftime('%H:%M') if match.kickoff else 'TBD',
                 'id': match.id
             },
-            'players': player_summaries
+            'players': player_summaries,
+            'lineup_status': lineup_status,
+            'confirmed_count': len(confirmed_lineups),
+            'predicted_count': len(predicted_lineups),
+            'total_lineups': len(lineups_dict)
         }
+    
+    def _names_match_fuzzy(self, name1: str, name2: str) -> bool:
+        """Check if two player names might be the same person using fuzzy matching."""
+        # Handle common variations
+        # e.g., "Mohamed Salah" matches "M. Salah" or "Salah"
+        
+        # If names are identical, they match
+        if name1 == name2:
+            return True
+        
+        # Split names into parts
+        parts1 = name1.split()
+        parts2 = name2.split()
+        
+        # If last names match and both have multiple parts, likely same person
+        if len(parts1) > 1 and len(parts2) > 1 and parts1[-1] == parts2[-1]:
+            # Check if first name initial matches
+            if parts1[0][0] == parts2[0][0]:
+                return True
+        
+        # Check if one name contains all parts of the other
+        # e.g., "Salah" contained in "Mohamed Salah"
+        if len(parts1) == 1 and len(parts2) > 1:
+            return parts1[0] in parts2
+        elif len(parts2) == 1 and len(parts1) > 1:
+            return parts2[0] in parts1
+            
+        return False
     
     async def _send_alerts_concurrently(self, alerts: List[Alert]):
         """Send multiple alerts concurrently."""
@@ -498,8 +607,15 @@ class AsyncLineupMonitoringService:
     async def _load_squad(self):
         """Load squad data from repository."""
         try:
-            logger.info("📚 Loading squad data")
-            self.squad = await self.squad_repository.load_squad(self.config.squad_file_path)
+            logger.info("📚 Loading squad data from Fantrax API")
+            
+            # Use get_squad() method for Fantrax repository (no file path needed)
+            if hasattr(self.squad_repository, 'get_squad'):
+                self.squad = await self.squad_repository.get_squad()
+            else:
+                # Fallback for file-based repositories
+                logger.warning("Using fallback file-based squad loading")
+                self.squad = await self.squad_repository.load_squad("my_roster.csv")
             
             if not self.squad or not self.squad.players:
                 raise LineupMonitoringError("No squad data found or squad is empty")

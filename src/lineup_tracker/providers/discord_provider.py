@@ -198,18 +198,63 @@ class DiscordProvider(BaseNotificationProvider):
         total_matches = len(match_summaries)
         total_players = sum(len(summary.get('players', [])) for summary in match_summaries)
         
+        # Analyze lineup status across all matches
+        confirmed_matches = sum(1 for summary in match_summaries if summary.get('lineup_status') == 'confirmed')
+        predicted_matches = sum(1 for summary in match_summaries if summary.get('lineup_status') == 'predicted')
+        mixed_matches = sum(1 for summary in match_summaries if summary.get('lineup_status') == 'mixed')
+        
+        # Determine overall status and styling
+        if confirmed_matches == total_matches:
+            # All confirmed
+            title = "📋 Lineup Summary - Confirmed Lineups"
+            description = f"**{total_matches}** matches with confirmed lineups • **{total_players}** squad players tracked"
+            color = 0x36a64f  # Green
+        elif predicted_matches == total_matches:
+            # All predicted
+            title = "📋 Lineup Summary - Predicted Lineups"
+            description = f"**{total_matches}** matches with predicted lineups • **{total_players}** squad players tracked"
+            color = 0xff9900  # Orange
+        else:
+            # Mixed status
+            title = "📋 Lineup Summary - Mixed Status"
+            status_parts = []
+            if confirmed_matches > 0:
+                status_parts.append(f"**{confirmed_matches}** confirmed")
+            if predicted_matches > 0:
+                status_parts.append(f"**{predicted_matches}** predicted")
+            if mixed_matches > 0:
+                status_parts.append(f"**{mixed_matches}** partial")
+            
+            description = f"{', '.join(status_parts)} • **{total_players}** squad players tracked"
+            color = 0xffaa00  # Yellow
+        
         embed = DiscordEmbed(
-            title="📋 Lineup Summary - Confirmed Lineups",
-            description=f"**{total_matches}** matches with confirmed lineups • **{total_players}** squad players tracked",
-            color=0x36a64f  # Green
+            title=title,
+            description=description,
+            color=color
         )
         
         for match_summary in match_summaries:
             match_info = match_summary.get('match', {})
             players = match_summary.get('players', [])
+            lineup_status = match_summary.get('lineup_status', 'unknown')
             
-            # Match header
-            match_title = f"{match_info.get('home_team', 'TBD')} vs {match_info.get('away_team', 'TBD')}"
+            # Match header with status indicator
+            status_emoji = {
+                'confirmed': '✅',
+                'predicted': '🔮', 
+                'mixed': '⚡',
+                'unknown': '❓'
+            }.get(lineup_status, '❓')
+            
+            status_text = {
+                'confirmed': 'Confirmed',
+                'predicted': 'Predicted',
+                'mixed': 'Partial',
+                'unknown': 'Unknown'
+            }.get(lineup_status, 'Unknown')
+            
+            match_title = f"{status_emoji} {match_info.get('home_team', 'TBD')} vs {match_info.get('away_team', 'TBD')} • {status_text}"
             kickoff_time = match_info.get('kickoff', 'TBD')
             if kickoff_time != 'TBD':
                 match_title += f" • {kickoff_time}"
