@@ -1,0 +1,29 @@
+{
+  "generated_at": "2025-08-22T00:45:28.335866",
+  "format_version": "1.1",
+  "dashboard_version": "1.1.0",
+  "data_files": {
+    "squad": "squad.json",
+    "matches": "matches.json",
+    "gameweek_matches": "gameweek_matches.json",
+    "lineup_status": "lineup_status.json",
+    "status": "status.json"
+  },
+  "features": {
+    "gameweek_fixtures": {
+      "enabled": true,
+      "description": "Complete Friday-Monday gameweek fixture data",
+      "fetch_method": "4x concurrent API calls",
+      "error_handling": "graceful degradation with partial data"
+    },
+    "legacy_matches": {
+      "enabled": true,
+      "description": "Today-only matches for backward compatibility"
+    }
+  },
+  "refresh_info": {
+    "last_refresh": "2025-08-22T00:45:28.335868",
+    "refresh_interval_seconds": 300,
+    "next_recommended_refresh": "2025-08-22T00:50:28.335869"
+  }
+}

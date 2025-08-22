@@ -1,0 +1,302 @@
+{
+  "generated_at": "2025-08-22T00:45:28.335453",
+  "date": "2025-08-22",
+  "summary": {
+    "total_players": 15,
+    "players_with_matches_today": 15,
+    "confirmed_starting": 0,
+    "confirmed_bench": 0,
+    "predicted_starting": 12,
+    "predicted_bench": 0,
+    "players_with_predictions": 15,
+    "no_match_today": 0
+  },
+  "relevant_matches": 8,
+  "players": [
+    {
+      "id": "032f9",
+      "name": "Jordan Pickford",
+      "team": "EVE",
+      "team_abbreviation": "EVE",
+      "position": "Goalkeeper",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Brighton & Hove Albion",
+      "match_info": {
+        "id": "14025077",
+        "kickoff": "2025-08-24T09:00:00",
+        "status": "NS",
+        "home_team": "Everton",
+        "away_team": "Brighton & Hove Albion"
+      }
+    },
+    {
+      "id": "06ymu",
+      "name": "El Hadji Malick Diouf",
+      "team": "WHU",
+      "team_abbreviation": "WHU",
+      "position": "Midfielder",
+      "expected_status": "Res",
+      "is_expected_starter": false,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightorange",
+      "opponent": "Chelsea",
+      "match_info": {
+        "id": "14025088",
+        "kickoff": "2025-08-22T15:00:00",
+        "status": "NS",
+        "home_team": "West Ham United",
+        "away_team": "Chelsea"
+      }
+    },
+    {
+      "id": "062pl",
+      "name": "Lisandro Martinez",
+      "team": "MUN",
+      "team_abbreviation": "MUN",
+      "position": "Defender",
+      "expected_status": "Res",
+      "is_expected_starter": false,
+      "lineup_status": "predicted_unavailable",
+      "status_color": "lightgray",
+      "opponent": "Fulham",
+      "match_info": {
+        "id": "14025080",
+        "kickoff": "2025-08-24T11:30:00",
+        "status": "NS",
+        "home_team": "Fulham",
+        "away_team": "Manchester United"
+      }
+    },
+    {
+      "id": "0427d",
+      "name": "James Tarkowski",
+      "team": "EVE",
+      "team_abbreviation": "EVE",
+      "position": "Defender",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Brighton & Hove Albion",
+      "match_info": {
+        "id": "14025077",
+        "kickoff": "2025-08-24T09:00:00",
+        "status": "NS",
+        "home_team": "Everton",
+        "away_team": "Brighton & Hove Albion"
+      }
+    },
+    {
+      "id": "06mow",
+      "name": "Jorgen Strand Larsen",
+      "team": "WOL",
+      "team_abbreviation": "WOL",
+      "position": "Forward",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Bournemouth",
+      "match_info": {
+        "id": "14025062",
+        "kickoff": "2025-08-23T10:00:00",
+        "status": "NS",
+        "home_team": "Bournemouth",
+        "away_team": "Wolverhampton"
+      }
+    },
+    {
+      "id": "06zce",
+      "name": "Jhon Arias",
+      "team": "WOL",
+      "team_abbreviation": "WOL",
+      "position": "Midfielder",
+      "expected_status": "Res",
+      "is_expected_starter": false,
+      "lineup_status": "predicted_unavailable",
+      "status_color": "lightgray",
+      "opponent": "Bournemouth",
+      "match_info": {
+        "id": "14025062",
+        "kickoff": "2025-08-23T10:00:00",
+        "status": "NS",
+        "home_team": "Bournemouth",
+        "away_team": "Wolverhampton"
+      }
+    },
+    {
+      "id": "03aqp",
+      "name": "Mohamed Salah",
+      "team": "LIV",
+      "team_abbreviation": "LIV",
+      "position": "Forward",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Newcastle United",
+      "match_info": {
+        "id": "14147154",
+        "kickoff": "2025-08-25T15:00:00",
+        "status": "NS",
+        "home_team": "Newcastle United",
+        "away_team": "Liverpool"
+      }
+    },
+    {
+      "id": "063q8",
+      "name": "Mikkel Damsgaard",
+      "team": "BRF",
+      "team_abbreviation": "BRF",
+      "position": "Midfielder",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_unavailable",
+      "status_color": "lightgray",
+      "opponent": "Aston Villa",
+      "match_info": {
+        "id": "14025068",
+        "kickoff": "2025-08-23T10:00:00",
+        "status": "NS",
+        "home_team": "Brentford",
+        "away_team": "Aston Villa"
+      }
+    },
+    {
+      "id": "04adp",
+      "name": "Aaron Wan-Bissaka",
+      "team": "WHU",
+      "team_abbreviation": "WHU",
+      "position": "Defender",
+      "expected_status": "Res",
+      "is_expected_starter": false,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightorange",
+      "opponent": "Chelsea",
+      "match_info": {
+        "id": "14025088",
+        "kickoff": "2025-08-22T15:00:00",
+        "status": "NS",
+        "home_team": "West Ham United",
+        "away_team": "Chelsea"
+      }
+    },
+    {
+      "id": "06uyc",
+      "name": "Adrien Truffert",
+      "team": "BOU",
+      "team_abbreviation": "BOU",
+      "position": "Defender",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Wolverhampton",
+      "match_info": {
+        "id": "14025062",
+        "kickoff": "2025-08-23T10:00:00",
+        "status": "NS",
+        "home_team": "Bournemouth",
+        "away_team": "Wolverhampton"
+      }
+    },
+    {
+      "id": "06c4o",
+      "name": "Lyle Foster",
+      "team": "BUR",
+      "team_abbreviation": "BUR",
+      "position": "Forward",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Sunderland",
+      "match_info": {
+        "id": "14025071",
+        "kickoff": "2025-08-23T10:00:00",
+        "status": "NS",
+        "home_team": "Burnley",
+        "away_team": "Sunderland"
+      }
+    },
+    {
+      "id": "06zbx",
+      "name": "Anton Stach",
+      "team": "LEE",
+      "team_abbreviation": "LEE",
+      "position": "Midfielder",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Arsenal",
+      "match_info": {
+        "id": "14025065",
+        "kickoff": "2025-08-23T12:30:00",
+        "status": "NS",
+        "home_team": "Arsenal",
+        "away_team": "Leeds United"
+      }
+    },
+    {
+      "id": "06p4k",
+      "name": "Matthijs de Ligt",
+      "team": "MUN",
+      "team_abbreviation": "MUN",
+      "position": "Defender",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Fulham",
+      "match_info": {
+        "id": "14025080",
+        "kickoff": "2025-08-24T11:30:00",
+        "status": "NS",
+        "home_team": "Fulham",
+        "away_team": "Manchester United"
+      }
+    },
+    {
+      "id": "062ci",
+      "name": "Kaoru Mitoma",
+      "team": "BHA",
+      "team_abbreviation": "BHA",
+      "position": "Midfielder",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Everton",
+      "match_info": {
+        "id": "14025077",
+        "kickoff": "2025-08-24T09:00:00",
+        "status": "NS",
+        "home_team": "Everton",
+        "away_team": "Brighton & Hove Albion"
+      }
+    },
+    {
+      "id": "06v0g",
+      "name": "Trai Hume",
+      "team": "SUN",
+      "team_abbreviation": "SUN",
+      "position": "Defender",
+      "expected_status": "Act",
+      "is_expected_starter": true,
+      "lineup_status": "predicted_starting",
+      "status_color": "lightgreen",
+      "opponent": "Burnley",
+      "match_info": {
+        "id": "14025071",
+        "kickoff": "2025-08-23T10:00:00",
+        "status": "NS",
+        "home_team": "Burnley",
+        "away_team": "Sunderland"
+      }
+    }
+  ]
+}
