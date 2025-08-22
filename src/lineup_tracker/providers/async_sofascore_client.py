@@ -7,6 +7,7 @@ intelligent caching, and concurrent operations for optimal performance.
 
 import asyncio
 import aiohttp
+import os
 import time
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any, Set
@@ -124,15 +125,31 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
                 sock_read=self.config.timeout_seconds
             )
             
+            # Enhanced headers for GitHub Actions compatibility
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'en-US,en;q=0.9'
+            }
+            
+            # Add additional headers for GitHub Actions to appear more browser-like
+            if os.environ.get('GITHUB_ACTIONS') == 'true':
+                headers.update({
+                    'Referer': 'https://www.sofascore.com/',
+                    'Origin': 'https://www.sofascore.com',
+                    'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+                    'Sec-Ch-Ua-Mobile': '?0',
+                    'Sec-Ch-Ua-Platform': '"Linux"',
+                    'Sec-Fetch-Dest': 'empty',
+                    'Sec-Fetch-Mode': 'cors',
+                    'Sec-Fetch-Site': 'same-site'
+                })
+            
             self._session = aiohttp.ClientSession(
                 connector=connector,
                 timeout=timeout_config,
-                headers={
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                    'Accept': 'application/json',
-                    'Accept-Encoding': 'gzip, deflate',
-                    'Accept-Language': 'en-US,en;q=0.9'
-                }
+                headers=headers
             )
             
             logger.info("Async HTTP session initialized")
@@ -536,16 +553,29 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
         # Get gameweek dates
         gameweek_dates = self._get_gameweek_dates(reference_date)
         
-        # Create concurrent tasks for all 4 days
-        tasks = [
-            self._fetch_single_day_with_error_handling(date) 
-            for date in gameweek_dates
-        ]
-        
         try:
-            # Execute all 4 API calls concurrently
             start_time = time.time()
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # Check if running in GitHub Actions - use sequential requests to avoid bot detection
+            is_github_actions = os.environ.get('GITHUB_ACTIONS') == 'true'
+            
+            if is_github_actions:
+                # Sequential requests with delays for GitHub Actions
+                logger.info("GitHub Actions detected - using sequential requests to avoid rate limiting")
+                results = []
+                for i, date in enumerate(gameweek_dates):
+                    if i > 0:  # Add delay between requests (except first)
+                        await asyncio.sleep(2)  # 2 second delay
+                    result = await self._fetch_single_day_with_error_handling(date)
+                    results.append(result)
+            else:
+                # Concurrent requests for local/production use
+                tasks = [
+                    self._fetch_single_day_with_error_handling(date) 
+                    for date in gameweek_dates
+                ]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+            
             fetch_time = time.time() - start_time
             
             # Merge and process results
