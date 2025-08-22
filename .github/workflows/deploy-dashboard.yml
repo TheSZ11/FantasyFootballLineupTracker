@@ -48,46 +48,26 @@ jobs:
       run: |
         echo "🔍 Checking dashboard data availability..."
         
-        # Function to check if data is stale (older than 24 hours)
-        data_is_stale() {
-          if [ ! -f "dashboard/public/data/metadata.json" ]; then
-            return 0  # No metadata means stale
-          fi
-          
-          local last_update=$(python3 -c "
-          import json, datetime
-          try:
-              with open('dashboard/public/data/metadata.json') as f:
-                  data = json.load(f)
-              last_update = datetime.datetime.fromisoformat(data['generated_at'].replace('Z', '+00:00'))
-              now = datetime.datetime.now(datetime.timezone.utc)
-              hours_diff = (now - last_update).total_seconds() / 3600
-              if hours_diff > 24:
-                  print('stale')
-              else:
-                  print('fresh')
-          except:
-              print('stale')
-          ")
-          
-          [ "$last_update" = "stale" ]
-        }
+        should_generate_data="false"
         
         # Check if we need to generate fresh data
-        should_generate_data=false
-        
         if [ ! -f "dashboard/public/data/squad.json" ]; then
           echo "📂 No existing dashboard data found"
-          should_generate_data=true
+          should_generate_data="true"
         elif [ "${{ github.event.inputs.force_data_refresh }}" = "true" ]; then
           echo "🔄 Force refresh requested"
-          should_generate_data=true
-        elif data_is_stale; then
-          echo "⏰ Existing data is stale (>24h old)"
-          should_generate_data=true
+          should_generate_data="true"
+        elif [ -f "dashboard/public/data/metadata.json" ]; then
+          # Simple staleness check using file age (24 hours = 1440 minutes)
+          if [ $(find dashboard/public/data/metadata.json -mmin +1440 | wc -l) -gt 0 ]; then
+            echo "⏰ Existing data is stale (>24h old)"
+            should_generate_data="true"
+          else
+            echo "✅ Fresh dashboard data found"
+          fi
         else
-          echo "✅ Fresh dashboard data found"
-          ls -la dashboard/public/data/
+          echo "⚠️  Metadata missing, assuming stale data"
+          should_generate_data="true"
         fi
         
         # Generate data if needed
@@ -95,7 +75,9 @@ jobs:
           echo "🔄 Generating fresh dashboard data..."
           
           # Attempt data generation with timeout
-          timeout 300 python -m src.lineup_tracker.async_main export --export-dir dashboard/public/data || {
+          if timeout 300 python -m src.lineup_tracker.async_main export --export-dir dashboard/public/data; then
+            echo "✅ Data generation successful"
+          else
             echo "⚠️  Data generation failed or timed out, checking for any existing data..."
             
             if [ ! -f "dashboard/public/data/squad.json" ]; then
@@ -107,21 +89,22 @@ jobs:
             else
               echo "⚠️  Using existing data despite generation failure"
             fi
-          }
-          
-          # Verify the generated/existing data
-          echo "🔍 Verifying dashboard data..."
-          required_files=("squad.json" "matches.json" "gameweek_matches.json" "lineup_status.json" "metadata.json" "status.json")
-          
-          for file in "${required_files[@]}"; do
-            if [ ! -f "dashboard/public/data/$file" ]; then
-              echo "❌ Missing required file: $file"
-              exit 1
-            else
-              echo "✅ $file ($(stat -f%z "dashboard/public/data/$file" 2>/dev/null || stat -c%s "dashboard/public/data/$file" 2>/dev/null) bytes)"
-            fi
-          done
+          fi
         fi
+        
+        # Verify the data files exist
+        echo "🔍 Verifying dashboard data..."
+        required_files="squad.json matches.json gameweek_matches.json lineup_status.json metadata.json status.json"
+        
+        for file in $required_files; do
+          if [ ! -f "dashboard/public/data/$file" ]; then
+            echo "❌ Missing required file: $file"
+            exit 1
+          else
+            size=$(stat -f%z "dashboard/public/data/$file" 2>/dev/null || stat -c%s "dashboard/public/data/$file" 2>/dev/null)
+            echo "✅ $file ($size bytes)"
+          fi
+        done
         
         echo ""
         echo "📊 Dashboard data summary:"

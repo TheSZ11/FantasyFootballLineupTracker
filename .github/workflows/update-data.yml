@@ -44,37 +44,27 @@ jobs:
     - name: Check if data update needed
       id: check_update
       run: |
-        # Check if we should skip update (data less than 6 hours old, unless forced)
+        should_update="false"
+        
+        # Check if force update requested
         if [ "${{ github.event.inputs.force_update }}" = "true" ]; then
           echo "Force update requested, proceeding..."
-          echo "should_update=true" >> $GITHUB_OUTPUT
-        elif [ -f "dashboard/public/data/metadata.json" ]; then
-          # Check last update time
-          last_update=$(python3 -c "
-          import json, datetime
-          try:
-              with open('dashboard/public/data/metadata.json') as f:
-                  data = json.load(f)
-              last_update = datetime.datetime.fromisoformat(data['generated_at'].replace('Z', '+00:00'))
-              now = datetime.datetime.now(datetime.timezone.utc)
-              hours_diff = (now - last_update).total_seconds() / 3600
-              print(f'Hours since last update: {hours_diff:.1f}')
-              # Update if data is older than 6 hours
-              if hours_diff > 6:
-                  print('true')
-              else:
-                  print('false')
-          except:
-              print('true')  # Update if we can't determine last update time
-          ")
-          echo "should_update=$last_update" >> $GITHUB_OUTPUT
-          if [ "$last_update" = "false" ]; then
+          should_update="true"
+        elif [ ! -f "dashboard/public/data/metadata.json" ]; then
+          echo "No existing data found, proceeding with update"
+          should_update="true"
+        else
+          echo "Checking data age..."
+          # Simple age check using file modification time (approximate)
+          if [ $(find dashboard/public/data/metadata.json -mmin +360 | wc -l) -gt 0 ]; then
+            echo "Data is older than 6 hours, updating"
+            should_update="true"
+          else
             echo "Data is recent (less than 6 hours old), skipping update"
           fi
-        else
-          echo "No existing data found, proceeding with update"
-          echo "should_update=true" >> $GITHUB_OUTPUT
         fi
+        
+        echo "should_update=$should_update" >> $GITHUB_OUTPUT
         
     - name: Generate fresh dashboard data
       if: steps.check_update.outputs.should_update == 'true'
@@ -88,34 +78,22 @@ jobs:
         echo "🔍 Verifying generated data..."
         
         # Check that required files exist
-        required_files=(
-          "dashboard/public/data/squad.json"
-          "dashboard/public/data/matches.json"
-          "dashboard/public/data/gameweek_matches.json"
-          "dashboard/public/data/lineup_status.json"
-          "dashboard/public/data/metadata.json"
-          "dashboard/public/data/status.json"
-        )
+        required_files="squad.json matches.json gameweek_matches.json lineup_status.json metadata.json status.json"
         
-        missing_files=()
-        for file in "${required_files[@]}"; do
-          if [ ! -f "$file" ]; then
-            missing_files+=("$file")
+        for file in $required_files; do
+          if [ ! -f "dashboard/public/data/$file" ]; then
+            echo "❌ Missing required file: $file"
+            exit 1
           else
-            echo "✅ $file exists ($(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null) bytes)"
+            size=$(stat -f%z "dashboard/public/data/$file" 2>/dev/null || stat -c%s "dashboard/public/data/$file" 2>/dev/null)
+            echo "✅ $file ($size bytes)"
           fi
         done
         
-        if [ ${#missing_files[@]} -ne 0 ]; then
-          echo "❌ Missing required data files:"
-          printf '   - %s\n' "${missing_files[@]}"
-          exit 1
-        fi
-        
-        # Validate JSON format
+        # Basic JSON validation
         echo "🔍 Validating JSON format..."
-        for file in "${required_files[@]}"; do
-          if ! python3 -m json.tool "$file" > /dev/null 2>&1; then
+        for file in $required_files; do
+          if ! python3 -m json.tool "dashboard/public/data/$file" >/dev/null 2>&1; then
             echo "❌ Invalid JSON format in $file"
             exit 1
           fi
@@ -148,38 +126,19 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action - Data Update"
         
-        # Create commit with timestamp and metadata
+        # Create commit with timestamp
         commit_timestamp=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
         
-        # Get some metadata for the commit message
-        squad_count=$(python3 -c "
-        import json
-        try:
-            with open('dashboard/public/data/squad.json') as f:
-                data = json.load(f)
-            print(len(data.get('players', [])))
-        except:
-            print('unknown')
-        ")
+        # Simple metadata gathering (basic file info)
+        squad_size=$(wc -l < dashboard/public/data/squad.json || echo "unknown")
+        matches_size=$(wc -l < dashboard/public/data/matches.json || echo "unknown")
         
-        matches_count=$(python3 -c "
-        import json
-        try:
-            with open('dashboard/public/data/matches.json') as f:
-                data = json.load(f)
-            print(len(data.get('matches', [])))
-        except:
-            print('unknown')
-        ")
-        
-        git commit -m "🤖 Automated data update - $commit_timestamp
-
-        📊 Updated dashboard data:
-        - Squad players: $squad_count
-        - Today's matches: $matches_count
-        - Generated: $commit_timestamp
-        
-        [skip ci] [automated-update]"
+        git commit -m "🤖 Automated data update - $commit_timestamp" \
+                   -m "📊 Updated dashboard data files" \
+                   -m "- Generated: $commit_timestamp" \
+                   -m "- Squad data: $squad_size lines" \
+                   -m "- Matches data: $matches_size lines" \
+                   -m "[skip ci] [automated-update]"
         
     - name: Push changes
       if: steps.check_update.outputs.should_update == 'true' && steps.check_changes.outputs.has_changes == 'true'
