@@ -30,6 +30,29 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     
+    env:
+      # Required Fantrax configuration
+      FANTRAX_ENABLED: true
+      FANTRAX_LEAGUE_ID: ${{ secrets.FANTRAX_LEAGUE_ID }}
+      FANTRAX_TEAM_ID: ${{ secrets.FANTRAX_TEAM_ID }}
+      FANTRAX_BASE_URL: https://www.fantrax.com/fxea/general
+      FANTRAX_TIMEOUT_SECONDS: 30
+      FANTRAX_MAX_RETRIES: 3
+      
+      # API Configuration
+      API_BASE_URL: https://api.sofascore.com
+      API_TIMEOUT_SECONDS: 30
+      API_MAX_RETRIES: 3
+      API_RATE_LIMIT_PER_MINUTE: 60
+      
+      # Notification settings (disabled for automation)
+      EMAIL_ENABLED: false
+      DISCORD_ENABLED: false
+      SEND_STARTUP_NOTIFICATIONS: false
+      SEND_SHUTDOWN_NOTIFICATIONS: false
+      SEND_ERROR_NOTIFICATIONS: false
+      SEND_CONFIRMATION_ALERTS: false
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4

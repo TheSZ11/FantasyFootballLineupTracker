@@ -58,6 +58,24 @@ This approach provides reliable automation while maintaining data freshness and 
 
 ## Configuration
 
+### Required GitHub Secrets
+
+Before the workflows can run, you need to set up the required secrets in your GitHub repository:
+
+1. **Go to your GitHub repository**
+2. **Navigate to Settings → Secrets and variables → Actions**  
+3. **Add the following Repository Secrets:**
+
+| Secret Name | Description | Example Value |
+|-------------|-------------|---------------|
+| `FANTRAX_LEAGUE_ID` | Your Fantrax league identifier | `ABC123DEF` |
+| `FANTRAX_TEAM_ID` | Your specific team ID within the league | `456789` |
+
+**To find your Fantrax IDs:**
+- Go to your Fantrax league page
+- Check the URL: `https://www.fantrax.com/fantasy/league/ABC123DEF/team/roster;teamId=456789`
+- `ABC123DEF` = League ID, `456789` = Team ID
+
 ### Scheduling
 
 The data update runs **every Thursday at 8:00 AM UTC**. To change this:
