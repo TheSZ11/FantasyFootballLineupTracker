@@ -91,18 +91,32 @@ class Lineup:
     team: Team
     starting_eleven: List[str]  # Player names
     substitutes: List[str] = field(default_factory=list)
+    formation: Optional[str] = None
+    confirmed: bool = False  # Whether lineup is officially confirmed
     
     def __post_init__(self):
         if len(self.starting_eleven) != 11:
             raise InvalidDataError(f"Starting eleven must have 11 players, got {len(self.starting_eleven)}")
     
+    @property
+    def is_confirmed(self) -> bool:
+        """Check if lineup is officially confirmed."""
+        return self.confirmed
+    
+    @property 
+    def is_predicted(self) -> bool:
+        """Check if lineup is predicted (not yet confirmed)."""
+        return not self.confirmed
+    
     def has_player_starting(self, player_name: str) -> bool:
-        """Check if a player is in the starting eleven."""
-        return player_name in self.starting_eleven
+        """Check if a player is in the starting eleven using normalized name matching."""
+        from ..utils.team_mappings import names_match
+        return any(names_match(player_name, starter) for starter in self.starting_eleven)
     
     def has_player_on_bench(self, player_name: str) -> bool:
-        """Check if a player is on the bench."""
-        return player_name in self.substitutes
+        """Check if a player is on the bench using normalized name matching."""
+        from ..utils.team_mappings import names_match
+        return any(names_match(player_name, sub) for sub in self.substitutes)
 
 
 @dataclass

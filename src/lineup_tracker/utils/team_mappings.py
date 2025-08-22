@@ -5,6 +5,7 @@ This module maps team abbreviations from CSV files to the full team names
 used by APIs and provides utilities for team name standardization.
 """
 
+import unicodedata
 from typing import Dict, List
 
 # Team abbreviation to full name mapping
@@ -171,3 +172,62 @@ def get_team_mapping_info() -> Dict[str, Dict[str, str]]:
         'total_teams': len(TEAM_ABBREVIATIONS),
         'total_variants': len(TEAM_NAME_VARIANTS)
     }
+
+
+def normalize_player_name(player_name: str) -> str:
+    """
+    Normalize player name for matching across different data sources.
+    
+    This function handles:
+    - Unicode character normalization (ø -> o, ä -> a, etc.)
+    - Case normalization
+    - Whitespace normalization
+    
+    Args:
+        player_name: Player name to normalize
+        
+    Returns:
+        Normalized player name for consistent matching
+    """
+    if not player_name:
+        return player_name
+    
+    # Manual character replacements for common football names
+    # This approach is more reliable than unicodedata for our use case
+    char_map = {
+        'ø': 'o', 'Ø': 'o',
+        'ä': 'a', 'Ä': 'a', 'à': 'a', 'À': 'a', 'á': 'a', 'Á': 'a', 'â': 'a', 'Â': 'a', 'ã': 'a', 'Ã': 'a',
+        'é': 'e', 'É': 'e', 'è': 'e', 'È': 'e', 'ê': 'e', 'Ê': 'e', 'ë': 'e', 'Ë': 'e',
+        'í': 'i', 'Í': 'i', 'ì': 'i', 'Ì': 'i', 'î': 'i', 'Î': 'i', 'ï': 'i', 'Ï': 'i',
+        'ó': 'o', 'Ó': 'o', 'ò': 'o', 'Ò': 'o', 'ô': 'o', 'Ô': 'o', 'õ': 'o', 'Õ': 'o', 'ö': 'o', 'Ö': 'o',
+        'ú': 'u', 'Ú': 'u', 'ù': 'u', 'Ù': 'u', 'û': 'u', 'Û': 'u', 'ü': 'u', 'Ü': 'u',
+        'ñ': 'n', 'Ñ': 'n',
+        'ç': 'c', 'Ç': 'c',
+        'ß': 'ss',
+        # Add more as needed for specific players
+    }
+    
+    # Apply character replacements
+    normalized = player_name
+    for old_char, new_char in char_map.items():
+        normalized = normalized.replace(old_char, new_char)
+    
+    # Convert to lowercase and normalize whitespace
+    return ' '.join(normalized.lower().split())
+
+
+def names_match(name1: str, name2: str) -> bool:
+    """
+    Check if two player names match after normalization.
+    
+    Args:
+        name1: First player name
+        name2: Second player name
+        
+    Returns:
+        True if names match after normalization
+    """
+    if not name1 or not name2:
+        return name1 == name2
+    
+    return normalize_player_name(name1) == normalize_player_name(name2)

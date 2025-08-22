@@ -88,7 +88,7 @@ Each player is displayed as a card with color-coded status:
 
 - **🟢 Starting (Green)**: Player is confirmed in the starting XI
 - **🔴 Benched (Red)**: Player is confirmed on the bench
-- **🟡 Pending (Yellow)**: Lineup not yet announced
+- **🔮 Predicted (Blue)**: Predicted lineup available
 - **⚪ No Match (Gray)**: Player's team has no match today
 
 ### Filter Tabs
@@ -98,7 +98,7 @@ Use the filter tabs to focus on specific players:
 - **All Players**: Your complete roster from Fantrax
 - **Starters**: Only players marked as active in your Fantrax team
 - **Playing Today**: Players whose teams have matches today
-- **Pending**: Players with lineups not yet confirmed
+- **With Predictions**: Players with lineup predictions available
 
 ### Header Information
 

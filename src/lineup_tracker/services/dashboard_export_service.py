@@ -407,30 +407,48 @@ class DashboardExportService:
                             else match.home_team.name
                         )
                         
-                        # Determine lineup status
-                        if match.status == MatchStatus.NOT_STARTED:
-                            lineup_status = "lineup_pending"
-                        else:
-                            # Try to get actual lineup status
-                            try:
-                                lineups = await self.football_api.get_lineups(match.id)
+                        # Try to get actual lineup status first
+                        try:
+                            # Get both home and away lineups
+                            lineups = await self.football_api.get_match_lineups(match.id)
+                            
+                            if lineups:
+                                # Determine which lineup to check based on player's team
+                                player_team_lineup = None
                                 player_full_team_name = get_full_team_name(player.team.name)
-                                team_lineup = next((
-                                    l for l in lineups 
-                                    if normalize_team_name(l.team.name).lower() == normalize_team_name(player_full_team_name).lower()
-                                ), None)
                                 
-                                if team_lineup:
-                                    if team_lineup.has_player_starting(player.name):
-                                        lineup_status = "confirmed_starting"
-                                    elif team_lineup.has_player_on_bench(player.name):
-                                        lineup_status = "confirmed_bench"
+                                # Check if player's team is home or away
+                                if normalize_team_name(match.home_team.name).lower() == normalize_team_name(player_full_team_name).lower():
+                                    player_team_lineup = lineups.get('home')
+                                elif normalize_team_name(match.away_team.name).lower() == normalize_team_name(player_full_team_name).lower():
+                                    player_team_lineup = lineups.get('away')
+                                
+                                if player_team_lineup:
+                                    # Check player's status in their team's lineup
+                                    if player_team_lineup.has_player_starting(player.name):
+                                        if player_team_lineup.is_confirmed:
+                                            lineup_status = "confirmed_starting"
+                                        else:
+                                            lineup_status = "predicted_starting"
+                                    elif player_team_lineup.has_player_on_bench(player.name):
+                                        if player_team_lineup.is_confirmed:
+                                            lineup_status = "confirmed_bench"
+                                        else:
+                                            lineup_status = "predicted_bench"
                                     else:
-                                        lineup_status = "not_in_squad"
+                                        # Player not in their team's lineup
+                                        if player_team_lineup.is_confirmed:
+                                            lineup_status = "not_in_squad"
+                                        else:
+                                            lineup_status = "predicted_unavailable"
                                 else:
+                                    # Couldn't match player's team to home/away - team matching issue
                                     lineup_status = "lineup_unavailable"
-                            except:
+                            else:
                                 lineup_status = "lineup_unavailable"
+                        except:
+                            # If we can't get lineup data, mark as unavailable
+                            lineup_status = "lineup_unavailable"
                         break
                 
                 # Calculate status color for dashboard
@@ -464,7 +482,9 @@ class DashboardExportService:
                 'players_with_matches_today': len([p for p in player_status if p['match_info']]),
                 'confirmed_starting': len([p for p in player_status if p['lineup_status'] == 'confirmed_starting']),
                 'confirmed_bench': len([p for p in player_status if p['lineup_status'] == 'confirmed_bench']),
-                'lineup_pending': len([p for p in player_status if p['lineup_status'] == 'lineup_pending']),
+                'predicted_starting': len([p for p in player_status if p['lineup_status'] == 'predicted_starting']),
+                'predicted_bench': len([p for p in player_status if p['lineup_status'] == 'predicted_bench']),
+                'players_with_predictions': len([p for p in player_status if p['lineup_status'] in ['predicted_starting', 'predicted_bench', 'predicted_unavailable']]),
                 'no_match_today': len([p for p in player_status if p['lineup_status'] == 'no_match_today'])
             }
             
@@ -563,12 +583,16 @@ class DashboardExportService:
         """Get color code for player status in dashboard."""
         if lineup_status == "no_match_today":
             return "gray"
-        elif lineup_status == "lineup_pending":
-            return "yellow"
         elif lineup_status == "confirmed_starting":
             return "green" if player.is_active else "orange"  # Orange if unexpected starter
         elif lineup_status == "confirmed_bench":
             return "red" if player.is_active else "gray"     # Red if unexpected bench
+        elif lineup_status == "predicted_starting":
+            return "lightgreen" if player.is_active else "lightorange"  # Lighter colors for predictions
+        elif lineup_status == "predicted_bench":
+            return "lightorange" if player.is_active else "lightgray"   # Orange/gray for predicted bench
+        elif lineup_status == "predicted_unavailable":
+            return "lightgray"   # Light gray for predicted unavailable
         else:
             return "gray"  # For unavailable/unknown status
     

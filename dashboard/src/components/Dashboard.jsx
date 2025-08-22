@@ -20,7 +20,6 @@ const Dashboard = ({ data }) => {
     if (filterStatus === 'all') return true
     if (filterStatus === 'active') return player.is_expected_starter
     if (filterStatus === 'matches_today') return isPlayingToday(player)
-    if (filterStatus === 'lineup_pending') return player.lineup_status === 'lineup_pending'
     return true
   })
 
@@ -78,16 +77,6 @@ const Dashboard = ({ data }) => {
               }`}
             >
               Playing Today ({getPlayersPlayingToday(players).length})
-            </button>
-            <button
-              onClick={() => setFilterStatus('lineup_pending')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                filterStatus === 'lineup_pending'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
-              }`}
-            >
-              Lineup Pending ({summary.lineup_pending})
             </button>
             <button
               onClick={() => setFilterStatus('formation')}

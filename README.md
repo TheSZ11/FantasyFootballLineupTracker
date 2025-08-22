@@ -222,14 +222,14 @@ npm run deploy
 1. **View Player Status**: Each player card shows:
    - ✅ **Starting** (Green): Player is confirmed starting
    - ⭕ **Benched** (Red): Player is confirmed on bench  
-   - ⏳ **Pending** (Yellow): Lineup not yet announced
+   - 🔮 **Predicted** (Blue): Predicted lineup available
    - ⚪ **No Match** (Gray): No match today
 
 2. **Filter Players**: Use the tabs to filter:
    - **All Players**: Your complete roster
    - **Starters**: Only players expected to start
    - **Playing Today**: Players with matches today
-   - **Pending**: Players with unconfirmed lineups
+   - **With Predictions**: Players with lineup predictions available
 
 3. **Refresh Data**: Click the refresh button to update with latest lineup information
 

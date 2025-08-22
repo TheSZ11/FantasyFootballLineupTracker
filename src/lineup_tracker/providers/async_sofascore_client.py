@@ -200,10 +200,9 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
     @cached_async(ttl=300)  # Cache lineups for 5 minutes
     @retry(max_attempts=3)
     @timeout(30)
-    @log_performance
     async def get_lineup(self, match_id: str) -> Optional[Lineup]:
         """
-        Get lineup for a specific match with caching and error handling.
+        Get single lineup for backward compatibility. Use get_match_lineups for both teams.
         
         Args:
             match_id: Unique match identifier
@@ -237,7 +236,16 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
                         return None
                     
                     # Convert to our domain model
-                    lineup = self._convert_lineup_data(lineup_data, match_id)
+                    lineups = self._convert_lineup_data(lineup_data, match_id)
+                    
+                    # For backward compatibility, return the first available lineup
+                    # TODO: Update callers to handle both home/away lineups
+                    if 'home' in lineups:
+                        lineup = lineups['home']
+                    elif 'away' in lineups:
+                        lineup = lineups['away']
+                    else:
+                        return None
                     
                     self._request_count += 1
                     self._total_response_time += (time.time() - start_time)
@@ -259,6 +267,69 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
         except Exception as e:
             self._error_count += 1
             logger.error(f"Error fetching lineup for {match_id}: {e}")
+            raise FootballDataProviderError(f"Unexpected error: {e}")
+    
+    @cached_async(ttl=300)  # Cache lineups for 5 minutes
+    @retry(max_attempts=3)
+    @timeout(30)
+    async def get_match_lineups(self, match_id: str) -> Dict[str, Lineup]:
+        """
+        Get both home and away lineups for a match.
+        
+        Args:
+            match_id: Unique match identifier
+            
+        Returns:
+            Dict with 'home' and 'away' Lineup objects
+            
+        Raises:
+            FootballDataProviderError: When API fails
+        """
+        try:
+            await self._rate_limiter.acquire()
+            
+            async with self._request_semaphore:
+                request_id = f"both_lineups_{match_id}_{int(time.time())}"
+                
+                if request_id in self._active_requests:
+                    logger.warning(f"Duplicate lineup request: {match_id}")
+                    await asyncio.sleep(0.1)
+                
+                self._active_requests.add(request_id)
+                
+                try:
+                    start_time = time.time()
+                    
+                    # Fetch lineup data from API
+                    lineup_data = await self._fetch_lineup_from_api(match_id)
+                    
+                    if not lineup_data:
+                        logger.debug(f"No lineup available for match {match_id}")
+                        return {}
+                    
+                    # Convert to our domain models (returns dict with home/away)
+                    lineups = self._convert_lineup_data(lineup_data, match_id)
+                    
+                    self._request_count += 1
+                    self._total_response_time += (time.time() - start_time)
+                    
+                    logger.info(f"Retrieved both lineups for match {match_id}")
+                    return lineups
+                    
+                finally:
+                    self._active_requests.discard(request_id)
+                    
+        except aiohttp.ClientResponseError as e:
+            if e.status == 404:
+                logger.debug(f"Lineups not yet available for match {match_id}")
+                return {}
+            
+            self._error_count += 1
+            logger.error(f"HTTP error fetching lineups for {match_id}: {e}")
+            raise FootballDataProviderError(f"Failed to fetch lineups: {e}")
+        except Exception as e:
+            self._error_count += 1
+            logger.error(f"Error fetching lineups for {match_id}: {e}")
             raise FootballDataProviderError(f"Unexpected error: {e}")
     
     async def get_multiple_lineups(self, match_ids: List[str]) -> List[Optional[Lineup]]:
@@ -656,37 +727,54 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
                 status=MatchStatus.NOT_STARTED
             )
     
-    def _convert_lineup_data(self, lineup_data: Dict[str, Any], match_id: str) -> Lineup:
-        """Convert Sofascore lineup data to our Lineup model."""
+    def _convert_lineup_data(self, lineup_data: Dict[str, Any], match_id: str) -> Dict[str, Lineup]:
+        """Convert Sofascore lineup data to our Lineup models for both teams."""
         try:
             home_lineup = lineup_data.get('home_lineup', {})
             away_lineup = lineup_data.get('away_lineup', {})
             
-            # Extract starting lineups
-            home_starting = self._extract_starting_eleven(home_lineup)
-            away_starting = self._extract_starting_eleven(away_lineup)
+            lineups = {}
             
-            # Determine which team we're tracking (this would need to be enhanced)
-            # For now, we'll create lineup for home team
-            team_name = home_lineup.get('team', {}).get('name', 'Unknown')
-            team = Team(name=team_name, abbreviation=team_name[:3].upper())
+            # Process home team lineup
+            if home_lineup:
+                home_starting = self._extract_starting_eleven_new(home_lineup)
+                home_subs = self._extract_substitutes_new(home_lineup)
+                
+                # Get team name from lineup data if available, otherwise use placeholder
+                home_team_name = home_lineup.get('team', {}).get('name', 'Home Team')
+                home_team = Team(name=home_team_name, abbreviation=home_team_name[:3].upper())
+                
+                lineups['home'] = Lineup(
+                    team=home_team,
+                    starting_eleven=home_starting,
+                    substitutes=home_subs,
+                    formation=home_lineup.get('formation', '4-4-2'),
+                    confirmed=home_lineup.get('confirmed', False)
+                )
             
-            return Lineup(
-                team=team,
-                starting_eleven=home_starting,
-                substitutes=self._extract_substitutes(home_lineup),
-                formation=home_lineup.get('formation', '4-4-2')
-            )
+            # Process away team lineup
+            if away_lineup:
+                away_starting = self._extract_starting_eleven_new(away_lineup)
+                away_subs = self._extract_substitutes_new(away_lineup)
+                
+                # Get team name from lineup data if available, otherwise use placeholder
+                away_team_name = away_lineup.get('team', {}).get('name', 'Away Team')
+                away_team = Team(name=away_team_name, abbreviation=away_team_name[:3].upper())
+                
+                lineups['away'] = Lineup(
+                    team=away_team,
+                    starting_eleven=away_starting,
+                    substitutes=away_subs,
+                    formation=away_lineup.get('formation', '4-4-2'),
+                    confirmed=away_lineup.get('confirmed', False)
+                )
+            
+            return lineups
             
         except Exception as e:
             logger.error(f"Error converting lineup data: {e}")
-            # Return a minimal lineup
-            return Lineup(
-                team=Team(name="Unknown", abbreviation="UNK"),
-                starting_eleven=[f"Player {i}" for i in range(1, 12)],
-                substitutes=[],
-                formation="4-4-2"
-            )
+            # Return empty dict on error
+            return {}
     
     def _extract_starting_eleven(self, lineup_data: Dict[str, Any]) -> List[str]:
         """Extract starting eleven player names from lineup data."""
@@ -722,6 +810,40 @@ class AsyncSofascoreClient(BaseFootballDataProvider):
             
         except Exception as e:
             logger.error(f"Error extracting substitutes: {e}")
+            return []
+    
+    def _extract_starting_eleven_new(self, lineup_data: Dict[str, Any]) -> List[str]:
+        """Extract starting eleven player names from new API structure."""
+        try:
+            starters = lineup_data.get('starters', [])
+            starting = [
+                player.get('player', {}).get('name', 'Unknown')
+                for player in starters
+            ]
+            
+            # Ensure we have 11 players
+            while len(starting) < 11:
+                starting.append(f"Player {len(starting) + 1}")
+            
+            return starting[:11]
+            
+        except Exception as e:
+            logger.error(f"Error extracting starting eleven from new format: {e}")
+            return [f"Player {i}" for i in range(1, 12)]
+    
+    def _extract_substitutes_new(self, lineup_data: Dict[str, Any]) -> List[str]:
+        """Extract substitute player names from new API structure."""
+        try:
+            substitutes = lineup_data.get('substitutes', [])
+            subs = [
+                player.get('player', {}).get('name', 'Unknown')
+                for player in substitutes
+            ]
+            
+            return subs
+            
+        except Exception as e:
+            logger.error(f"Error extracting substitutes from new format: {e}")
             return []
     
     async def get_performance_stats(self) -> Dict[str, Any]:

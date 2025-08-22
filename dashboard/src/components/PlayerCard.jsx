@@ -74,13 +74,11 @@ const PlayerCard = ({ player }) => {
       case 'confirmed_bench':
         return player.is_expected_starter ? 'Benched ✗' : 'On Bench'
       case 'predicted_starting':
-        return player.is_expected_starter ? 'Predicted Starting 🔮' : 'Surprise Prediction!'
+        return player.is_expected_starter ? 'Predicted Starting 🔮' : 'Predicted Starting 🔮'
       case 'predicted_bench':
         return player.is_expected_starter ? 'Predicted Bench 😰' : 'Predicted Sub'
       case 'predicted_unavailable':
         return 'Predicted Unavailable ⚠️'
-      case 'lineup_pending':
-        return 'Lineup TBD'
       case 'no_match_today':
         return 'No Match Today'
       case 'no_prediction':
@@ -102,8 +100,6 @@ const PlayerCard = ({ player }) => {
         return player.is_expected_starter ? '😰' : '🔮'
       case 'predicted_unavailable':
         return '⚠️'
-      case 'lineup_pending':
-        return '⏱️'
       case 'no_match_today':
         return '😴'
       case 'no_prediction':
@@ -186,8 +182,6 @@ const PlayerCard = ({ player }) => {
             ? player.is_expected_starter ? 'text-orange-500' : 'text-gray-500'
             : player.lineup_status === 'predicted_unavailable'
             ? 'text-red-400'
-            : player.lineup_status === 'lineup_pending'
-            ? 'text-yellow-600'
             : 'text-gray-500'
         }`}>
           {getStatusText()}

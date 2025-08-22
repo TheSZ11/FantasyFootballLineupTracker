@@ -87,7 +87,7 @@ Fantrax API → Python Backend → JSON Export → React Dashboard
 
 - **🟢 Green (Starting)**: Player confirmed in starting XI
 - **🔴 Red (Benched)**: Player confirmed on bench
-- **🟡 Yellow (Pending)**: Lineup not yet announced
+- **🔮 Blue (Predicted)**: Predicted lineup available
 - **⚪ Gray (No Match)**: Player's team has no match today
 
 ### Filter Options
@@ -95,7 +95,7 @@ Fantrax API → Python Backend → JSON Export → React Dashboard
 - **All Players**: Complete roster view
 - **Starters**: Only active players in your Fantrax team
 - **Playing Today**: Players with matches today
-- **Pending**: Players awaiting lineup confirmation
+- **With Predictions**: Players with lineup predictions available
 
 ### Header Information
 

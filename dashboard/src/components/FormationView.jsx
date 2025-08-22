@@ -134,10 +134,6 @@ const FormationView = ({ players }) => {
             <span className="text-gray-300">Surprise</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center text-xs">⏱️</div>
-            <span className="text-gray-300">Pending</span>
-          </div>
-          <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-gray-500 rounded-full flex items-center justify-center text-xs grayscale">⚽</div>
             <span className="text-gray-300">No Match</span>
           </div>
@@ -179,7 +175,7 @@ const PlayerFormationCard = ({ player }) => {
     }
     
     if (!player.is_expected_starter && player.lineup_status === 'confirmed_starting') {
-      return { emoji: '⚡', color: 'bg-orange-500', alert: true, text: 'Surprise start!' }
+      return { emoji: '✅', color: 'bg-green-500', alert: false, text: 'Confirmed' }
     }
     
     // Predicted lineups (medium priority)
@@ -192,16 +188,11 @@ const PlayerFormationCard = ({ player }) => {
     }
     
     if (!player.is_expected_starter && player.lineup_status === 'predicted_starting') {
-      return { emoji: '💫', color: 'bg-purple-500', alert: true, text: 'Surprise prediction!' }
+      return { emoji: '🔮', color: 'bg-blue-500', alert: false, text: 'Predicted start' }
     }
     
     if (player.lineup_status === 'predicted_unavailable') {
       return { emoji: '⚠️', color: 'bg-red-400', alert: true, text: 'Predicted out' }
-    }
-    
-    // Lineup pending - neutral but informative
-    if (player.lineup_status === 'lineup_pending') {
-      return { emoji: '⏱️', color: 'bg-yellow-500', alert: false, text: 'Pending' }
     }
     
     // No indicator for normal cases (no match today, etc.)
@@ -290,11 +281,6 @@ const BenchPlayerCard = ({ player }) => {
     // Bench player confirmed on bench (expected)
     if (!player.is_expected_starter && player.lineup_status === 'confirmed_bench') {
       return { emoji: '⏸️', color: 'bg-gray-500', alert: false }
-    }
-    
-    // Lineup pending
-    if (player.lineup_status === 'lineup_pending') {
-      return { emoji: '⏱️', color: 'bg-yellow-500', alert: false }
     }
     
     return null

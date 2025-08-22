@@ -32,16 +32,18 @@ const MatchOverview = ({ matches }) => {
     const confirmed = players.filter(p => 
       p.lineup_status === 'confirmed_starting' || p.lineup_status === 'confirmed_bench'
     ).length
-    const pending = players.filter(p => p.lineup_status === 'lineup_pending').length
+    const predicted = players.filter(p => 
+      p.lineup_status === 'predicted_starting' || p.lineup_status === 'predicted_bench'
+    ).length
     
-    return { confirmed, pending }
+    return { confirmed, predicted }
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {matches.map(match => {
         const timeUntil = getTimeUntilKickoff(match.kickoff)
-        const { confirmed, pending } = getPlayersByStatus(match.players)
+        const { confirmed, predicted } = getPlayersByStatus(match.players)
         
         return (
           <div key={match.id} className="bg-gray-800 rounded-lg shadow-md p-4 border border-gray-700">
@@ -92,7 +94,7 @@ const MatchOverview = ({ matches }) => {
               {/* Status Summary */}
               <div className="flex justify-between text-xs text-gray-400 border-t border-gray-600 pt-2">
                 <span>Confirmed: {confirmed}</span>
-                <span>Pending: {pending}</span>
+                <span>Predicted: {predicted}</span>
               </div>
             </div>
           </div>
