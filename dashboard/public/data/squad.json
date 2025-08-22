@@ -1,20 +1,20 @@
 {
-  "last_updated": "2025-08-22T00:45:23.020723",
+  "last_updated": "2025-08-22T14:14:02.371769",
   "total_players": 15,
   "active_players": 11,
   "reserve_players": 4,
   "teams_represented": [
     "BRF",
-    "BUR",
-    "BHA",
+    "WHU",
     "BOU",
-    "LIV",
-    "EVE",
+    "BUR",
     "SUN",
     "WOL",
-    "LEE",
+    "LIV",
+    "BHA",
     "MUN",
-    "WHU"
+    "LEE",
+    "EVE"
   ],
   "players": [
     {
