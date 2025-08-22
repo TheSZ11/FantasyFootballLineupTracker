@@ -5,7 +5,7 @@ import MatchOverview from './MatchOverview'
 import FormationView from './FormationView'
 import { isPlayingToday, getTodaysMatches, getPlayersPlayingToday } from '../utils/matchUtils'
 
-const Dashboard = ({ data, onRefresh, refreshing = false }) => {
+const Dashboard = ({ data }) => {
   const [filterStatus, setFilterStatus] = useState('all')
   
   if (!data || !data.lineup) {
@@ -33,8 +33,6 @@ const Dashboard = ({ data, onRefresh, refreshing = false }) => {
         summary={summary}
         status={status}
         metadata={metadata}
-        onRefresh={onRefresh}
-        refreshing={refreshing}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

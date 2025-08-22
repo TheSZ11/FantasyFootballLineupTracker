@@ -6,25 +6,17 @@ function App() {
   const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [refreshing, setRefreshing] = useState(false)
 
-  const loadDashboardData = async (isRefresh = false) => {
-    if (isRefresh) {
-      setRefreshing(true)
-    } else {
-      setLoading(true)
-    }
+  const loadDashboardData = async () => {
+    setLoading(true)
     setError(null)
     
     try {
-      // Add cache busting for refresh
-      const timestamp = isRefresh ? `?t=${Date.now()}` : ''
-      
       // Load all the JSON data files
       const [lineupResponse, statusResponse, metaResponse] = await Promise.all([
-        fetch(`./data/lineup_status.json${timestamp}`),
-        fetch(`./data/status.json${timestamp}`),
-        fetch(`./data/metadata.json${timestamp}`)
+        fetch('./data/lineup_status.json'),
+        fetch('./data/status.json'),
+        fetch('./data/metadata.json')
       ])
       
       if (!lineupResponse.ok) {
@@ -47,12 +39,7 @@ function App() {
       setError(err.message)
     } finally {
       setLoading(false)
-      setRefreshing(false)
     }
-  }
-
-  const handleRefresh = () => {
-    loadDashboardData(true)
   }
 
   useEffect(() => {
@@ -90,9 +77,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-900">
       <Dashboard 
-        data={dashboardData} 
-        onRefresh={handleRefresh}
-        refreshing={refreshing}
+        data={dashboardData}
       />
     </div>
   )
