@@ -1,12 +1,14 @@
 {
-  "generated_at": "2025-08-22T02:03:48.748715",
+  "generated_at": "2025-08-22T04:34:07.210312",
   "date": "2025-08-22",
   "summary": {
     "total_players": 15,
     "players_with_matches_today": 0,
     "confirmed_starting": 0,
     "confirmed_bench": 0,
-    "lineup_pending": 0,
+    "predicted_starting": 0,
+    "predicted_bench": 0,
+    "players_with_predictions": 0,
     "no_match_today": 15
   },
   "relevant_matches": 0,
