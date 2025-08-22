@@ -1,15 +1,15 @@
 {
-  "generated_at": "2025-08-21T15:51:55.489829",
-  "date": "2025-08-21",
+  "generated_at": "2025-08-22T02:03:48.748715",
+  "date": "2025-08-22",
   "summary": {
     "total_players": 15,
-    "players_with_matches_today": 15,
+    "players_with_matches_today": 0,
     "confirmed_starting": 0,
     "confirmed_bench": 0,
-    "lineup_pending": 15,
-    "no_match_today": 0
+    "lineup_pending": 0,
+    "no_match_today": 15
   },
-  "relevant_matches": 8,
+  "relevant_matches": 0,
   "players": [
     {
       "id": "032f9",
@@ -19,16 +19,10 @@
       "position": "Goalkeeper",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Brighton & Hove Albion",
-      "match_info": {
-        "id": "14025077",
-        "kickoff": "2025-08-24T09:00:00",
-        "status": "NS",
-        "home_team": "Everton",
-        "away_team": "Brighton & Hove Albion"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "06ymu",
@@ -38,16 +32,10 @@
       "position": "Midfielder",
       "expected_status": "Res",
       "is_expected_starter": false,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Chelsea",
-      "match_info": {
-        "id": "14025088",
-        "kickoff": "2025-08-22T15:00:00",
-        "status": "NS",
-        "home_team": "West Ham United",
-        "away_team": "Chelsea"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "062pl",
@@ -57,16 +45,10 @@
       "position": "Defender",
       "expected_status": "Res",
       "is_expected_starter": false,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Fulham",
-      "match_info": {
-        "id": "14025080",
-        "kickoff": "2025-08-24T11:30:00",
-        "status": "NS",
-        "home_team": "Fulham",
-        "away_team": "Manchester United"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "0427d",
@@ -76,16 +58,10 @@
       "position": "Defender",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Brighton & Hove Albion",
-      "match_info": {
-        "id": "14025077",
-        "kickoff": "2025-08-24T09:00:00",
-        "status": "NS",
-        "home_team": "Everton",
-        "away_team": "Brighton & Hove Albion"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "06mow",
@@ -95,16 +71,10 @@
       "position": "Forward",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Bournemouth",
-      "match_info": {
-        "id": "14025062",
-        "kickoff": "2025-08-23T10:00:00",
-        "status": "NS",
-        "home_team": "Bournemouth",
-        "away_team": "Wolverhampton"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "06zce",
@@ -114,16 +84,10 @@
       "position": "Midfielder",
       "expected_status": "Res",
       "is_expected_starter": false,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Bournemouth",
-      "match_info": {
-        "id": "14025062",
-        "kickoff": "2025-08-23T10:00:00",
-        "status": "NS",
-        "home_team": "Bournemouth",
-        "away_team": "Wolverhampton"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "03aqp",
@@ -133,16 +97,10 @@
       "position": "Forward",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Newcastle United",
-      "match_info": {
-        "id": "14147154",
-        "kickoff": "2025-08-25T15:00:00",
-        "status": "NS",
-        "home_team": "Newcastle United",
-        "away_team": "Liverpool"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "063q8",
@@ -152,16 +110,10 @@
       "position": "Midfielder",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Aston Villa",
-      "match_info": {
-        "id": "14025068",
-        "kickoff": "2025-08-23T10:00:00",
-        "status": "NS",
-        "home_team": "Brentford",
-        "away_team": "Aston Villa"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "04adp",
@@ -171,16 +123,10 @@
       "position": "Defender",
       "expected_status": "Res",
       "is_expected_starter": false,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Chelsea",
-      "match_info": {
-        "id": "14025088",
-        "kickoff": "2025-08-22T15:00:00",
-        "status": "NS",
-        "home_team": "West Ham United",
-        "away_team": "Chelsea"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "06uyc",
@@ -190,16 +136,10 @@
       "position": "Defender",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Wolverhampton",
-      "match_info": {
-        "id": "14025062",
-        "kickoff": "2025-08-23T10:00:00",
-        "status": "NS",
-        "home_team": "Bournemouth",
-        "away_team": "Wolverhampton"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "06c4o",
@@ -209,16 +149,10 @@
       "position": "Forward",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Sunderland",
-      "match_info": {
-        "id": "14025071",
-        "kickoff": "2025-08-23T10:00:00",
-        "status": "NS",
-        "home_team": "Burnley",
-        "away_team": "Sunderland"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "06zbx",
@@ -228,16 +162,10 @@
       "position": "Midfielder",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Arsenal",
-      "match_info": {
-        "id": "14025065",
-        "kickoff": "2025-08-23T12:30:00",
-        "status": "NS",
-        "home_team": "Arsenal",
-        "away_team": "Leeds United"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "06p4k",
@@ -247,16 +175,10 @@
       "position": "Defender",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Fulham",
-      "match_info": {
-        "id": "14025080",
-        "kickoff": "2025-08-24T11:30:00",
-        "status": "NS",
-        "home_team": "Fulham",
-        "away_team": "Manchester United"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "062ci",
@@ -266,16 +188,10 @@
       "position": "Midfielder",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Everton",
-      "match_info": {
-        "id": "14025077",
-        "kickoff": "2025-08-24T09:00:00",
-        "status": "NS",
-        "home_team": "Everton",
-        "away_team": "Brighton & Hove Albion"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     },
     {
       "id": "06v0g",
@@ -285,16 +201,10 @@
       "position": "Defender",
       "expected_status": "Act",
       "is_expected_starter": true,
-      "lineup_status": "lineup_pending",
-      "status_color": "yellow",
-      "opponent": "Burnley",
-      "match_info": {
-        "id": "14025071",
-        "kickoff": "2025-08-23T10:00:00",
-        "status": "NS",
-        "home_team": "Burnley",
-        "away_team": "Sunderland"
-      }
+      "lineup_status": "no_match_today",
+      "status_color": "gray",
+      "opponent": null,
+      "match_info": null
     }
   ]
 }
