@@ -95,21 +95,11 @@ jobs:
       run: |
         echo "🔄 Generating fresh dashboard data..."
         
-        # Enhanced connectivity tests
+        # Quick connectivity test
         echo "Testing Fantrax endpoint..."
         curl -s "https://www.fantrax.com/fxea/general/getTeamRosters?leagueId=$FANTRAX_LEAGUE_ID" | head -200 || true
         
-        echo "Testing SofaScore API endpoint..."
-        today=$(date +%Y-%m-%d)
-        curl -s "https://api.sofascore.com/api/v1/sport/football/scheduled-events/$today" | head -500 || true
-        
-        # Run debug script first
-        echo "🔍 Running SofaScore API debug analysis..."
-        python scripts/debug_sofascore.py || true
-        
-        # Generate data with enhanced logging
-        export LOG_LEVEL=DEBUG
-        python -m src.lineup_tracker.async_main export --debug --export-dir dashboard/public/data
+        python -m src.lineup_tracker.async_main export --export-dir dashboard/public/data
         
     - name: Verify data generation
       if: steps.check_update.outputs.should_update == 'true'
