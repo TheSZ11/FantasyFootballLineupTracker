@@ -52,6 +52,7 @@ jobs:
       SEND_SHUTDOWN_NOTIFICATIONS: false
       SEND_ERROR_NOTIFICATIONS: false
       SEND_CONFIRMATION_ALERTS: false
+      LOG_LEVEL: DEBUG
     
     steps:
     - name: Checkout repository

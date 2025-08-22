@@ -120,6 +120,9 @@ class FantraxClient:
                     raise APIError(f"Invalid JSON response from Fantrax API: {e}")
                 
                 if "rosters" not in data:
+                    # Enhanced debugging for GitHub Actions issues
+                    logger.error(f"Fantrax API response missing 'rosters' key. Got keys: {list(data.keys()) if isinstance(data, dict) else type(data).__name__}")
+                    logger.error(f"Response content (first 500 chars): {response_text[:500]}...")
                     raise APIError("Invalid response format from Fantrax API")
                 
                 if team_id not in data["rosters"]:
